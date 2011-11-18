@@ -1,4 +1,4 @@
-<geovista.toolkitcore.VizState>
+<VizState>
   <beanSet>
     <entry>
       <string>TimeSeries</string>
@@ -41,4 +41,4 @@
   </beanSet>
   <indication>0</indication>
   <selectedBean></selectedBean>
-</geovista.toolkitcore.VizState>
+</VizState>

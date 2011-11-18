@@ -88,8 +88,8 @@ public class DataSetLoader {
 		Object[] columnArrays = readFileContent(dataTypes, attrList,
 				config.attr.fileName, 1);
 
-		this.attrData = new AttributeData(dataTypes, attributeNames,
-				columnArrays, nameCol);
+		this.attrData = new AttributeData(nameCol, dataTypes, attributeNames,
+				columnArrays);
 	}
 
 	/**

@@ -26,9 +26,6 @@ public class DataSetForApps {
 		this.timeData = timeData;
 	}
 
-	public DataSetForApps(String[] varNames, Object[] data, int nameCol) {
-		attrData = new AttributeData(varNames, data, nameCol);
-	}
 
 	public String getDataSourceName() {
 		return dataSourceName;

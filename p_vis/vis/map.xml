@@ -1,4 +1,4 @@
-<geovista.toolkitcore.VizState>
+<VizState>
   <beanSet>
     <entry>
       <string>GeoMap</string>
@@ -22,7 +22,7 @@
     <entry>
       <string>VariablePicker</string>
       <ToolkitBean>
-        <objectClass>geovista.common.ui.VariablePicker</objectClass>
+        <objectClass>edu.zjut.common.ui.VariablePicker</objectClass>
         <originalBean/>
         <uniqueName>VariablePicker</uniqueName>
         <internalFrame>
@@ -41,4 +41,4 @@
   </beanSet>
   <indication>0</indication>
   <selectedBean></selectedBean>
-</geovista.toolkitcore.VizState>
+</VizState>

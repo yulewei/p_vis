@@ -38,14 +38,14 @@ public class GeoMap extends JMapPanel implements DataSetListener,
 		dataSet = e.getDataSetForApps();
 		GeometryData geoData = dataSet.getGeoData();
 
-		HashMap<String, Geometry> nameGeometryMap = geoData.nameGeometrys;
+		HashMap<String, Geometry> nameGeometrys = geoData.nameGeometrys;
 		indexMarkerMap = new HashMap<Integer, Overlay>();
 		markerIndexMap = new HashMap<Overlay, Integer>();
 
 		String[] observationNames = dataSet.getObservationNames();
 		for (int i = 0; i < observationNames.length; i++) {
 			String obs = observationNames[i];
-			Geometry geo = nameGeometryMap.get(obs);
+			Geometry geo = nameGeometrys.get(obs);
 			if (geo != null && geo instanceof Point) {
 				MapMarker marker = new MapMarker((Point) geo, obs);
 				marker.setRadius(5);

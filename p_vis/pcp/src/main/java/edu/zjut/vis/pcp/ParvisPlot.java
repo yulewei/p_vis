@@ -556,7 +556,7 @@ public class ParvisPlot extends JPanel implements ProgressListener,
 		} else {
 			countLabel
 					.setText("0 / " + parallelDisplay.getNumRecords() + "   ");
-		}
+		}		
 	}
 
 	public void setModel(ParallelSpaceModel model) {

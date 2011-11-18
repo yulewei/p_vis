@@ -1,0 +1,1 @@
+{"fieldAliases": {"NAME": "NAME", "OBJECTID": "OBJECTID"}, "displayFieldName": "Name", "geometryType": "esriGeometryPolyline", "features": [{"geometry": {"paths": [[[120.21378729475276, 30.40056177240791], [120.23296239258839, 30.408400263810897]]]}, "attributes": {"NAME": " ", "OBJECTID": 1}}], "spatialReference": {"wkid": 2431}}

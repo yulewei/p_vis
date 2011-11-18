@@ -137,8 +137,9 @@ public class GeoVizToolkit extends JFrame implements IndicationListener {
 
 		// VizState state = ToolkitIO.openDefaultLayout();
 		// VizState state = ToolkitIO.getVizStateFromFile("vis_state.xml");
-//		VizState state = ToolkitIO.getVizStateFromFile("map.xml");
-		VizState state = ToolkitIO.getVizStateFromFile("final.xml");
+		VizState state = ToolkitIO.getVizStateFromFile("pcp.xml");
+		// VizState state = ToolkitIO.getVizStateFromFile("map.xml");
+		// VizState state = ToolkitIO.getVizStateFromFile("final.xml");
 
 		setVizState(state);
 
@@ -596,7 +597,7 @@ public class GeoVizToolkit extends JFrame implements IndicationListener {
 	}
 
 	public void indicationChanged(IndicationEvent e) {
-		if (indUI.paintIndication == false)
+		if (indUI == null || indUI.paintIndication == false)
 			return;
 
 		indUI.clear();
@@ -649,5 +650,4 @@ public class GeoVizToolkit extends JFrame implements IndicationListener {
 		}
 		return null;
 	}
-
 }

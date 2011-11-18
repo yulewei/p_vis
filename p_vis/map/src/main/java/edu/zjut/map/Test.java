@@ -20,7 +20,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 
 import edu.zjut.common.data.EsriFeatureObj;
-import edu.zjut.common.data.EsriJSONParser;
+import edu.zjut.common.io.EsriJSONParser;
 import edu.zjut.map.overlay.DefaultMapMarker;
 import edu.zjut.map.overlay.EsriLayer;
 import edu.zjut.map.overlay.IconMarker;
@@ -48,7 +48,7 @@ public class Test {
 		// loadTestPolygon(viewer);
 		// loadTestPolyline(viewer);
 
-		loadHangzhouLayer2(viewer);
+		// loadHangzhouLayer2(viewer);
 		loadHangzhouLayer(viewer);
 		loadHouseData(viewer);
 
@@ -109,7 +109,7 @@ public class Test {
 	}
 
 	public static void loadHouseData(JMapPanel viewer) throws IOException {
-		String infile = "data/smid_geo.csv";
+		String infile = "hz_data/smid_geo.csv";
 		int namecol = 1;
 		int xcol = 4;
 		int ycol = 3;

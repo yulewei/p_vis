@@ -1,0 +1,16 @@
+<config>
+  <serverName>Google Map</serverName>
+  <templateUrl>http://mt.google.com/vt/lyrs=m@161000000&amp;hl=zh-CN&amp;x={x}&amp;y={y}&amp;z={zoom}&amp;s=Ga</templateUrl>
+  <cacheDir>C:/tiles/gmap_hz</cacheDir>
+  <minzoom>1</minzoom>
+  <maxzoom>16</maxzoom>
+  <zoom>11</zoom>
+  <lat>30.30190008</lat>
+  <lon>120.1812215</lon>
+  <isShowStatusBar>true</isShowStatusBar>
+  <isShowCenterCross>true</isShowCenterCross>
+  <isShowScaleRule>false</isShowScaleRule>
+  <isDrawTileBorders>true</isDrawTileBorders>
+  <width>800</width>
+  <height>800</height>
+</config>

@@ -19,27 +19,26 @@ public class AttributeData {
 	public String[] numericAttributeNames;
 	public int numNumericAttributes;
 
-	public AttributeData(AttrType[] dataTypes, String[] varNames,
-			Object[] columnArrays, int nameCol) {
+	public AttributeData(int nameCol, AttrType[] dataTypes, String[] varNames,
+			Object[] columnArrays) {
+		this.nameCol = nameCol;
+
 		this.dataTypes = dataTypes;
 		this.attributeNames = varNames;
 		this.columnArrays = columnArrays;
 
-		this.nameCol = nameCol;
-		
 		// 属性数据, 提取数值部分
 		initDataSetNumeric();
 	}
 
-	public AttributeData(String[] varNames, Object[] columnArrays, int nameCol) {
+	public AttributeData(int nameCol, String[] varNames, Object[] columnArrays) {
+		this.nameCol = nameCol;
 
 		this.attributeNames = varNames;
 		this.columnArrays = columnArrays;
 
-		this.nameCol = nameCol;
-
 		initDataTypes();
-		
+
 		initDataSetNumeric();
 	}
 
@@ -108,7 +107,7 @@ public class AttributeData {
 	public String[] getObservationNames() {
 		return observationNames;
 	}
-	
+
 	/**
 	 * Returns the number of numerical variables (double[], int[], and String[])
 	 */

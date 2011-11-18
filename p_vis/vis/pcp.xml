@@ -1,0 +1,63 @@
+<VizState>
+	<beanSet>
+		<entry>
+			<string>VariablePicker</string>
+			<ToolkitBean>
+				<objectClass>edu.zjut.common.ui.VariablePicker</objectClass>
+				<originalBean />
+				<uniqueName>VariablePicker</uniqueName>
+				<internalFrame>
+					<location>
+						<x>0</x>
+						<y>0</y>
+					</location>
+					<size>
+						<width>160</width>
+						<height>450</height>
+					</size>
+				</internalFrame>
+				<zOrder>2</zOrder>
+			</ToolkitBean>
+		</entry>
+		<entry>
+			<string>ParallelPlot</string>
+			<ToolkitBean>
+				<objectClass>edu.zjut.vis.pcp.ParallelPlot</objectClass>
+				<originalBean />
+				<uniqueName>ParallelPlot</uniqueName>
+				<internalFrame>
+					<location>
+						<x>164</x>
+						<y>0</y>
+					</location>
+					<size>
+						<width>761</width>
+						<height>451</height>
+					</size>
+				</internalFrame>
+				<zOrder>0</zOrder>
+			</ToolkitBean>
+		</entry>
+		<entry>
+			<string>ParallelPlot (2)</string>
+			<ToolkitBean>
+				<objectClass>edu.zjut.vis.pcp.ParallelPlot</objectClass>
+				<originalBean />
+				<uniqueName>ParallelPlot (2)</uniqueName>
+				<internalFrame>
+					<location>
+						<x>415</x>
+						<y>450</y>
+					</location>
+					<size>
+						<width>814</width>
+						<height>449</height>
+					</size>
+				</internalFrame>
+				<zOrder>1</zOrder>
+			</ToolkitBean>
+		</entry>
+	</beanSet>
+	<indication>0</indication>
+	<selectedBean></selectedBean>
+</VizState>
