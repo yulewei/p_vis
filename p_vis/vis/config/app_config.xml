@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beansList>
+	<bean>
+		<objectClass>edu.zjut.vis.map.GeoMap</objectClass>
+		<uniqueName>GeoMap</uniqueName>
+		<x>1</x>
+		<y>1</y>
+		<width>600</width>
+		<height>500</height>
+		<zOrder>2</zOrder>
+	</bean>
+	<bean>
+		<objectClass>edu.zjut.vis.pcp.ParallelPlot</objectClass>
+		<uniqueName>ParallelPlot</uniqueName>
+		<x>100</x>
+		<y>501</y>
+		<width>1000</width>
+		<height>450</height>
+		<zOrder>0</zOrder>
+	</bean>
+</beansList>

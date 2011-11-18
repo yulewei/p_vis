@@ -1,0 +1,74 @@
+<hideData>
+	<fileName>data/soufan_top100.csv</fileName>
+	<fileType>csv</fileType>
+	<ignoreFirstLine>true</ignoreFirstLine>
+	<datasetName>搜房网top100</datasetName>
+
+	<allVariables>
+		<variable>
+			<name>楼盘</name>
+			<colIdx>1</colIdx>
+			<dataType>string</dataType>
+			<hier order="2" />
+		</variable>
+		<variable>
+			<name>点击量</name>
+			<colIdx>2</colIdx>
+			<dataType>float</dataType>
+		</variable>
+		<variable>
+			<name>区县</name>
+			<colIdx>3</colIdx>
+			<dataType>string</dataType>
+			<hier order="1" />
+		</variable>
+		<variable>
+			<name>均价</name>
+			<colIdx>4</colIdx>
+			<dataType>float</dataType>
+		</variable>
+		<variable>
+			<name>lon</name>
+			<colIdx>5</colIdx>
+			<dataType>float</dataType>
+		</variable>
+		<variable>
+			<name>lat</name>
+			<colIdx>6</colIdx>
+			<dataType>float</dataType>
+		</variable>
+	</allVariables>
+
+	<allSummarys>
+		<summary>
+			<name>点击量</name>
+			<refVariable>点击量</refVariable>
+			<summaryType>sum</summaryType>
+			<colorMap preset="OR_RD" />
+			<order />
+			<size />
+			<colour />
+		</summary>
+		<summary>
+			<name>均价</name>
+			<refVariable>均价</refVariable>
+			<summaryType>mean</summaryType>
+			<colorMap preset="OR_RD" />
+			<order />
+			<size />
+			<colour />
+		</summary>
+		<summary>
+			<name>lon</name>
+			<refVariable>lon</refVariable>
+			<summaryType>mean</summaryType>
+			<order />
+		</summary>
+		<summary>
+			<name>lat</name>
+			<refVariable>lat</refVariable>
+			<summaryType>mean</summaryType>
+			<order />
+		</summary>
+	</allSummarys>
+</hideData>

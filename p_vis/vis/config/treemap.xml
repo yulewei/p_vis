@@ -1,0 +1,25 @@
+<geovista.toolkitcore.VizState>
+  <beanSet>
+    <entry>
+      <string>TreemapViewer</string>
+      <ToolkitBean>
+        <objectClass>edu.zjut.vis.treemap.TreemapViewer</objectClass>
+        <originalBean/>
+        <uniqueName>TreemapViewer</uniqueName>
+        <internalFrame>
+          <location>
+            <x>149</x>
+            <y>59</y>
+          </location>
+          <size>
+            <width>505</width>
+            <height>510</height>
+          </size>
+        </internalFrame>
+        <zOrder>0</zOrder>
+      </ToolkitBean>
+    </entry>
+  </beanSet>
+  <indication>0</indication>
+  <selectedBean></selectedBean>
+</geovista.toolkitcore.VizState>
