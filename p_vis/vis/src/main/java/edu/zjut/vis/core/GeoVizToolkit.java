@@ -19,7 +19,7 @@ import edu.zjut.vis.map.GeoMap;
 import edu.zjut.vis.marshal.Marshaler;
 import edu.zjut.vis.pcp.ParallelPlot;
 import edu.zjut.vis.time.TimeSeries;
-import edu.zjut.vis.treemap.TreemapViewer;
+import edu.zjut.vis.treemap.Treemap;
 import edu.zjut.vis.util.IconUtils;
 
 import java.awt.BorderLayout;
@@ -280,7 +280,7 @@ public class GeoVizToolkit extends JFrame implements IndicationListener {
 		addToolToGui(VariablePicker.class);
 		addToolToGui(GeoMap.class);
 		addToolToGui(ParallelPlot.class);
-		addToolToGui(TreemapViewer.class);
+		addToolToGui(Treemap.class);
 		addToolToGui(TimeSeries.class);
 	}
 

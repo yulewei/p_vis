@@ -87,7 +87,7 @@ public class ParallelPlot extends ParvisPlot implements DataSetListener,
 	}
 
 	@Override
-	public void indicationChanged(IndicationEvent e) {		
+	public void indicationChanged(IndicationEvent e) {
 		parallelDisplay.indicationChanged(e);
 	}
 
@@ -122,5 +122,22 @@ public class ParallelPlot extends ParvisPlot implements DataSetListener,
 
 	public void removeSelectionListener(SelectionListener l) {
 		parallelDisplay.removeSelectionListener(l);
+	}
+
+	public void fireIndicationChanged(int newIndication) {
+		// Guaranteed to return a non-null array
+		Object[] listeners = listenerList.getListenerList();
+		IndicationEvent e = null;
+		// Process the listeners last to first, notifying
+		// those that are interested in this event
+		for (int i = listeners.length - 2; i >= 0; i -= 2) {
+			if (listeners[i] == IndicationListener.class) {
+				// Lazily create the event:
+				if (e == null) {
+					e = new IndicationEvent(this, newIndication);
+				}
+				((IndicationListener) listeners[i + 1]).indicationChanged(e);
+			}
+		}// next i
 	}
 }

@@ -4,7 +4,7 @@ import java.awt.Image;
 import java.beans.BeanInfo;
 import java.beans.SimpleBeanInfo;
 
-public class TreemapViewerBeanInfo extends SimpleBeanInfo {
+public class TreemapBeanInfo extends SimpleBeanInfo {
 	public static String iconColor16file = "treemap16.png";
 	public static String iconColor32file = "treemap32.png";
 	public static String iconMono16file;
@@ -15,7 +15,7 @@ public class TreemapViewerBeanInfo extends SimpleBeanInfo {
 	private Image iconMono16;
 	private Image iconMono32;
 
-	public TreemapViewerBeanInfo() {
+	public TreemapBeanInfo() {
 		iconColor16 = loadImage(iconColor16file);
 		iconColor32 = loadImage(iconColor32file);
 		iconMono16 = loadImage(iconMono16file);

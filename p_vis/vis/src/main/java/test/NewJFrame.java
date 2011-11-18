@@ -13,7 +13,7 @@ import javax.swing.SwingUtilities;
 import edu.zjut.vis.core.ToolkitBean;
 import edu.zjut.vis.core.ToolkitIO;
 import edu.zjut.vis.core.VizState;
-import edu.zjut.vis.treemap.TreemapViewer;
+import edu.zjut.vis.treemap.Treemap;
 import edu.zjut.vis.util.IconUtils;
 
 /**

@@ -5,8 +5,6 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -93,8 +91,7 @@ public class PTreemap extends PApplet {
 		// create new treemap panel
 		treemapPanel = new TreemapPanel(this, treemapStateGui, font,
 				new Rectangle(0, 0, width, height), dataLoader.getData(),
-				dataLoader.getSummariseFields(), dataLoader.getColours(),
-				dataLoader.getColourScalings());
+				dataLoader.getSummariseFields());
 
 		if (defaultHive != null)
 			restoreState(defaultHive);

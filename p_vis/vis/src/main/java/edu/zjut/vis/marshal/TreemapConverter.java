@@ -6,12 +6,13 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
 import edu.zjut.vis.time.TimeSeries;
+import edu.zjut.vis.treemap.Treemap;
 
-public class TreemapViewerConverter extends VizBeanConverter {
+public class TreemapConverter extends VizBeanConverter {
 
 	@Override
 	public boolean canConvert(Class clazz) {
-		return clazz.equals(TimeSeries.class);
+		return clazz.equals(Treemap.class);
 	}
 
 	@Override
@@ -19,13 +20,12 @@ public class TreemapViewerConverter extends VizBeanConverter {
 			MarshallingContext context) {
 		super.marshal(value, writer, context);
 	}
-
-
+	
 	@Override
 	public Object unmarshal(HierarchicalStreamReader reader,
 			UnmarshallingContext context) {
-		TimeSeries time = new TimeSeries();
-		time = (TimeSeries) super.unmarshal(reader, context, time);
-		return time;
+		Treemap treemap = new Treemap();
+		treemap = (Treemap) super.unmarshal(reader, context, treemap);
+		return treemap;
 	}
 }

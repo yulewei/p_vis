@@ -11,7 +11,7 @@ import com.thoughtworks.xstream.XStream;
 /**
  * 
  * @author yulewei
- *
+ * 
  */
 public class DataConfig {
 
@@ -38,7 +38,7 @@ public class DataConfig {
 		xstream.useAttributeFor(DataConfig.Variable.Values.Item.class, "value");
 		xstream.useAttributeFor(DataConfig.Variable.Values.Item.class, "order");
 
-		xstream.alias("summary", DataConfig.Summary.class);
+		xstream.alias("summary", DataConfig.Variable.Summary.class);
 
 		xstream.alias("colorMap", DataConfig.ColorMap.class);
 		xstream.useAttributeFor(DataConfig.ColorMap.class, "preset");
@@ -68,11 +68,21 @@ public class DataConfig {
 			Boolean useAllValues;
 		}
 
+		static class Summary {
+			String summaryType;
+			ColorMap colorMap;
+
+			String order;
+			String size;
+			String colour;
+		}
+
 		static class Values {
 			static class Item {
 				String value;
 				int order;
 			}
+
 			ArrayList<Item> items;
 		}
 
@@ -81,19 +91,8 @@ public class DataConfig {
 		String dataType;
 		Hier hier;
 		Values values;
-		ColorMap colorMap;
-	}
-
-	static class Summary {
-		String name;
-		String refVariable;
-		String refVariable2;
-		String summaryType;
-		ColorMap colorMap;
-
-		String order;
-		String size;
-		String colour;
+		ColorMap colorMap;		
+		Summary summary;
 	}
 
 	String fileName;
@@ -102,9 +101,6 @@ public class DataConfig {
 	String datasetName;
 
 	ArrayList<Variable> varList;
-	ArrayList<Summary> sumList;
-
-	// ArrayList<Object> list;
 
 	public static DataConfig defaultConfig() {
 		DataConfig config = new DataConfig();
@@ -149,7 +145,7 @@ public class DataConfig {
 	}
 
 	public static void main(String[] args) {
-		DataConfig config = DataConfig.loadConfig("uselection.xml");
+		DataConfig config = DataConfig.loadConfig("data/soufan_top100.xml");
 
 		System.out.println(config.datasetName);
 		// System.out.println(var.hier.order);

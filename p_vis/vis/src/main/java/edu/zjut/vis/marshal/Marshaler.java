@@ -10,7 +10,7 @@ import edu.zjut.vis.core.VizState;
 import edu.zjut.vis.map.GeoMap;
 import edu.zjut.vis.pcp.ParallelPlot;
 import edu.zjut.vis.time.TimeSeries;
-import edu.zjut.vis.treemap.TreemapViewer;
+import edu.zjut.vis.treemap.Treemap;
 import geovista.animation.ConditioningAnimator;
 import geovista.animation.IndicationAnimator;
 import geovista.animation.SelectionAnimator;
@@ -57,8 +57,8 @@ public class Marshaler {
 		streamer.alias("ParallelPlot", ParallelPlot.class);
 		streamer.registerConverter(new ParallelPlotConverter());
 
-		streamer.alias("TreemapViewer", TreemapViewer.class);
-		streamer.registerConverter(new TreemapViewerConverter());
+		streamer.alias("TreemapViewer", Treemap.class);
+		streamer.registerConverter(new TreemapConverter());
 
 		streamer.alias("TimeSeries", TimeSeries.class);
 		streamer.registerConverter(new TimeSeriesConverter());

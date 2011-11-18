@@ -13,7 +13,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-import org.gicentre.utils.colour.ColourTable;
 import org.jdesktop.swingx.JXMapViewer;
 import org.jdesktop.swingx.mapviewer.DefaultTileFactory;
 import org.jdesktop.swingx.mapviewer.GeoPosition;
@@ -249,7 +248,7 @@ public class JMapPanel extends JXMapViewerX implements MouseListener,
 				zoom--;
 			}
 		}
-		
+
 		setZoom(zoom);
 	}
 
@@ -327,7 +326,7 @@ public class JMapPanel extends JXMapViewerX implements MouseListener,
 			Overlay overlay = layer.containOverlay(this, mouseX, mouseY);
 			if (overlay != null)
 				overlay.setHighlighted(true);
-		}
+		}		
 
 		repaint();
 	}
@@ -342,7 +341,7 @@ public class JMapPanel extends JXMapViewerX implements MouseListener,
 		}
 
 		if (e.getClickCount() == 2) {
-			for (int i = 1; i < layerList.size(); i++) {
+			for (int i = 0; i < 1; i++) {
 				EsriLayer layer = layerList.get(i);
 				Overlay overlay = layer.containOverlay(this, mouseX, mouseY);
 				if (overlay != null && overlay instanceof MapPolygon) {

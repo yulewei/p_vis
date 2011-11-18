@@ -2,7 +2,6 @@ package org.gicentre.apps.hide;
 
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
-import java.awt.geom.Rectangle2D.Double;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -53,8 +52,6 @@ public class TreemapPanel {
 
 	TreemapSummaryNode treemap; // treemap
 	HashMap<Integer, TreemapSummaryNode> oldTreemapNodes = new HashMap<Integer, TreemapSummaryNode>();
-	HashMap<Object, ColourTable> colours;
-	HashMap<Object, ColourScaling> colourScalings;
 
 	TreemapState treemapState; // treemap state
 	private boolean localColourMin = false;
@@ -73,7 +70,6 @@ public class TreemapPanel {
 	private Data data;
 
 	Collection<SummariseField> summariseFields;
-	SummariseNull summariseNull = new SummariseNull("null");
 
 	float lerp = 1; // current step in the morphing/fading process (between 0
 					// (start) to 1 (finished)
@@ -104,17 +100,14 @@ public class TreemapPanel {
 	 */
 	public TreemapPanel(PApplet applet, TreemapState treemapState, PFont font,
 			Rectangle bounds, Data data,
-			Collection<SummariseField> summariseFields,
-			HashMap<Object, ColourTable> colours,
-			HashMap<Object, ColourScaling> colourScalings) {
+			Collection<SummariseField> summariseFields) {
 		this.applet = applet;
 		this.bounds = bounds;
 		this.treemapState = treemapState;
 		this.font = font;
-		this.summariseFields = summariseFields;
+		
 		this.data = data;
-		this.colours = colours;
-		this.colourScalings = colourScalings;
+		this.summariseFields = summariseFields;
 
 		// setup treemap properties
 		treeMapProperties = new TreeMapProperties();
@@ -319,7 +312,7 @@ public class TreemapPanel {
 		// 绘制高亮节点
 		if (activeNode != null) {
 			Rectangle2D r = activeNode.getRectangle();
-			
+
 			applet.noFill();
 			applet.strokeWeight(2.0f);
 			applet.stroke(applet.color(255, 255, 0));
@@ -549,8 +542,9 @@ public class TreemapPanel {
 			}
 			// make min/maxes symmetrical for diverging colour schemes
 			for (int i = 0; i < mins.length; i++) {
-				if (colours.get(colourFields[i]) != null
-						&& colours.get(colourFields[i]).getMinIndex() == -1) {
+				if (colourFields[i] != null
+						&& colourFields[i].getColourTable() != null
+						&& colourFields[i].getColourTable().getMinIndex() == -1) {
 					// then it's a diverging scheme
 					float max = Math.max(Math.abs(mins[i]), Math.abs(maxs[i]));
 					mins[i] = max * -1;
@@ -598,40 +592,11 @@ public class TreemapPanel {
 				if (colourFields[level - 1] != null) {
 					Float value = node.getSummariseNode().getSummaryAsFloat(
 							colourFields[level - 1]);
-
-					// this means use hierarchy colour, if available
-					if (colourFields[level - 1] instanceof SummariseNull) {
-
-						DataField dataField = treemapState.getHierarchyFields()[level - 1];
-						if (colours.containsKey(dataField)) {
-							Object v = node.getSummariseNode()
-									.getConditioningValue();
-							// use discrete colours
-							if (dataField.getOrderValues() != null) {
-								value = (float) dataField.getOrderValues()
-										.indexOf(v);
-								colour = colours
-										.get(treemapState.getHierarchyFields()[level - 1])
-										.findColour(value);
-							}
-							// if
-							// numeric...
-							else if (v != null
-									&& dataField.getFieldType() != FieldType.STRING) {
-								float fieldValue = ((Number) v).floatValue();
-								colour = colours
-										.get(treemapState.getHierarchyFields()[level - 1])
-										.findColour(
-												PApplet.map(fieldValue,
-														mins[level - 1],
-														maxs[level - 1], 0, 1));
-							}
-						}
-					} else if (value != null) {
+					if (value != null) {
 						float transformedValue = ((Number) value).floatValue();
 						float transformedMin = mins[level - 1];
 						float transformedMax = maxs[level - 1];
-						if (colourScalings.get(colourFields[level - 1]).equals(
+						if (colourFields[level - 1].getColourScaling().equals(
 								ColourScaling.LOG)) {
 							boolean isNegative = false;
 							if (mins[level - 1] != 0) {
@@ -657,7 +622,8 @@ public class TreemapPanel {
 								}
 							}
 						}
-						ColourTable ct = colours.get(colourFields[level - 1]);
+						ColourTable ct = colourFields[level - 1]
+								.getColourTable();
 						colour = ct.findColour(PApplet.map(transformedValue,
 								transformedMin, transformedMax,
 								ct.getMinIndex(), ct.getMaxIndex()));

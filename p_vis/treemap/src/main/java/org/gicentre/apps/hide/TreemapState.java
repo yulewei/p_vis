@@ -282,10 +282,11 @@ public class TreemapState implements Hive {
 		this.allowedSizeFields.add(0, summariseNull);// This adds FIXED
 
 		this.allowedColourFields = allowedColourFields;
+		this.allowedColourFields.remove(null);// cannot have any nulls
 		this.allowedColourFields.add(0, summariseNull);// This adds HIER
-		if (!allowedColourFields.contains(null)) {
-			allowedColourFields.add(null);// no colour
-		}
+//		if (!allowedColourFields.contains(null)) {
+//			allowedColourFields.add(null);// no colour
+//		}
 
 		this.allowedLayouts = allowedLayouts;
 

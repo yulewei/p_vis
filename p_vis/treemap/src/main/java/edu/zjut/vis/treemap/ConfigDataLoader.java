@@ -5,10 +5,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.gicentre.apps.hide.ColourScaling;
 import org.gicentre.apps.hide.TreemapState.Layout;
@@ -25,17 +25,15 @@ import org.gicentre.data.summary.SummariseSum;
 import org.gicentre.data.summary.SummariseUniqueCount;
 import org.gicentre.utils.colour.ColourTable;
 
+import au.com.bytecode.opencsv.CSVReader;
 import edu.zjut.vis.treemap.DataConfig.ColorMap;
 import edu.zjut.vis.treemap.DataConfig.ColorMap.Rule;
-import edu.zjut.vis.treemap.DataConfig.Summary;
 import edu.zjut.vis.treemap.DataConfig.Variable;
-
-import au.com.bytecode.opencsv.CSVReader;
 
 /**
  * 
  * @author yulewei
- *
+ * 
  */
 public class ConfigDataLoader {
 
@@ -46,30 +44,45 @@ public class ConfigDataLoader {
 	private ArrayList<SummariseField> allowedColourVars;
 	private ArrayList<Layout> layouts;
 
-	private Data data;
 	private HashSet<SummariseField> summariseFields;
-	private HashMap<Object, ColourTable> colours = new HashMap<Object, ColourTable>();
-	private HashMap<Object, ColourScaling> colourScalings = new HashMap<Object, ColourScaling>();
+	private Data data;
 
 	public ConfigDataLoader(String configFilename) {
-		try {
-			DataConfig config = DataConfig.loadConfig(configFilename);
-			loadData(config);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		DataConfig config = DataConfig.loadConfig(configFilename);
+		datasetName = config.datasetName;
+		List<String[]> list = readFile(config);
+		loadVarData(config.varList, list);
 	}
 
-	public void loadData(DataConfig config) throws IOException {
-		
-		datasetName = config.datasetName;
+	protected List<String[]> readFile(DataConfig config) {
+		List<String[]> list = null;
+		try {
+			char delt = ',';
+			if (config.fileType.equalsIgnoreCase("tab"))
+				delt = '\t';
+			int ignore = config.ignoreFirstLine ? 1 : 0;
+			CSVReader reader = new CSVReader(new FileReader(config.fileName),
+					delt, '\'', ignore);
 
+			list = reader.readAll();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+
+	public void loadVarData(ArrayList<Variable> varList, List<String[]> list) {
 		Collection<DataField> datafields = new HashSet<DataField>();
-		List<ObjectIntNumber<DataField>> hierVars = new ArrayList<ObjectIntNumber<DataField>>();
 
-		for (Variable var : config.varList) {
+		TreeMap<Integer, DataField> hierVars = new TreeMap<Integer, DataField>();
 
+		// summary variables
+		summariseFields = new HashSet<SummariseField>();
+		allowedOrderVars = new ArrayList<SummariseField>();
+		allowedSizeVars = new ArrayList<SummariseField>();
+		allowedColourVars = new ArrayList<SummariseField>();
+
+		for (Variable var : varList) {
 			DataField dataField = new DataField(var.name, var.colIdx,
 					FieldType.valueOf(var.dataType.toUpperCase()));
 			datafields.add(dataField);
@@ -82,124 +95,49 @@ public class ConfigDataLoader {
 			if (var.hier != null) {
 				if (var.hier.useAllValues != null)
 					dataField.setUseAllValues(var.hier.useAllValues);
-				ObjectIntNumber<DataField> objectIntNumber = new ObjectIntNumber<DataField>(
-						dataField, var.hier.order);
-				hierVars.add(objectIntNumber);
+				hierVars.put(var.hier.order, dataField);
+			}
+
+			// summary½Úµã
+			if (var.summary != null) {
+				SummariseField summariseField = parseSummaryType(
+						var.name, var.summary.summaryType, dataField);
+
+				if (var.summary.colorMap != null)
+					parseColorMap(summariseField, var.summary.colorMap);
+
+				summariseFields.add(summariseField);
+
+				// find out if a order, size or colour variables
+				if (var.summary.order != null)
+					allowedOrderVars.add(summariseField);
+
+				if (var.summary.size != null)
+					allowedSizeVars.add(summariseField);
+
+				if (var.summary.colour != null)
+					allowedColourVars.add(summariseField);
 			}
 		}
 
-		char delt = ',';
-		if (config.fileType.equalsIgnoreCase("tab"))
-			delt = '\t';
-		int ignore = config.ignoreFirstLine ? 1 : 0;
-		CSVReader reader = new CSVReader(new FileReader(config.fileName), delt,
-				'\'', ignore);
+		allowedHierVars = new ArrayList<DataField>();
+		for (DataField dataField : hierVars.values()) {
+			allowedHierVars.add(dataField);
+		}
 
-		List<String[]> list = reader.readAll();
+		allowedColourVars.add(Math.max(0, allowedColourVars.size() - 1), null);
 
 		data = new Data(datafields, list);
-
-		// add values to *datafields* if no values currently set, in natural
-		// order
-		for (ObjectIntNumber<DataField> objectIntNumber : hierVars) {
-			DataField dataField = objectIntNumber.getObject();
-			if (dataField.getOrderValues() == null) {
-				// find all unique value
-				List<Comparable<Object>> values = new ArrayList<Comparable<Object>>();
-				for (Record record : data.getRecords()) {
-					@SuppressWarnings("unchecked")
-					Comparable<Object> value = (Comparable<Object>) record
-							.getValue(dataField);
-					if (value != null && !values.contains(value)) {
-						values.add(value);
-					}
-				}
-				Collections.sort(values);
-				List<Object> orderedList = new ArrayList<Object>();
-				for (Comparable<Object> v : values) {
-					orderedList.add(v);
-				}
-				dataField.setOrderedValues(orderedList);
+		for (DataField dataField : allowedHierVars) {
+			TreeSet<Object> values = new TreeSet<Object>();
+			for (Record record : data.getRecords()) {
+				Object value = record.getValue(dataField);
+				values.add(value);
 			}
+			List<Object> orderedList = new ArrayList<Object>();
+			orderedList.addAll(values);
+			dataField.setOrderedValues(orderedList);
 		}
-
-		// allocate a default perceptually-uniform colour map to each hierarchy
-		// variable where colour has not been allocated
-		int[] perceptualColours = new int[7];
-		perceptualColours[0] = -7417875;
-		perceptualColours[1] = -8530257;
-		perceptualColours[2] = -3554571;
-		perceptualColours[3] = -2112128;
-		perceptualColours[4] = -19805;
-		perceptualColours[5] = -348950;
-		perceptualColours[6] = -5123462;
-		for (ObjectIntNumber<DataField> objectIntNumber : hierVars) {
-			DataField dataField = objectIntNumber.getObject();
-			if (!colours.containsKey(dataField)) {
-				int numValues = dataField.getOrderValues().size();
-				ColourTable colourTable = new ColourTable();
-				colourTable.addContinuousColourRule(-1,
-						new Color(220, 220, 220).getRGB());// for no data
-				for (int i = 0; i < perceptualColours.length; i++) {
-					colourTable.addContinuousColourRule(i
-							* (numValues / ((float) perceptualColours.length)),
-							perceptualColours[i]);
-				}
-				colours.put(dataField, colourTable);
-			}
-		}
-
-		// summary variables
-		summariseFields = new HashSet<SummariseField>();
-		List<ObjectIntNumber<SummariseField>> orderVars = new ArrayList<ObjectIntNumber<SummariseField>>();
-		List<ObjectIntNumber<SummariseField>> sizeVars = new ArrayList<ObjectIntNumber<SummariseField>>();
-		List<ObjectIntNumber<SummariseField>> colourVars = new ArrayList<ObjectIntNumber<SummariseField>>();
-
-		for (Summary sum : config.sumList) {
-
-			SummariseField summariseField = parseSummaryType(sum.name,
-					sum.summaryType, sum.refVariable, sum.refVariable2);
-
-			if (sum.colorMap != null)
-				parseColorMap(summariseField, sum.colorMap);
-
-			summariseFields.add(summariseField);
-
-			// find out if a order, size or colour variables
-			if (sum.order != null)
-				orderVars.add(new ObjectIntNumber<SummariseField>(
-						summariseField, 0));
-
-			if (sum.size != null)
-				sizeVars.add(new ObjectIntNumber<SummariseField>(
-						summariseField, 0));
-
-			if (sum.colour != null)
-				colourVars.add(new ObjectIntNumber<SummariseField>(
-						summariseField, 0));
-		}
-
-		Collections.sort(hierVars);
-		allowedHierVars = new ArrayList<DataField>();
-		for (ObjectIntNumber<DataField> objectIntNumber : hierVars) {
-			allowedHierVars.add(objectIntNumber.getObject());
-		}
-		Collections.sort(orderVars);
-		allowedOrderVars = new ArrayList<SummariseField>();
-		for (ObjectIntNumber<SummariseField> objectIntNumber : orderVars) {
-			allowedOrderVars.add(objectIntNumber.getObject());
-		}
-		Collections.sort(sizeVars);
-		allowedSizeVars = new ArrayList<SummariseField>();
-		for (ObjectIntNumber<SummariseField> objectIntNumber : sizeVars) {
-			allowedSizeVars.add(objectIntNumber.getObject());
-		}
-		Collections.sort(colourVars);
-		allowedColourVars = new ArrayList<SummariseField>();
-		for (ObjectIntNumber<SummariseField> objectIntNumber : colourVars) {
-			allowedColourVars.add(objectIntNumber.getObject());
-		}
-		allowedColourVars.add(Math.max(0, allowedColourVars.size() - 1), null);
 
 		layouts = new ArrayList<Layout>();
 		layouts.add(Layout.ONE_DIM_STRIP);
@@ -210,18 +148,16 @@ public class ConfigDataLoader {
 	}
 
 	private SummariseField parseSummaryType(String name, String summaryType,
-			String refVariable, String refVariable2) {
+			DataField refDataField) {
 		SummariseField summariseField = null;
 
 		// if *sum*
 		if (summaryType.equals("sum")) {
-			DataField refDataField = data.getDataField(refVariable);
 			summariseField = new SummariseSum(name, refDataField);
 		}
 
 		// if *mean*
 		else if (summaryType.equals("mean")) {
-			DataField refDataField = data.getDataField(refVariable);
 			summariseField = new SummariseMean(name, refDataField);
 		}
 
@@ -232,46 +168,19 @@ public class ConfigDataLoader {
 
 		// if *uniqueCount*
 		else if (summaryType.equals("uniqueCount")) {
-			DataField refDataField = data.getDataField(refVariable);
 			summariseField = new SummariseUniqueCount(name, refDataField);
 		}
 
 		// if *max*
 		else if (summaryType.equals("max")) {
-			DataField refDataField = data.getDataField(refVariable);
 			summariseField = new SummariseMax(name, refDataField);
 
 		}
 
 		// if *min*
 		else if (summaryType.equals("min")) {
-			DataField refDataField = data.getDataField(refVariable);
 			summariseField = new SummariseMin(name, refDataField);
 		}
-
-		// // if *weightedMean*
-		// else if (summaryType.equals("weightedMean")) {
-		// DataField refDataField = data.getDataField(refVariable);
-		// DataField refDataField2 = data.getDataField(refVariable2);
-		// summariseField = new SummariseWeightedMean(name, refDataField,
-		// refDataField2);
-		// }
-		//
-		// // if *normalisedSum*
-		// else if (summaryType.equals("normalisedSum")) {
-		// DataField refDataField = data.getDataField(refVariable);
-		// DataField refDataField2 = data.getDataField(refVariable2);
-		// summariseField = new SummariseNormalisedSum(name, refDataField,
-		// refDataField2);
-		// }
-		//
-		// // if *normalisedAvg*
-		// else if (summaryType.equals("normalisedMean")) {
-		// DataField refDataField = data.getDataField(refVariable);
-		// DataField refDataField2 = data.getDataField(refVariable2);
-		// summariseField = new SummariseNormalisedMean(name, refDataField,
-		// refDataField2);
-		// }
 
 		return summariseField;
 	}
@@ -299,7 +208,7 @@ public class ConfigDataLoader {
 			colourScaling = ColourScaling.LOG;
 		}
 
-		colourScalings.put(summariseField, colourScaling);
+		summariseField.setColourScaling(colourScaling);
 
 		if (colorMap.rules != null) {
 			for (Rule rule : colorMap.rules) {
@@ -321,25 +230,7 @@ public class ConfigDataLoader {
 			}
 		}
 
-		colours.put(summariseField, colourTable);
-	}
-
-	/**
-	 * Gets the colourtables for each variable
-	 * 
-	 * @return colourtables keyed to the variable
-	 */
-	public HashMap<Object, ColourTable> getColours() {
-		return colours;
-	}
-
-	/**
-	 * Gets the colour scalings (log/linear) for each variable
-	 * 
-	 * @return colourscalings keyed to the variable
-	 */
-	public HashMap<Object, ColourScaling> getColourScalings() {
-		return colourScalings;
+		summariseField.setColourTable(colourTable);
 	}
 
 	/**
@@ -413,42 +304,5 @@ public class ConfigDataLoader {
 	 */
 	public String getDatasetName() {
 		return datasetName;
-	}
-
-	/**
-	 * Class that stores an Object and a number and can sort itself wrt another
-	 * on the number Used in collections to sort object based on an associated
-	 * number
-	 * 
-	 * @author sbbb717
-	 * 
-	 * @param <E>
-	 */
-	class ObjectIntNumber<E> implements Comparable<ObjectIntNumber<E>> {
-		E object;
-		float number;
-
-		public ObjectIntNumber(E object, float number) {
-			this.object = object;
-			this.number = number;
-		}
-
-		public E getObject() {
-			return (E) object;
-		}
-
-		public int compareTo(ObjectIntNumber<E> objectIntNumber) {
-			if (this.number < objectIntNumber.number) {
-				return -1;
-			} else if (this.number > objectIntNumber.number) {
-				return 1;
-			} else {
-				return 0;
-			}
-		}
-
-		public String toString() {
-			return this.object.toString() + ":" + number;
-		}
 	}
 }

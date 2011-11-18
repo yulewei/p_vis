@@ -263,10 +263,9 @@ public class TreemapStateGui extends TreemapState {
 			}
 			for (int j = 0; j < colourFields.length; j++) {
 				SummariseField summariseField = colourFields[j][col];
-				if (summariseField == null) {
+				if (summariseField == null
+						|| summariseField instanceof SummariseNull) {
 					w = (int) applet.textWidth("<no value>");
-				} else if (summariseField instanceof SummariseNull) {
-					w = (int) applet.textWidth("HIERARCHY");
 				} else {
 					w = (int) applet.textWidth(summariseField.getName());
 				}
@@ -514,10 +513,8 @@ public class TreemapStateGui extends TreemapState {
 					}
 					SummariseField summariseField = this.colourFields[j][col - 1];
 					String label;
-					if (summariseField == null) {
+					if (summariseField instanceof SummariseNull) {
 						label = "<none>";
-					} else if (summariseField instanceof SummariseNull) {
-						label = "HIERARCHY";
 					} else {
 						label = summariseField.getName();
 					}

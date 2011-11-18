@@ -1,6 +1,7 @@
 package edu.zjut.vis.map;
 
 import java.awt.Dimension;
+import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.List;
 
@@ -14,17 +15,21 @@ import edu.zjut.common.event.DataSetEvent;
 import edu.zjut.common.event.DataSetListener;
 import edu.zjut.common.event.IndicationEvent;
 import edu.zjut.common.event.IndicationListener;
+import edu.zjut.common.event.SelectionEvent;
+import edu.zjut.common.event.SelectionListener;
 import edu.zjut.map.JMapPanel;
 import edu.zjut.map.overlay.EsriLayer;
 import edu.zjut.map.overlay.MapMarker;
 import edu.zjut.map.overlay.Overlay;
 
 public class GeoMap extends JMapPanel implements DataSetListener,
-		IndicationListener {
+		IndicationListener, SelectionListener {
 
 	private DataSetForApps dataSet = null;
 
 	private int indication = -1;
+	private int[] selection;
+
 	private HashMap<Integer, Overlay> indexMarkerMap;
 	private HashMap<Overlay, Integer> markerIndexMap;
 
@@ -70,9 +75,72 @@ public class GeoMap extends JMapPanel implements DataSetListener,
 		if (maker != null)
 			maker.setHighlighted(false);
 
-		int indication = e.getIndication();
+		indication = e.getIndication();
 		maker = indexMarkerMap.get(indication);
 		if (maker != null)
 			maker.setHighlighted(true);
+
+		repaint();
+	}
+
+	@Override
+	public void selectionChanged(SelectionEvent e) {
+
+		// 清空原先高亮
+		if (selection != null) {
+			for (int index : selection) {
+				Overlay maker = indexMarkerMap.get(index);
+				if (maker != null)
+					maker.setHighlighted(false);
+			}
+		}
+
+		selection = e.getSelection();
+
+		for (int index : selection) {
+			Overlay maker = indexMarkerMap.get(index);
+			if (maker != null)
+				maker.setHighlighted(true);
+		}
+
+		repaint();
+	}
+
+	@Override
+	public SelectionEvent getSelectionEvent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void addIndicationListener(IndicationListener l) {
+		listenerList.add(IndicationListener.class, l);
+	}
+
+	public void removeIndicationListener(IndicationListener l) {
+		listenerList.remove(IndicationListener.class, l);
+	}
+
+	public void mouseMoved(MouseEvent e) {
+		super.mouseMoved(e);
+
+		if (curOverlayIndex != -1)
+			fireIndicationChanged(curOverlayIndex);
+	}
+
+	public void fireIndicationChanged(int newIndication) {
+		// Guaranteed to return a non-null array
+		Object[] listeners = listenerList.getListenerList();
+		IndicationEvent e = null;
+		// Process the listeners last to first, notifying
+		// those that are interested in this event
+		for (int i = listeners.length - 2; i >= 0; i -= 2) {
+			if (listeners[i] == IndicationListener.class) {
+				// Lazily create the event:
+				if (e == null) {
+					e = new IndicationEvent(this, newIndication);
+				}
+				((IndicationListener) listeners[i + 1]).indicationChanged(e);
+			}
+		}// next i
 	}
 }

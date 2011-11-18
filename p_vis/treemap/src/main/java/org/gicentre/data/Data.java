@@ -1,7 +1,5 @@
 package org.gicentre.data;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -14,10 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import org.gicentre.data.DataField;
 import org.gicentre.data.summary.SummariseField;
 import org.gicentre.data.summary.SummariseNode;
 
@@ -34,16 +29,8 @@ public class Data {
 	private ArrayList<Record> lines = new ArrayList<Record>();
 	private int[] currentColumnSort = null;
 	private ValueComparator valueComparator = new ValueComparator();
-	private FileType fileType;
-
-	private static final String CSV_PATTERN = "\"([^\"]+?)\",?|([^,]+),?|,";
-	private static final Pattern csvRE = Pattern.compile(CSV_PATTERN);
 
 	private HashMap<String, Integer> valuesTreatedAsNoData = new HashMap<String, Integer>();
-
-	static public enum FileType {
-		CSV, TAB_DELIMITED
-	}
 
 	/**
 	 * 将读取数据和数据本身分离, 添加 by yulewei
@@ -75,142 +62,6 @@ public class Data {
 			String[] line = recordList.get(k);
 			lines.add(new Record(Arrays.asList(line), dataField2OriginalColIdx));
 		}
-	}
-
-	/**
-	 * Constructor for creating a Data object Multiple dataFields can be defined
-	 * on one column
-	 * 
-	 * @param dataFields
-	 * @param inputReader
-	 * @param fileType
-	 * @param ignoreFirstLine
-	 */
-	public Data(Collection<DataField> dataFields, BufferedReader inputReader,
-			FileType fileType, boolean ignoreFirstLine) {
-		this.fileType = fileType;
-		// add variables
-		Iterator<DataField> it = dataFields.iterator();
-		while (it.hasNext()) {
-			DataField dataField = it.next();
-			this.variables.put(dataField.name, dataField);
-		}
-
-		try {
-			// skip the fist line
-			if (ignoreFirstLine) {
-				inputReader.readLine();
-			}
-
-			// Only imports data from the columns specified. Columns are
-			// renumbered on this basis
-			HashMap<DataField, Integer> dataField2OriginalColIdx = new LinkedHashMap<DataField, Integer>();
-			int i = 0;
-			Iterator<DataField> it1 = dataFields.iterator();
-			while (it1.hasNext()) {
-				DataField dataField = it1.next();
-				dataField2OriginalColIdx.put(dataField, dataField.colIdx);
-				dataField.colIdx = i;// set the datafield's idx to the new one
-				i++;
-			}
-
-			while (inputReader.ready()) {
-				lines.add(new Record(parse(inputReader.readLine()),
-						dataField2OriginalColIdx));
-
-			}
-
-		} catch (IOException e) {
-			System.err.print("Error reading the file.");
-		}
-
-		for (Entry<String, Integer> entry : valuesTreatedAsNoData.entrySet()) {
-			System.out.println("\"" + entry.getKey() + "\" treated as NODATA "
-					+ entry.getValue() + " times");
-		}
-		valuesTreatedAsNoData = null;
-	}
-
-	/**
-	 * Parses a line from a file, depending on how the filetype is set. Code for
-	 * CSV file. For details see
-	 * http://www.java2s.com/Code/Java/Development-Class
-	 * /SimpledemoofCSVmatchingusingRegularExpressions.htm
-	 * 
-	 * @param line
-	 *            Line of text from a CSV file.
-	 * @return List of strings
-	 */
-	private List<String> parse(String line) {
-		List<String> list = new ArrayList<String>(6);
-		if (fileType == FileType.CSV) {
-			Matcher m = csvRE.matcher(line);
-
-			// For each field
-			while (m.find()) {
-				String match = m.group();
-				if (match == null) {
-					break;
-				}
-				if (match.endsWith(",")) {
-					// Trim trailing ,
-					match = match.substring(0, match.length() - 1);
-				}
-				if (match.startsWith("\"")) {
-					// Assumes also ends with a quote
-					match = match.substring(1, match.length() - 1);
-				}
-				if (match.length() == 0) {
-					match = null;
-				}
-				list.add(match);
-			}
-		} else if (fileType == FileType.TAB_DELIMITED) {
-			list = Arrays.asList(line.split("\t"));
-		}
-		return list;
-	}
-
-	/**
-	 * Adds a new data field and add nulls(no data) to all the records
-	 * 
-	 * @param dataField
-	 */
-	public void addDataField(DataField dataField, Object initialValue) {
-		// ignores the original column number
-		if (variables.containsKey(dataField.getName())) {
-			System.err.println("A datafield called " + dataField.getName()
-					+ " already exists");
-			return;
-		}
-		int idx = variables.size();
-		dataField.colIdx = idx;
-		variables.put(dataField.name, dataField);
-		// now increase the capacities of the records
-		Iterator<Record> it = lines.iterator();
-		while (it.hasNext()) {
-			Record record = it.next();
-			Object[] oldValues = record.values;
-			record.values = new Object[idx + 1];
-			for (int i = 0; i < idx; i++) {
-				record.values[i] = oldValues[i];
-			}
-
-			if (initialValue instanceof Number) {
-				record.setValue(dataField, (Number) initialValue);
-			} else {
-				record.setValue(dataField, (String) initialValue);
-			}
-		}
-	}
-
-	/**
-	 * Adds a new data field and add nulls(no data) to all the records
-	 * 
-	 * @param dataField
-	 */
-	public void addDataField(DataField dataField) {
-		addDataField(dataField, null);
 	}
 
 	/**
@@ -382,22 +233,11 @@ public class Data {
 				for (int i = 0; i < numLevels; i++) {
 					curGroupByValues[i] = csvRecord
 							.getValue(hierarchyFields[i]);
+
 					if ((rollAll
 							|| (curGroupByValues[i] != null && !curGroupByValues[i]
-									.equals(prevGroupByValues[i])) || // These
-																		// two
-																		// lines
-																		// are
-																		// to
-																		// cope
-																		// with
-																		// the
-																		// fact
-																		// that
-																		// there
-					(prevGroupByValues[i] != null && !prevGroupByValues[i]
-							.equals(curGroupByValues[i]))) // might be nulls
-							|| rowIdx == 0) {// So it always does the first row
+									.equals(prevGroupByValues[i])) || (prevGroupByValues[i] != null && !prevGroupByValues[i]
+							.equals(curGroupByValues[i]))) || rowIdx == 0) {
 						rollAll = true;
 						curHierarchyValues[i].add(curGroupByValues[i]);
 						curHierarchyValueRowIdxs[i].add(rowIdx);

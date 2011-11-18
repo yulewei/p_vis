@@ -30,7 +30,7 @@ import org.gicentre.hive.ExpressionNotSupportedException;
 import org.gicentre.hive.Type;
 import org.gicentre.treemaps.TreemapSummaryNode;
 
-import edu.zjut.treemap.ConfigDataLoader;
+import edu.zjut.vis.treemap.ConfigDataLoader;
 
 import processing.core.PApplet;
 import processing.core.PFont;
@@ -112,8 +112,7 @@ public class HideApp extends PApplet {
 		// create new treemap panel
 		treemapPanel = new TreemapPanel(this, treemapStateGui, font,
 				new Rectangle(0, 0, width, height), dataLoader.getData(),
-				dataLoader.getSummariseFields(), dataLoader.getColours(),
-				dataLoader.getColourScalings());
+				dataLoader.getSummariseFields());
 
 		String datasetName = dataLoader.getDatasetName();
 
