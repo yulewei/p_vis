@@ -7,30 +7,18 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.gicentre.data.summary.SummariseField;
 import org.gicentre.data.summary.SummariseNode;
 
 /**
- * Class to store a data file Note that NODATA values are stored and returned as
- * NULLs, so code needs to be able to deal with this
  * 
- * @author Aidan Slingsby, giCentre
  * @author yulewei
  */
 public class Data {
 
-	private HashMap<String, DataField> variables = new HashMap<String, DataField>();
-	private ArrayList<Record> lines = new ArrayList<Record>();
-	private int[] currentColumnSort = null;
-	private ValueComparator valueComparator = new ValueComparator();
-
-	private HashMap<String, Integer> valuesTreatedAsNoData = new HashMap<String, Integer>();
+	private List<Record> lines = new ArrayList<Record>();
 
 	/**
 	 * 将读取数据和数据本身分离, 添加 by yulewei
@@ -40,56 +28,48 @@ public class Data {
 	 * @param dataFields
 	 * @param recordList
 	 */
-	public Data(Collection<DataField> dataFields, List<String[]> recordList) {
-		Iterator<DataField> it = dataFields.iterator();
-		while (it.hasNext()) {
-			DataField dataField = it.next();
-			this.variables.put(dataField.name, dataField);
-		}
-
-		HashMap<DataField, Integer> dataField2OriginalColIdx = new LinkedHashMap<DataField, Integer>();
-
-		int i = 0;
-		Iterator<DataField> it1 = dataFields.iterator();
-		while (it1.hasNext()) {
-			DataField dataField = it1.next();
-			dataField2OriginalColIdx.put(dataField, dataField.colIdx);
-			dataField.colIdx = i;// set the datafield's idx to the new one
-			i++;
-		}
+	public Data(List<DataField> dataFields, List<String[]> recordList) {
 
 		for (int k = 0; k < recordList.size(); k++) {
 			String[] line = recordList.get(k);
-			lines.add(new Record(Arrays.asList(line), dataField2OriginalColIdx));
+			Object[] values = parseLine(line, dataFields);
+			lines.add(new Record(values));
+		}
+
+		// 更新列索引位置
+		for (int i = 0; i < dataFields.size(); i++) {
+			DataField dataField = dataFields.get(i);
+			dataField.colIdx = i;
 		}
 	}
 
-	/**
-	 * Sorts the records according to the values in the column indexes in
-	 * currentColumnSort
-	 * 
-	 * @param csvVariables
-	 */
-	private void sort(DataField[] csvVariables) {
-		this.currentColumnSort = new int[csvVariables.length];
-		for (int i = 0; i < csvVariables.length; i++) {
-			currentColumnSort[i] = csvVariables[i].getColIdx();
+	public Object[] parseLine(String[] line, List<DataField> dataFields) {
+		Object[] values = new Object[dataFields.size()];
+		for (int i = 0; i < dataFields.size(); i++) {
+			DataField dataField = dataFields.get(i);
+			String v = line[dataField.colIdx];
+			if (v != null) {
+				switch (dataField.fieldType) {
+				case LONG:
+					values[i] = Long.parseLong(v);
+					break;
+				case INT:
+					values[i] = Integer.parseInt(v);
+					break;
+				case FLOAT:
+					values[i] = Float.parseFloat(v);
+					break;
+				case DOUBLE:
+					values[i] = Double.parseDouble(v);
+					break;
+				case STRING:
+					values[i] = v.toString().intern();
+					break;
+				}
+			}
 		}
-		Collections.sort(lines, valueComparator);
-	}
 
-	/**
-	 * Return a DataField object from its name
-	 * 
-	 * @param name
-	 * @return datafield object
-	 */
-	public DataField getDataField(String name) {
-		DataField dataField = this.variables.get(name);
-		if (dataField == null) {
-			System.err.println("Variable \"" + name + "\" not found");
-		}
-		return dataField;
+		return values;
 	}
 
 	/**
@@ -99,10 +79,8 @@ public class Data {
 	 * @return a collection of records
 	 */
 	public Collection<Record> getRecords(DataFilter dataFilter) {
-		ArrayList<Record> records = new ArrayList<Record>();
-		Iterator<Record> it = this.lines.iterator();
-		while (it.hasNext()) {
-			Record record = it.next();
+		List<Record> records = new ArrayList<Record>();
+		for (Record record : lines) {
 			if (dataFilter.matches(record)) {
 				records.add(record);
 			}
@@ -117,27 +95,7 @@ public class Data {
 	 * @return a collection of records
 	 */
 	public Collection<Record> getRecords() {
-		return this.lines;
-	}
-
-	/**
-	 * Returns the number of records
-	 * 
-	 * @return
-	 */
-	public int size() {
-		return this.lines.size();
-	}
-
-	public void display() {
-		Iterator<Record> it = lines.iterator();
-		while (it.hasNext()) {
-			Record record = it.next();
-			for (Object tok : record.values) {
-				System.out.print(tok + ",");
-			}
-			System.out.println();
-		}
+		return lines;
 	}
 
 	/**
@@ -158,185 +116,164 @@ public class Data {
 	}
 
 	/**
-	 * Override to transform a string to one in a set format (e.g. removing all
-	 * spaces)
-	 * 
-	 * @return
-	 */
-	public String transformToValidString(String value) {
-		return value;
-	}
-
-	/**
 	 * Summarises the contents as a tree of nodes, conditioning by the array of
 	 * datafields supplied
 	 * 
-	 * @param hierarchyFields
+	 * @param hierFields
 	 *            Array of conditioning datafields
-	 * @param summariseFields
+	 * @param sumFields
 	 *            Collection of summaryfields
 	 * @param dataFilter
 	 *            DataFilter
 	 * @return The root node of a tree that summarises the data
 	 */
-	public SummariseNode getSummary(DataField[] hierarchyFields,
-			Collection<SummariseField> summariseFields, DataFilter dataFilter) {
+	public SummariseNode getSummary(final DataField[] hierFields,
+			Collection<SummariseField> sumFields, DataFilter dataFilter) {
 
-		int numLevels = hierarchyFields.length;
+		int numLevels = hierFields.length;
 
 		if (numLevels == 0) {
 			return new SummariseNode(null, null, 0, null, -1, -1,
 					new HashMap<SummariseField, Object>());
 		}
 
-		ArrayList<Object>[] curHierarchyValues = new ArrayList[numLevels];
-		ArrayList<Integer>[] curHierarchyValueRowIdxs = new ArrayList[numLevels];
+		// 排序, 以便按照索引分组
+		Collections.sort(lines, new Comparator<Record>() {
+			@SuppressWarnings("unchecked")
+			@Override
+			public int compare(Record o1, Record o2) {
+				for (DataField field : hierFields) {
+					Comparable<Object> v1 = (Comparable<Object>) o1
+							.getValue(field);
+					Comparable<Object> v2 = (Comparable<Object>) o2
+							.getValue(field);
 
-		// HashMap<DataField,Object[]> field2ColValues;
-		List<Record> sortedRecords;
-
-		// Find all columns in use for the summarising
-		{
-
-			sort(hierarchyFields);
-
-			curHierarchyValues = new ArrayList[numLevels];
-			curHierarchyValueRowIdxs = new ArrayList[numLevels];
-			for (int i = 0; i < numLevels; i++) {
-				curHierarchyValues[i] = new ArrayList<Object>();
-				curHierarchyValueRowIdxs[i] = new ArrayList<Integer>();
-			}
-
-			Object[] prevGroupByValues = new Object[numLevels];
-			// field2ColValues = new HashMap<DataField, Object[]>();
-			// Iterator<DataField> it2 = dependentDataFields.iterator();
-			// while (it2.hasNext()){
-			// field2ColValues.put(it2.next(),new Object[lines.size()]);
-			// }
-			sortedRecords = new ArrayList<Record>();
-			if (dataFilter == null) {
-				sortedRecords.addAll(lines);
-			} else {
-				sortedRecords.addAll(getRecords(dataFilter));
-			}
-
-			if (sortedRecords.isEmpty()) {
-				return null;
-			}
-
-			int rowIdx = 0;
-			Iterator<Record> it1 = sortedRecords.iterator();
-			while (it1.hasNext()) {
-				Record csvRecord = it1.next();
-				Object[] curGroupByValues = new Object[numLevels];
-				boolean rollAll = false;
-				for (int i = 0; i < numLevels; i++) {
-					curGroupByValues[i] = csvRecord
-							.getValue(hierarchyFields[i]);
-
-					if ((rollAll
-							|| (curGroupByValues[i] != null && !curGroupByValues[i]
-									.equals(prevGroupByValues[i])) || (prevGroupByValues[i] != null && !prevGroupByValues[i]
-							.equals(curGroupByValues[i]))) || rowIdx == 0) {
-						rollAll = true;
-						curHierarchyValues[i].add(curGroupByValues[i]);
-						curHierarchyValueRowIdxs[i].add(rowIdx);
+					int compareValue = v1.compareTo(v2);
+					if (compareValue != 0) {
+						return compareValue;
 					}
-					// it2 = dependentDataFields.iterator();
-					// while (it2.hasNext()){
-					// DataField dataField=it2.next();
-					// field2ColValues.get(dataField)[rowIdx]=csvRecord.getValue(dataField);
-					// }
 				}
-				rowIdx++;
-				prevGroupByValues = curGroupByValues;
+				return 0;
 			}
-			for (int i = 0; i < curHierarchyValueRowIdxs.length; i++) {
-				curHierarchyValueRowIdxs[i].add(rowIdx);
-			}
+		});
 
+		List<Record> sortedRecords = new ArrayList<Record>();
+		if (dataFilter == null) {
+			sortedRecords.addAll(lines);
+		} else {
+			sortedRecords.addAll(getRecords(dataFilter));
+		}
+		if (sortedRecords.isEmpty()) {
+			return null;
 		}
 
-		int[] rollUpIdxs = new int[numLevels];
-		int curRollupDepth = numLevels - 1;
+		// 排序后, 计算每个分组的值和分组索引
+		ArrayList<Object>[] curHierValues = new ArrayList[numLevels];
+		ArrayList<Integer>[] curHierRowIdxs = new ArrayList[numLevels];
+		for (int i = 0; i < numLevels; i++) {
+			curHierValues[i] = new ArrayList<Object>();
+			curHierRowIdxs[i] = new ArrayList<Integer>();
+		}
 
-		HashSet<SummariseNode> nodesToAdd[] = new HashSet[hierarchyFields.length];
-		for (int i = 0; i < hierarchyFields.length; i++) {
+		int rowIdx = 0;
+		Object[] prevGroupByValues = new Object[numLevels];
+		for (Record record : sortedRecords) {
+			Object[] curGroupByValues = new Object[numLevels];
+			boolean rollAllLevel = false;
+			for (int i = 0; i < numLevels; i++) {
+				curGroupByValues[i] = record.getValue(hierFields[i]);
+				if (rowIdx == 0
+						|| rollAllLevel
+						|| (prevGroupByValues[i] != null && !prevGroupByValues[i]
+								.equals(curGroupByValues[i]))) {
+					rollAllLevel = true;
+					curHierValues[i].add(curGroupByValues[i]);
+					curHierRowIdxs[i].add(rowIdx);
+				}
+			}
+			rowIdx++;
+			prevGroupByValues = curGroupByValues;
+		}
+		for (int i = 0; i < curHierRowIdxs.length; i++) {
+			curHierRowIdxs[i].add(rowIdx);
+		}
+
+		// 以分组的方式计算全部SummariseNode, 构建节点树
+		int[] rollUpIdxs = new int[numLevels];
+		int curDepth = numLevels - 1;
+		HashSet<SummariseNode>[] nodesToAdd = new HashSet[hierFields.length];
+		for (int i = 0; i < hierFields.length; i++) {
 			nodesToAdd[i] = new HashSet<SummariseNode>();
 		}
 
-		do {
-			if (curRollupDepth > 0) {
-				if (curHierarchyValueRowIdxs[curRollupDepth - 1].get(
-						rollUpIdxs[curRollupDepth - 1] + 1).equals(
-						curHierarchyValueRowIdxs[curRollupDepth]
-								.get(rollUpIdxs[curRollupDepth]))) {
-					curRollupDepth--;
+		while (true) {
+			if (curDepth > 0) {
+				int index1 = curHierRowIdxs[curDepth - 1]
+						.get(rollUpIdxs[curDepth - 1] + 1);
+				int index2 = curHierRowIdxs[curDepth].get(rollUpIdxs[curDepth]);
+				if (index1 == index2) {
+					curDepth--;
 				} else {
-					curRollupDepth = numLevels - 1;
+					curDepth = numLevels - 1;
 				}
 			} else {
-				curRollupDepth = numLevels - 1;
+				curDepth = numLevels - 1;
 			}
 
-			int startRowIdx = curHierarchyValueRowIdxs[curRollupDepth]
-					.get(rollUpIdxs[curRollupDepth]);
-			int endRowIdx = curHierarchyValueRowIdxs[curRollupDepth]
-					.get(rollUpIdxs[curRollupDepth] + 1) - 1;
+			// 计算分组的Summarise结果
+			int startRowIdx = curHierRowIdxs[curDepth]
+					.get(rollUpIdxs[curDepth]);
+			int endRowIdx = curHierRowIdxs[curDepth]
+					.get(rollUpIdxs[curDepth] + 1) - 1;
 
 			HashMap<SummariseField, Object> summaryValues = new HashMap<SummariseField, Object>();
-			Iterator<SummariseField> it = summariseFields.iterator();
-			while (it.hasNext()) {
-				SummariseField summaryField = it.next();
+
+			for (SummariseField summaryField : sumFields) {
 				Object value = summaryField.compute(sortedRecords.subList(
 						startRowIdx, endRowIdx + 1));
 				summaryValues.put(summaryField, value);
 			}
-			// Set the order
+
+			// 计算order
 			int order = startRowIdx;
-			if (hierarchyFields[curRollupDepth].getOrderValues() != null) {
-				// then need to replace with the order in the datafield
-				order = hierarchyFields[curRollupDepth].getOrderValues()
-						.indexOf(
-								curHierarchyValues[curRollupDepth]
-										.get(rollUpIdxs[curRollupDepth]));
+			Object groupByValue = curHierValues[curDepth]
+					.get(rollUpIdxs[curDepth]);
+			List<Object> orderedValues = hierFields[curDepth].getOrderValues();
+			if (orderedValues != null) {
+				order = orderedValues.indexOf(groupByValue);
 			}
 
-			SummariseNode summaryNode = new SummariseNode(
-					hierarchyFields[curRollupDepth],
-					curHierarchyValues[curRollupDepth]
-							.get(rollUpIdxs[curRollupDepth]), order,
-					sortedRecords, startRowIdx, endRowIdx, summaryValues);
+			SummariseNode summaryNode = new SummariseNode(hierFields[curDepth],
+					groupByValue, order, sortedRecords, startRowIdx, endRowIdx,
+					summaryValues);
 
-			if (curRollupDepth < numLevels - 1) {
-				Iterator<SummariseNode> it1 = nodesToAdd[curRollupDepth + 1]
-						.iterator();
-				while (it1.hasNext()) {
-					summaryNode.add(it1.next());
+			if (curDepth < numLevels - 1) {
+				for (SummariseNode node : nodesToAdd[curDepth + 1]) {
+					summaryNode.add(node);
 				}
-				nodesToAdd[curRollupDepth + 1].clear();
+				nodesToAdd[curDepth + 1].clear();
 			}
 
-			nodesToAdd[curRollupDepth].add(summaryNode);
+			nodesToAdd[curDepth].add(summaryNode);
 
-			rollUpIdxs[curRollupDepth]++;
+			rollUpIdxs[curDepth]++;
 
-		} while (!(rollUpIdxs[curRollupDepth] >= curHierarchyValueRowIdxs[curRollupDepth]
-				.size() - 1 && curRollupDepth == 0));
-
-		HashMap<SummariseField, Object> summaryValues = new HashMap<SummariseField, Object>();
-		Iterator<SummariseField> it = summariseFields.iterator();
-		while (it.hasNext()) {
-			SummariseField summaryField = it.next();
-			Object value = summaryField.compute(sortedRecords);
-			summaryValues.put(summaryField, value);
+			if (curDepth == 0
+					&& rollUpIdxs[curDepth] >= curHierRowIdxs[curDepth].size() - 1)
+				break;
 		}
+
+		// 计算根节点
+		HashMap<SummariseField, Object> summaryValues = new HashMap<SummariseField, Object>();
+		for (SummariseField field : sumFields) {
+			Object value = field.compute(sortedRecords);
+			summaryValues.put(field, value);
+		}
+
 		SummariseNode root = new SummariseNode(null, null, 0, sortedRecords, 0,
 				lines.size() - 1, summaryValues);
-
-		Iterator<SummariseNode> it1 = nodesToAdd[0].iterator();
-		while (it1.hasNext()) {
-			root.add(it1.next());
+		for (SummariseNode node : nodesToAdd[0]) {
+			root.add(node);
 		}
 
 		return root;
@@ -350,403 +287,19 @@ public class Data {
 	 * @author Aidan Slingsby
 	 * 
 	 */
-	public class Record implements Comparable<Record> {
-		private Object[] values;
+	public class Record {
+		public Object[] values;
 
-		/**
-		 * Constructor is private - only the Data class can create records
-		 * 
-		 * @param values
-		 * @param datafield2OriginalPosition
-		 *            HashMap gives the original column number for each column
-		 */
-		private Record(List<String> values,
-				Map<DataField, Integer> datafield2OriginalPosition) {
-			this.values = new Object[datafield2OriginalPosition.size()];
-			Iterator<Entry<DataField, Integer>> it = datafield2OriginalPosition
-					.entrySet().iterator();
-			while (it.hasNext()) {
-				Entry<DataField, Integer> entry = it.next();
-				DataField dataField = entry.getKey();
-				int originalPosition = entry.getValue();
-				String v = null;
-				if (values.size() > originalPosition) {
-					v = values.get(originalPosition);
-				}
-				if (dataField.relabels.containsKey(v)) {
-					v = dataField.relabels.get(v).toString();
-				}
-
-				if (v != null) {
-					if (dataField != null) {
-						if (dataField.fieldType == FieldType.LONG) {
-							try {
-								this.values[dataField.colIdx] = Long
-										.parseLong(v);
-							} catch (NumberFormatException e) {
-								String vString = v.toString();
-								Integer count = valuesTreatedAsNoData
-										.get(vString);
-								if (count == null) {
-									count = 0;
-								}
-								count++;
-								valuesTreatedAsNoData.put(vString, count);
-							}
-						} else if (dataField.fieldType == FieldType.INT) {
-							try {
-								this.values[dataField.colIdx] = Integer
-										.parseInt(v);
-							} catch (NumberFormatException e) {
-								String vString = v.toString();
-								Integer count = valuesTreatedAsNoData
-										.get(vString);
-								if (count == null) {
-									count = 0;
-								}
-								count++;
-								valuesTreatedAsNoData.put(vString, count);
-							}
-						} else if (dataField.fieldType == FieldType.FLOAT) {
-							try {
-								this.values[dataField.colIdx] = Float
-										.parseFloat(v);
-							} catch (NumberFormatException e) {
-								String vString = v.toString();
-								Integer count = valuesTreatedAsNoData
-										.get(vString);
-								if (count == null) {
-									count = 0;
-								}
-								count++;
-								valuesTreatedAsNoData.put(vString, count);
-							}
-						} else if (dataField.fieldType == FieldType.DOUBLE) {
-							try {
-								this.values[dataField.colIdx] = Double
-										.parseDouble(v);
-							} catch (NumberFormatException e) {
-								String vString = v.toString();
-								Integer count = valuesTreatedAsNoData
-										.get(vString);
-								if (count == null) {
-									count = 0;
-								}
-								count++;
-								valuesTreatedAsNoData.put(vString, count);
-							}
-						} else if (dataField.fieldType == FieldType.STRING) {
-							v = transformToValidString(v);
-							if (!v.equals("")) {
-								this.values[dataField.colIdx] = v.toString()
-										.intern();
-							} else {
-								String vString = v.toString();
-								Integer count = valuesTreatedAsNoData
-										.get(vString);
-								if (count == null) {
-									count = 0;
-								}
-								count++;
-								valuesTreatedAsNoData.put(vString, count);
-							}
-						}
-					}
-				}
-			}
+		public Record(Object[] values) {
+			this.values = values;
 		}
-
-		/**
-		 * Returns the value of a datafield as an Object
-		 * 
-		 * @param dataField
-		 * @return
-		 */
 
 		public Object getValue(DataField dataField) {
 			return values[dataField.getColIdx()];
 		}
 
-		/**
-		 * Returns the value of a datafield as an integer. Will convert if it
-		 * has to, if compatible.
-		 * 
-		 * @param dataField
-		 * @return
-		 */
-		public Integer getValueAsInt(DataField dataField) {
-			Object v = values[dataField.getColIdx()];
-			if (v instanceof Integer) {
-				return (Integer) v;
-			}
-			try {
-				return ((Number) v).intValue();
-			} catch (NumberFormatException e) {
-				return null;
-			} catch (NullPointerException e) {
-				return null;
-			}
+		public String toString() {
+			return Arrays.toString(values);
 		}
-
-		/**
-		 * Returns the value of a datafield as a float Will convert if it has
-		 * to, if compatible.
-		 * 
-		 * @param dataField
-		 * @return
-		 */
-		public Float getValueAsFloat(DataField dataField) {
-			Object v = values[dataField.getColIdx()];
-			if (v instanceof Float) {
-				return (Float) v;
-			}
-			try {
-				return ((Number) v).floatValue();
-			} catch (NumberFormatException e) {
-				return null;
-			} catch (NullPointerException e) {
-				return null;
-			}
-		}
-
-		/**
-		 * Returns the value of a datafield as a double Will convert if it has
-		 * to, if compatible.
-		 * 
-		 * @param dataField
-		 * @return
-		 */
-		public Double getValueAsDouble(DataField dataField) {
-			Object v = values[dataField.getColIdx()];
-			if (v instanceof Double) {
-				return (Double) v;
-			}
-			try {
-				return ((Number) v).doubleValue();
-			} catch (NumberFormatException e) {
-				return null;
-			} catch (NullPointerException e) {
-				return null;
-			}
-		}
-
-		/**
-		 * Returns the value of a datafield as a long Will convert if it has to,
-		 * if compatible.
-		 * 
-		 * @param dataField
-		 * @return
-		 */
-		public Long getValueAsLong(DataField dataField) {
-			Object v = values[dataField.getColIdx()];
-			if (v instanceof Long) {
-				return (Long) v;
-			}
-			try {
-				return ((Number) v).longValue();
-			} catch (NumberFormatException e) {
-				return null;
-			} catch (NullPointerException e) {
-				return null;
-			}
-		}
-
-		/**
-		 * Returns the value of a datafield as a string Will convert if it has
-		 * to, if compatible.
-		 * 
-		 * @param dataField
-		 * @return
-		 */
-		public String getValueAsString(DataField dataField) {
-			Object v = values[dataField.getColIdx()];
-			try {
-				return v.toString();
-			} catch (NullPointerException e) {
-				return null;
-			}
-		}
-
-		/**
-		 * Returns the value of a datafield as an integer. Will convert if it
-		 * has to, if compatible.
-		 * 
-		 * @param dataField
-		 * @return
-		 */
-		public Integer getValueAsInt(String dataField) {
-			return getValueAsInt(getDataField(dataField));
-		}
-
-		/**
-		 * Returns the value of a datafield as a float Will convert if it has
-		 * to, if compatible.
-		 * 
-		 * @param dataField
-		 * @return
-		 */
-		public Float getValueAsFloat(String dataField) {
-			return getValueAsFloat(getDataField(dataField));
-		}
-
-		/**
-		 * Returns the value of a datafield as a double Will convert if it has
-		 * to, if compatible.
-		 * 
-		 * @param dataField
-		 * @return
-		 */
-		public Double getValueAsDouble(String dataField) {
-			return getValueAsDouble(getDataField(dataField));
-		}
-
-		/**
-		 * Returns the value of a datafield as a long Will convert if it has to,
-		 * if compatible.
-		 * 
-		 * @param dataField
-		 * @return
-		 */
-		public Long getValueAsLong(String dataField) {
-			return getValueAsLong(getDataField(dataField));
-		}
-
-		/**
-		 * Returns the value of a datafield as a string Will convert if it has
-		 * to, if compatible.
-		 * 
-		 * @param dataField
-		 * @return
-		 */
-		public String getValueAsString(String dataField) {
-			return getValueAsString(getDataField(dataField));
-		}
-
-		public int compareTo(Record o) {
-			if (currentColumnSort == null) {
-				return 0;
-			} else {
-				for (int i = 0; i < currentColumnSort.length; i++) {
-					int compareValue = valueComparator.compare(
-							this.values[currentColumnSort[i]],
-							o.values[currentColumnSort[i]]);
-					if (compareValue != 0) {
-						return compareValue;
-					}
-				}
-			}
-			return 0;
-		}
-
-		/**
-		 * Set value Automatically converted to the correct type for the field
-		 * 
-		 * @param dataField
-		 * @param value
-		 */
-		public void setValue(DataField dataField, Number value) {
-			if (value == null) {
-				this.values[dataField.colIdx] = null;
-			} else if (dataField.getFieldType() == FieldType.INT) {
-				this.values[dataField.colIdx] = value.intValue();
-			} else if (dataField.getFieldType() == FieldType.FLOAT) {
-				this.values[dataField.colIdx] = value.floatValue();
-			} else if (dataField.getFieldType() == FieldType.DOUBLE) {
-				this.values[dataField.colIdx] = value.doubleValue();
-			} else if (dataField.getFieldType() == FieldType.LONG) {
-				this.values[dataField.colIdx] = value.longValue();
-			} else if (dataField.getFieldType() == FieldType.STRING) {
-				this.values[dataField.colIdx] = value.toString();
-			}
-		}
-
-		/**
-		 * Set value Automatically converted to the correct type for the field
-		 * 
-		 * @param dataField
-		 * @param value
-		 */
-		public void setValue(DataField dataField, String value) {
-			if (value == null) {
-				this.values[dataField.colIdx] = null;
-			} else if (dataField.getFieldType() == FieldType.INT) {
-				this.values[dataField.colIdx] = Integer.parseInt(value);
-			} else if (dataField.getFieldType() == FieldType.FLOAT) {
-				this.values[dataField.colIdx] = Float.parseFloat(value);
-			} else if (dataField.getFieldType() == FieldType.DOUBLE) {
-				this.values[dataField.colIdx] = Double.parseDouble(value);
-			} else if (dataField.getFieldType() == FieldType.LONG) {
-				this.values[dataField.colIdx] = Long.parseLong(value);
-			} else if (dataField.getFieldType() == FieldType.STRING) {
-				this.values[dataField.colIdx] = value;
-			}
-		}
-
-		/**
-		 * Set value to NODATA Automatically converted to the correct type for
-		 * the field
-		 * 
-		 * @param dataField
-		 * @param value
-		 */
-		public void setValueNoData(DataField dataField) {
-			this.values[dataField.colIdx] = null;
-		}
-
-		/**
-		 * Set value Automatically converted to the correct type for the field
-		 * 
-		 * @param dataField
-		 * @param value
-		 */
-		public void setValue(String dataField, Number value) {
-			setValue(getDataField(dataField), value);
-		}
-
-		/**
-		 * Set value Automatically converted to the correct type for the field
-		 * 
-		 * @param dataField
-		 * @param value
-		 */
-		public void setValue(String dataField, String value) {
-			setValue(getDataField(dataField), value);
-		}
-
-		/**
-		 * Set value to NODATA Automatically converted to the correct type for
-		 * the field
-		 * 
-		 * @param dataField
-		 * @param value
-		 */
-		public void setValueNoData(String dataField) {
-			setValueNoData(getDataField(dataField));
-		}
-
 	}
-
-	/**
-	 * a comparator to compare all types of values
-	 * 
-	 * @author Aidan Slingsby
-	 * 
-	 */
-	class ValueComparator implements Comparator<Object> {
-
-		public int compare(Object o1, Object o2) {
-			if (o1 == null && o2 == null) {
-				return 0;
-			} else if (o1 == null) {
-				return 1;
-			} else if (o2 == null) {
-				return -1;
-			} else {
-				return ((Comparable<Object>) o1)
-						.compareTo((Comparable<Object>) o2);
-			}
-		}
-
-	}
-
 }

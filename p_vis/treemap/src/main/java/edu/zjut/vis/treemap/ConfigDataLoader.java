@@ -72,7 +72,7 @@ public class ConfigDataLoader {
 	}
 
 	public void loadVarData(ArrayList<Variable> varList, List<String[]> list) {
-		Collection<DataField> datafields = new HashSet<DataField>();
+		List<DataField> datafields = new ArrayList<DataField>();
 
 		TreeMap<Integer, DataField> hierVars = new TreeMap<Integer, DataField>();
 
@@ -100,8 +100,8 @@ public class ConfigDataLoader {
 
 			// summary½Úµã
 			if (var.summary != null) {
-				SummariseField summariseField = parseSummaryType(
-						var.name, var.summary.summaryType, dataField);
+				SummariseField summariseField = parseSummaryType(var.name,
+						var.summary.summaryType, dataField);
 
 				if (var.summary.colorMap != null)
 					parseColorMap(summariseField, var.summary.colorMap);
@@ -150,37 +150,24 @@ public class ConfigDataLoader {
 	private SummariseField parseSummaryType(String name, String summaryType,
 			DataField refDataField) {
 		SummariseField summariseField = null;
-
-		// if *sum*
-		if (summaryType.equals("sum")) {
+		
+		if (summaryType.equals("sum"))
 			summariseField = new SummariseSum(name, refDataField);
-		}
 
-		// if *mean*
-		else if (summaryType.equals("mean")) {
+		else if (summaryType.equals("mean"))
 			summariseField = new SummariseMean(name, refDataField);
-		}
 
-		// if *count*
-		else if (summaryType.equals("count")) {
+		else if (summaryType.equals("count"))
 			summariseField = new SummariseCount(name);
-		}
 
-		// if *uniqueCount*
-		else if (summaryType.equals("uniqueCount")) {
+		else if (summaryType.equals("uniqueCount"))
 			summariseField = new SummariseUniqueCount(name, refDataField);
-		}
 
-		// if *max*
-		else if (summaryType.equals("max")) {
+		else if (summaryType.equals("max"))
 			summariseField = new SummariseMax(name, refDataField);
 
-		}
-
-		// if *min*
-		else if (summaryType.equals("min")) {
+		else if (summaryType.equals("min"))
 			summariseField = new SummariseMin(name, refDataField);
-		}
 
 		return summariseField;
 	}
@@ -225,7 +212,6 @@ public class ConfigDataLoader {
 					}
 					colourTable.addDiscreteColourRule(numValue, new Color(r, g,
 							b, a).getRGB());
-
 				}
 			}
 		}

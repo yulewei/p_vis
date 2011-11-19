@@ -1,6 +1,5 @@
 package org.gicentre.data;
 
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -14,7 +13,6 @@ public class DataField {
 	protected String name;
 	protected int colIdx;
 	protected FieldType fieldType;
-	protected HashMap<Object, Object> relabels;
 	protected List<Object> orderedValues;
 	protected boolean useAllValues = false;
 
@@ -37,7 +35,6 @@ public class DataField {
 		this.name = name;
 		this.colIdx = colIdx;
 		this.fieldType = fieldType;
-		this.relabels = new HashMap<Object, Object>();
 	}
 
 	/**
@@ -97,16 +94,6 @@ public class DataField {
 		return this.appliesToHierField;
 	}
 
-	/**
-	 * Set rules for remapping values
-	 * 
-	 * @param fromLabel
-	 * @param toLabel
-	 */
-	public void setReLabel(Object fromLabel, Object toLabel) {
-		this.relabels.put(fromLabel, toLabel);
-	}
-
 	public void setOrderedValues(List<Object> orderedValues) {
 		this.orderedValues = orderedValues;
 	}
@@ -122,9 +109,4 @@ public class DataField {
 	public List<Object> getOrderValues() {
 		return this.orderedValues;
 	}
-
-	public HashMap<Object, Object> getRelabelValues() {
-		return this.relabels;
-	}
-
 }
