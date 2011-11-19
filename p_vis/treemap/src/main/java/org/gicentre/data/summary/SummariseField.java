@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.gicentre.apps.hide.ColourScaling;
-import org.gicentre.data.Data.Record;
 import org.gicentre.data.DataField;
 import org.gicentre.data.FieldType;
+import org.gicentre.data.Record;
 import org.gicentre.utils.colour.ColourTable;
 
 public abstract class SummariseField {

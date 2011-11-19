@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.TreeMap;
@@ -13,9 +12,9 @@ import java.util.TreeSet;
 import org.gicentre.apps.hide.ColourScaling;
 import org.gicentre.apps.hide.TreemapState.Layout;
 import org.gicentre.data.Data;
-import org.gicentre.data.Data.Record;
 import org.gicentre.data.DataField;
 import org.gicentre.data.FieldType;
+import org.gicentre.data.Record;
 import org.gicentre.data.summary.SummariseCount;
 import org.gicentre.data.summary.SummariseField;
 import org.gicentre.data.summary.SummariseMax;
@@ -150,7 +149,7 @@ public class ConfigDataLoader {
 	private SummariseField parseSummaryType(String name, String summaryType,
 			DataField refDataField) {
 		SummariseField summariseField = null;
-		
+
 		if (summaryType.equals("sum"))
 			summariseField = new SummariseSum(name, refDataField);
 

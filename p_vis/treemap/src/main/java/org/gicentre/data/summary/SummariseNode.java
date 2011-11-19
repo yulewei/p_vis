@@ -14,8 +14,8 @@ import java.util.NoSuchElementException;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import org.gicentre.data.Data.Record;
 import org.gicentre.data.DataField;
+import org.gicentre.data.Record;
 
 public class SummariseNode extends DefaultMutableTreeNode implements
 		Comparable<SummariseNode> {

@@ -1,14 +1,11 @@
 package org.gicentre.data;
 
-/**Variable types
+/**
+ * Variable types
  * 
  * @author Aidan Slingsby, giCentre
- *
+ * 
  */
-public enum FieldType{
-	INT,
-	LONG,
-	FLOAT,
-	DOUBLE,
-	STRING
+public enum FieldType {
+	INT, LONG, FLOAT, DOUBLE, STRING
 };

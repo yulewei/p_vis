@@ -102,23 +102,6 @@ public class Data {
 	 * Summarises the contents as a tree of nodes, conditioning by the array of
 	 * datafields supplied
 	 * 
-	 * @param hierarchyFields
-	 *            Array of conditioning datafields
-	 * @param summariseFields
-	 *            Collection of summaryfields
-	 * @param dataFilter
-	 *            DataFilter
-	 * @return The root node of a tree that summarises the data
-	 */
-	public SummariseNode getSummary(DataField[] hierarchyFields,
-			Collection<SummariseField> summariseFields) {
-		return this.getSummary(hierarchyFields, summariseFields, null);
-	}
-
-	/**
-	 * Summarises the contents as a tree of nodes, conditioning by the array of
-	 * datafields supplied
-	 * 
 	 * @param hierFields
 	 *            Array of conditioning datafields
 	 * @param sumFields
@@ -279,27 +262,4 @@ public class Data {
 		return root;
 	}
 
-	/**
-	 * Stores a record as an inner class NO DATA is stored as nulls, so need to
-	 * check this when using Data are stored as specified by each datafield. Can
-	 * be retrieved in any format (as long as it can be converted)
-	 * 
-	 * @author Aidan Slingsby
-	 * 
-	 */
-	public class Record {
-		public Object[] values;
-
-		public Record(Object[] values) {
-			this.values = values;
-		}
-
-		public Object getValue(DataField dataField) {
-			return values[dataField.getColIdx()];
-		}
-
-		public String toString() {
-			return Arrays.toString(values);
-		}
-	}
 }

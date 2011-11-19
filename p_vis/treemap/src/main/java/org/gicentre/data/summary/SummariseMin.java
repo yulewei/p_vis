@@ -3,9 +3,9 @@ package org.gicentre.data.summary;
 import java.util.HashSet;
 import java.util.List;
 
-import org.gicentre.data.Data.Record;
 import org.gicentre.data.DataField;
 import org.gicentre.data.FieldType;
+import org.gicentre.data.Record;
 
 public class SummariseMin extends SummariseField {
 	public SummariseMin(String name, DataField dataField) {
