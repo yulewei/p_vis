@@ -12,11 +12,12 @@ import java.util.List;
 import org.gicentre.apps.hide.TreemapState.AppearanceType;
 import org.gicentre.apps.hide.TreemapState.Layout;
 import org.gicentre.data.AndFilter;
-import org.gicentre.data.Data;
+import org.gicentre.data.DataUtil;
 import org.gicentre.data.DataField;
 import org.gicentre.data.EqualsFilter;
 import org.gicentre.data.FieldType;
 import org.gicentre.data.NotFilter;
+import org.gicentre.data.Record;
 import org.gicentre.data.summary.SummariseField;
 import org.gicentre.data.summary.SummariseNode;
 import org.gicentre.data.summary.SummariseNull;
@@ -67,7 +68,8 @@ public class TreemapPanel {
 	boolean flagToDoNonStructuralRebuild = false;
 	boolean flagToRedraw = false;
 
-	private Data data;
+	List<Record> records;
+//	private Data data;
 
 	Collection<SummariseField> summariseFields;
 
@@ -99,14 +101,16 @@ public class TreemapPanel {
 	 *            hashmap of the colour scalings.
 	 */
 	public TreemapPanel(PApplet applet, TreemapState treemapState, PFont font,
-			Rectangle bounds, Data data,
+			Rectangle bounds, List<Record> records,
 			Collection<SummariseField> summariseFields) {
 		this.applet = applet;
 		this.bounds = bounds;
 		this.treemapState = treemapState;
 		this.font = font;
-		
-		this.data = data;
+
+		this.records = records;
+
+//		this.data = data;
 		this.summariseFields = summariseFields;
 
 		// setup treemap properties
@@ -186,7 +190,7 @@ public class TreemapPanel {
 				}
 			}
 
-			this.summaryNode = data.getSummary(
+			this.summaryNode = DataUtil.getSummary(records,
 					treemapState.getHierarchyFields(), summariseFields, filter);
 			if (this.summaryNode != null)
 				addSpecifiedValues(this.summaryNode, treemapState);

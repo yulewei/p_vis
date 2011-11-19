@@ -12,7 +12,12 @@ import java.util.List;
 public class DataField {
 	protected String name;
 	protected int colIdx;
+
 	protected FieldType fieldType;
+
+	/**
+	 * 排序后的整列数据
+	 */
 	protected List<Object> orderedValues;
 	protected boolean useAllValues = false;
 
@@ -63,6 +68,10 @@ public class DataField {
 		return this.name;
 	}
 
+	public void setColIdx(int colIdx) {
+		this.colIdx = colIdx;
+	}
+
 	/**
 	 * Returns the column index. This may not be the same as originally Should
 	 * not need to be accessed on common use
@@ -98,6 +107,10 @@ public class DataField {
 		this.orderedValues = orderedValues;
 	}
 
+	public List<Object> getOrderValues() {
+		return this.orderedValues;
+	}
+
 	public void setUseAllValues(boolean useAllValues) {
 		this.useAllValues = useAllValues;
 	}
@@ -106,7 +119,4 @@ public class DataField {
 		return useAllValues;
 	}
 
-	public List<Object> getOrderValues() {
-		return this.orderedValues;
-	}
 }

@@ -11,7 +11,6 @@ import java.util.TreeSet;
 
 import org.gicentre.apps.hide.ColourScaling;
 import org.gicentre.apps.hide.TreemapState.Layout;
-import org.gicentre.data.Data;
 import org.gicentre.data.DataField;
 import org.gicentre.data.FieldType;
 import org.gicentre.data.Record;
@@ -44,7 +43,7 @@ public class ConfigDataLoader {
 	private ArrayList<Layout> layouts;
 
 	private HashSet<SummariseField> summariseFields;
-	private Data data;
+	private List<Record> records;
 
 	public ConfigDataLoader(String configFilename) {
 		DataConfig config = DataConfig.loadConfig(configFilename);
@@ -68,6 +67,51 @@ public class ConfigDataLoader {
 			e.printStackTrace();
 		}
 		return list;
+	}
+
+	protected void parseDataFile(List<DataField> dataFields,
+			List<String[]> recordList) {
+		records = new ArrayList<Record>();
+
+		for (int k = 0; k < recordList.size(); k++) {
+			String[] line = recordList.get(k);
+			Object[] values = parseLine(line, dataFields);
+			records.add(new Record(values));
+		}
+
+		// 更新列索引位置
+		for (int i = 0; i < dataFields.size(); i++) {
+			DataField dataField = dataFields.get(i);
+			dataField.setColIdx(i);
+		}
+	}
+
+	public Object[] parseLine(String[] line, List<DataField> dataFields) {
+		Object[] values = new Object[dataFields.size()];
+		for (int i = 0; i < dataFields.size(); i++) {
+			DataField dataField = dataFields.get(i);
+			String v = line[dataField.getColIdx()];
+			if (v != null) {
+				switch (dataField.getFieldType()) {
+				case LONG:
+					values[i] = Long.parseLong(v);
+					break;
+				case INT:
+					values[i] = Integer.parseInt(v);
+					break;
+				case FLOAT:
+					values[i] = Float.parseFloat(v);
+					break;
+				case DOUBLE:
+					values[i] = Double.parseDouble(v);
+					break;
+				case STRING:
+					values[i] = v.toString().intern();
+					break;
+				}
+			}
+		}
+		return values;
 	}
 
 	public void loadVarData(ArrayList<Variable> varList, List<String[]> list) {
@@ -126,10 +170,12 @@ public class ConfigDataLoader {
 
 		allowedColourVars.add(Math.max(0, allowedColourVars.size() - 1), null);
 
-		data = new Data(datafields, list);
+		// 解析数据文件
+		parseDataFile(datafields, list);
+
 		for (DataField dataField : allowedHierVars) {
 			TreeSet<Object> values = new TreeSet<Object>();
-			for (Record record : data.getRecords()) {
+			for (Record record : records) {
 				Object value = record.getValue(dataField);
 				values.add(value);
 			}
@@ -218,13 +264,8 @@ public class ConfigDataLoader {
 		summariseField.setColourTable(colourTable);
 	}
 
-	/**
-	 * Gets the data (columns/rows)
-	 * 
-	 * @return the data
-	 */
-	public Data getData() {
-		return data;
+	public List<Record> getRecords() {
+		return records;
 	}
 
 	/**

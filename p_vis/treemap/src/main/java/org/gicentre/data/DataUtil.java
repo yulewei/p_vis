@@ -1,7 +1,6 @@
 package org.gicentre.data;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -16,87 +15,7 @@ import org.gicentre.data.summary.SummariseNode;
  * 
  * @author yulewei
  */
-public class Data {
-
-	private List<Record> lines = new ArrayList<Record>();
-
-	/**
-	 * 将读取数据和数据本身分离, 添加 by yulewei
-	 * 
-	 * @author yulewei
-	 * 
-	 * @param dataFields
-	 * @param recordList
-	 */
-	public Data(List<DataField> dataFields, List<String[]> recordList) {
-
-		for (int k = 0; k < recordList.size(); k++) {
-			String[] line = recordList.get(k);
-			Object[] values = parseLine(line, dataFields);
-			lines.add(new Record(values));
-		}
-
-		// 更新列索引位置
-		for (int i = 0; i < dataFields.size(); i++) {
-			DataField dataField = dataFields.get(i);
-			dataField.colIdx = i;
-		}
-	}
-
-	public Object[] parseLine(String[] line, List<DataField> dataFields) {
-		Object[] values = new Object[dataFields.size()];
-		for (int i = 0; i < dataFields.size(); i++) {
-			DataField dataField = dataFields.get(i);
-			String v = line[dataField.colIdx];
-			if (v != null) {
-				switch (dataField.fieldType) {
-				case LONG:
-					values[i] = Long.parseLong(v);
-					break;
-				case INT:
-					values[i] = Integer.parseInt(v);
-					break;
-				case FLOAT:
-					values[i] = Float.parseFloat(v);
-					break;
-				case DOUBLE:
-					values[i] = Double.parseDouble(v);
-					break;
-				case STRING:
-					values[i] = v.toString().intern();
-					break;
-				}
-			}
-		}
-
-		return values;
-	}
-
-	/**
-	 * Returns the records that satisfy a filter/query
-	 * 
-	 * @param dataFilter
-	 * @return a collection of records
-	 */
-	public Collection<Record> getRecords(DataFilter dataFilter) {
-		List<Record> records = new ArrayList<Record>();
-		for (Record record : lines) {
-			if (dataFilter.matches(record)) {
-				records.add(record);
-			}
-		}
-		return records;
-	}
-
-	/**
-	 * Returns all the records
-	 * 
-	 * @param dataFilter
-	 * @return a collection of records
-	 */
-	public Collection<Record> getRecords() {
-		return lines;
-	}
+public class DataUtil {
 
 	/**
 	 * Summarises the contents as a tree of nodes, conditioning by the array of
@@ -110,8 +29,9 @@ public class Data {
 	 *            DataFilter
 	 * @return The root node of a tree that summarises the data
 	 */
-	public SummariseNode getSummary(final DataField[] hierFields,
-			Collection<SummariseField> sumFields, DataFilter dataFilter) {
+	public static SummariseNode getSummary(List<Record> records,
+			final DataField[] hierFields, Collection<SummariseField> sumFields,
+			DataFilter dataFilter) {
 
 		int numLevels = hierFields.length;
 
@@ -121,7 +41,7 @@ public class Data {
 		}
 
 		// 排序, 以便按照索引分组
-		Collections.sort(lines, new Comparator<Record>() {
+		Collections.sort(records, new Comparator<Record>() {
 			@SuppressWarnings("unchecked")
 			@Override
 			public int compare(Record o1, Record o2) {
@@ -142,9 +62,13 @@ public class Data {
 
 		List<Record> sortedRecords = new ArrayList<Record>();
 		if (dataFilter == null) {
-			sortedRecords.addAll(lines);
+			sortedRecords.addAll(records);
 		} else {
-			sortedRecords.addAll(getRecords(dataFilter));
+			for (Record record : records) {
+				if (dataFilter.matches(record)) {
+					sortedRecords.add(record);
+				}
+			}
 		}
 		if (sortedRecords.isEmpty()) {
 			return null;
@@ -254,12 +178,11 @@ public class Data {
 		}
 
 		SummariseNode root = new SummariseNode(null, null, 0, sortedRecords, 0,
-				lines.size() - 1, summaryValues);
+				records.size() - 1, summaryValues);
 		for (SummariseNode node : nodesToAdd[0]) {
 			root.add(node);
 		}
 
 		return root;
 	}
-
 }

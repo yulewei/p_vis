@@ -90,7 +90,7 @@ public class PTreemap extends PApplet {
 
 		// create new treemap panel
 		treemapPanel = new TreemapPanel(this, treemapStateGui, font,
-				new Rectangle(0, 0, width, height), dataLoader.getData(),
+				new Rectangle(0, 0, width, height), dataLoader.getRecords(),
 				dataLoader.getSummariseFields());
 
 		if (defaultHive != null)
