@@ -216,8 +216,8 @@ public class IndicationAnimator extends JPanel implements ActionListener,
 
 		initObs();
 		classPick.fireClassificationChanged();
-		subspace = new int[data.getAttrData().getNumberNumericAttributes()];
-		varNames = data.getAttrData().getNumericAttributeNames();
+		subspace = new int[data.getAttrData().getNumMeasures()];
+		varNames = data.getAttrData().getMeasureNames();
 		for (int i = 0; i < subspace.length; i++) {
 			subspace[i] = i; // oh, the agony
 		}
@@ -234,7 +234,7 @@ public class IndicationAnimator extends JPanel implements ActionListener,
 	public void classificationChanged(ClassificationEvent e) {
 		classes = e.getClassification();
 		if (e.getSource() == classPick) {
-			values = data.getAttrData().getNumericDataAsDouble(classPick
+			values = data.getAttrData().getMeasureColumnAsDouble(classPick
 					.getCurrVariableIndex());
 			if (classes.length != values.length) {
 				return;

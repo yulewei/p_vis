@@ -32,7 +32,7 @@ public class DataSetForApps {
 	}
 
 	public String[] getObservationNames() {
-		return attrData.observationNames;
+		return attrData.getObservationNames();
 	}
 
 	public AttributeData getAttrData() {

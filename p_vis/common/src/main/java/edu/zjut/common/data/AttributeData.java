@@ -1,34 +1,54 @@
 package edu.zjut.common.data;
 
+import org.gicentre.utils.colour.ColourTable;
+
 public class AttributeData {
 
-	public int keyCol = 0;
-	public int nameCol = 1;
+	private int keyCol = 0;
+	private int nameCol = 1;
 
-	public AttrType[] dataTypes;
-	public String[] attributeNames;
+	private AttrType[] dataTypes;
+
+	private String[] attributeNames;
+
+	private SummaryType[] summaryTypes;
+
+	private ColourTable[] colorTables;
 
 	/**
 	 * 类型解析后的文件内容, 数据部分, 按列保存
 	 */
-	public Object[] columnArrays;
+	private Object[] columnArrays;
 
-	public String[] observationNames;
-	public int numObservations;
-	public Object[] dataSetNumeric;
-	public String[] numericAttributeNames;
-	public int numNumericAttributes;
+	// 维度数据
+	private int numObservations;
+	private String[] observationNames;
+	private int numDimensions;
+	private String[] dimensionNames;
+	private Object[] dimensions;
+
+	// 度量(数值)数据
+	public int numMeasures;
+	public String[] measureNames;
+	public Object[] measures;
 
 	public AttributeData(int nameCol, AttrType[] dataTypes, String[] varNames,
-			Object[] columnArrays) {
+			Object[] columnArrays, SummaryType[] summaryTypes,
+			ColourTable[] colorTables) {
 		this.nameCol = nameCol;
 
 		this.dataTypes = dataTypes;
 		this.attributeNames = varNames;
 		this.columnArrays = columnArrays;
 
-		// 属性数据, 提取数值部分
-		initDataSetNumeric();
+		this.summaryTypes = summaryTypes;
+		this.colorTables = colorTables;
+
+		// 提取维度部分
+		initDimensions();
+
+		// 提取度量(数值)部分
+		initMeasures();
 	}
 
 	public AttributeData(int nameCol, String[] varNames, Object[] columnArrays) {
@@ -39,102 +59,139 @@ public class AttributeData {
 
 		initDataTypes();
 
-		initDataSetNumeric();
+		// 提取维度部分
+		initDimensions();
+
+		// 提取度量(数值)部分
+		initMeasures();
 	}
 
 	private void initDataTypes() {
 		dataTypes = new AttrType[columnArrays.length];
 		for (int i = 0; i < columnArrays.length; i++) {
 			if (columnArrays[i] instanceof String[])
-				dataTypes[i] = AttrType.TYPE_STRING;
-			else if (columnArrays[i] instanceof int[])
-				dataTypes[i] = AttrType.TYPE_INT;
-			else if (columnArrays[i] instanceof double[])
-				dataTypes[i] = AttrType.TYPE_DOUBLE;
+				dataTypes[i] = AttrType.STRING;
 			else if (columnArrays[i] instanceof boolean[])
-				dataTypes[i] = AttrType.TYPE_BOOLEAN;
+				dataTypes[i] = AttrType.BOOLEAN;
+			else if (columnArrays[i] instanceof int[])
+				dataTypes[i] = AttrType.INT;
+			else if (columnArrays[i] instanceof double[])
+				dataTypes[i] = AttrType.DOUBLE;
 			else
-				dataTypes[i] = AttrType.TYPE_NONE;
+				dataTypes[i] = AttrType.NONE;
 		}
 	}
 
 	/**
-	 * 属性数据, 提取数值部分
+	 * 提取维度部分
 	 */
-	public void initDataSetNumeric() {
+	private void initDimensions() {
 		observationNames = (String[]) columnArrays[nameCol];
 		if (observationNames != null)
 			numObservations = observationNames.length;
 
 		int len = attributeNames.length;
-		numNumericAttributes = 0;
+		numDimensions = 0;
 		for (int i = 0; i < len; i++) {
-			if (dataTypes[i].isNumericType())
-				numNumericAttributes++;
+			if (dataTypes[i].isDimensionType())
+				numDimensions++;
 		}
 
-		dataSetNumeric = new Object[numNumericAttributes];
-		numericAttributeNames = new String[numNumericAttributes];
+		dimensions = new Object[numDimensions];
+		dimensionNames = new String[numDimensions];
 		int k = 0;
 		for (int i = 0; i < len; i++) {
-			if (dataTypes[i].isNumericType()) {
-				dataSetNumeric[k] = columnArrays[i];
-				numericAttributeNames[k] = attributeNames[i];
+			if (dataTypes[i].isDimensionType()) {
+				dimensions[k] = columnArrays[i];
+				dimensionNames[k] = attributeNames[i];
 				k++;
 			}
 		}
 	}
 
 	/**
-	 * Returns the attribute names for all input arrays.
+	 * 提取度量(数值)部分
 	 */
-	public String[] getAttributeNamesOriginal() {
-		return attributeNames;
+	private void initMeasures() {
+		int len = attributeNames.length;
+		numMeasures = 0;
+		for (int i = 0; i < len; i++) {
+			if (dataTypes[i].isMeasureType())
+				numMeasures++;
+		}
+
+		measures = new Object[numMeasures];
+		measureNames = new String[numMeasures];
+		int k = 0;
+		for (int i = 0; i < len; i++) {
+			if (dataTypes[i].isMeasureType()) {
+				measures[k] = columnArrays[i];
+				measureNames[k] = attributeNames[i];
+				k++;
+			}
+		}
+	}
+
+	public AttrType[] getDataTypes() {
+		return dataTypes;
 	}
 
 	public Object[] getColumnArrays() {
 		return columnArrays;
 	}
 
-	public String getColumnName(int i) {
-		return attributeNames[i];
+	public String[] getAttributeNames() {
+		return attributeNames;
 	}
 
-	public Object[] getDataSetNumeric() {
-		return dataSetNumeric;
+	public SummaryType[] getSummaryTypes() {
+		return summaryTypes;
+	}
+
+	public ColourTable[] getColorTables() {
+		return colorTables;
+	}
+
+	public int getNumObservations() {
+		return numObservations;
 	}
 
 	public String[] getObservationNames() {
 		return observationNames;
 	}
 
-	/**
-	 * Returns the number of numerical variables (double[], int[], and String[])
-	 */
-	public int getNumberNumericAttributes() {
-		return numNumericAttributes;
+	public Object[] getDimensions() {
+		return dimensions;
 	}
 
-	/**
-	 * Returns the number of observations in the data set, for which there are
-	 * attribute names.
-	 */
-	public int getNumObservations() {
-		return numObservations;
+	public String[] getDimensionNames() {
+		return dimensionNames;
 	}
 
-	/**
-	 * This first index is zero, the next one, and so on, the last being
-	 * getNumberNumericAttributes() -1
-	 */
-	public double[] getNumericDataAsDouble(int numericArrayIndex) {
-		Object dataNumeric = dataSetNumeric[numericArrayIndex];
+	public int getNumDimensions() {
+		return numDimensions;
+	}
+
+	public Object[] getMeasures() {
+		return measures;
+	}
+
+	public int getNumMeasures() {
+		return numMeasures;
+	}
+
+	public String[] getMeasureNames() {
+		return measureNames;
+	}
+
+	public double[] getMeasureColumnAsDouble(int col) {
+		Object measure = measures[col];
 		// because it is a string array of variable names
 		double[] doubleData = null;
-		if (dataNumeric instanceof double[]) {
-			doubleData = (double[]) dataNumeric;
-		} else if (dataNumeric instanceof int[]) {
-			int[] intData = (int[]) dataNumeric;
+		if (measure instanceof double[]) {
+			doubleData = (double[]) measure;
+		} else if (measure instanceof int[]) {
+			int[] intData = (int[]) measure;
 			doubleData = new double[intData.length];
 			for (int i = 0; i < intData.length; i++) {
 				if (intData[i] == Integer.MIN_VALUE) {
@@ -145,47 +202,25 @@ public class AttributeData {
 			} // next i
 		} else {
 			throw new IllegalArgumentException(
-					"Unable to parse values in column " + numericArrayIndex
-							+ " as a number");
+					"Unable to parse values in column " + col + " as a number");
 		}
 		return doubleData;
 	}
 
-	/**
-	 * Returns a double where the numericArrayIndex is the nth numeric array in
-	 * the data set, and obs is the nth observation in that array.
-	 */
-	public double getNumericValueAsDouble(int numericArrayIndex, int obs) {
-		Object dataNumeric = dataSetNumeric[numericArrayIndex];
+	public double getMeasureValueAsDouble(int col, int row) {
+		Object measure = measures[col];
 		double[] doubleData = null;
 		double doubleVal = Double.NaN;
-		if (dataNumeric instanceof double[]) {
-			doubleData = (double[]) dataNumeric;
-			doubleVal = doubleData[obs];
-		} else if (dataNumeric instanceof int[]) {
-			int[] intData = (int[]) dataNumeric;
-			doubleVal = intData[obs];
+		if (measure instanceof double[]) {
+			doubleData = (double[]) measure;
+			doubleVal = doubleData[row];
+		} else if (measure instanceof int[]) {
+			int[] intData = (int[]) measure;
+			doubleVal = intData[row];
 		} else {
 			throw new IllegalArgumentException(
-					"Unable to parse values in column " + numericArrayIndex
-							+ " as a number");
+					"Unable to parse values in column " + col + " as a number");
 		}
 		return doubleVal;
-	}
-
-	/**
-	 * Returns the names of only the numerical variables (double[], int[], and
-	 * boolean[]) from the attribute arrays.
-	 */
-	public String[] getNumericAttributeNames() {
-		return numericAttributeNames;
-	}
-
-	/**
-	 * Returns the name of the nth numeric array.
-	 */
-
-	public String getNumericArrayName(int arrayPlace) {
-		return numericAttributeNames[arrayPlace];
 	}
 }

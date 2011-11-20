@@ -1,16 +1,15 @@
 <dataConfig>
 	<datasetName>杭州房地产数据</datasetName>
 
-	<key>smid</key>
-	<name>楼盘</name>
-
 	<attr>
 		<fileName>final_v0.9.3.csv</fileName>
 		<fileType>csv</fileType>
+		<key>smid</key>
+		<name>楼盘</name>
 		<attribute>
 			<name>smid</name>
 			<colIdx>1</colIdx>
-			<dataType>int</dataType>
+			<dataType>id</dataType>
 		</attribute>
 		<attribute>
 			<name>楼盘</name>
@@ -36,6 +35,8 @@
 			<name>总套数</name>
 			<colIdx>6</colIdx>
 			<dataType>int</dataType>
+			<summaryType>sum</summaryType>
+			<colorMap preset="OR_RD" />
 		</attribute>
 		<attribute>
 			<name>总面积</name>
@@ -56,12 +57,24 @@
 			<name>累积成交毛坯均价</name>
 			<colIdx>18</colIdx>
 			<dataType>double</dataType>
+			<summaryType>mean</summaryType>
+			<colorMap preset="OR_RD" />
 		</attribute>
 		<attribute>
 			<name>开盘次数</name>
 			<colIdx>20</colIdx>
 			<dataType>int</dataType>
+			<summaryType>sum</summaryType>
+			<colorMap preset="OR_RD" />
 		</attribute>
+		<hierSet>
+			<hier>
+				<name>城区</name>
+				<hier>
+					<name>楼盘</name>
+				</hier>
+			</hier>
+		</hierSet>
 	</attr>
 
 	<geo>

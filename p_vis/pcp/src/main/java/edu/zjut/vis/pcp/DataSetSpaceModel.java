@@ -44,10 +44,10 @@ public class DataSetSpaceModel extends SimpleParallelSpaceModel {
 	private void parseData() {
 		AttributeData attrData = dataSet.getAttrData();
 
-		int numDimensions = attrData.getNumberNumericAttributes();
+		int numDimensions = attrData.getNumMeasures();
 		int numObservations = attrData.getNumObservations();
 
-		String[] numericAttributeNames = attrData.getNumericAttributeNames();
+		String[] numericAttributeNames = attrData.getMeasureNames();
 		String[] observationNames = attrData.getObservationNames();
 
 		this.initNumDimensions(numDimensions);
@@ -55,7 +55,7 @@ public class DataSetSpaceModel extends SimpleParallelSpaceModel {
 
 		for (int i = 0; i < numObservations; i++) {
 			float[] dataVals = new float[numDimensions];
-			Object[] numericArrays = attrData.getDataSetNumeric();
+			Object[] numericArrays = attrData.getMeasures();
 			for (int j = 0; j < numDimensions; j++) {
 				Object colum = numericArrays[j];
 				if (colum instanceof double[]) {

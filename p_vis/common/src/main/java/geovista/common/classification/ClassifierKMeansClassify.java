@@ -35,8 +35,8 @@ public class ClassifierKMeansClassify {
 		// remove string data
 		DataSetForApps dataObjTransfer = dataSet;
 
-		dataObject = dataObjTransfer.getAttrData().getDataSetNumeric();
-		attributesDisplay = dataObjTransfer.getAttrData().getNumericAttributeNames();
+		dataObject = dataObjTransfer.getAttrData().getMeasures();
+		attributesDisplay = dataObjTransfer.getAttrData().getMeasureNames();
 		dataArray = new double[dataObjTransfer.getAttrData().getNumObservations()][attributesDisplay.length];
 		// transfer data array to double array
 		for (int j = 0; j < attributesDisplay.length; j++) {

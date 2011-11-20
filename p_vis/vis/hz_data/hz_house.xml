@@ -1,12 +1,11 @@
 <dataConfig>
 	<datasetName>杭州房地产数据</datasetName>
 
-	<key>smid</key>
-	<name>楼盘</name>
-
 	<attr>
 		<fileName>hz_data/final_v0.9.3.csv</fileName>
 		<fileType>csv</fileType>
+		<key>smid</key>
+		<name>楼盘</name>
 		<attribute>
 			<name>smid</name>
 			<colIdx>1</colIdx>
@@ -36,6 +35,8 @@
 			<name>总套数</name>
 			<colIdx>6</colIdx>
 			<dataType>int</dataType>
+			<summaryType>sum</summaryType>
+			<colorMap preset="OR_RD" />
 		</attribute>
 		<attribute>
 			<name>总面积</name>
@@ -56,12 +57,24 @@
 			<name>累积成交毛坯均价</name>
 			<colIdx>18</colIdx>
 			<dataType>double</dataType>
+			<summaryType>mean</summaryType>
+			<colorMap preset="OR_RD" />
 		</attribute>
 		<attribute>
 			<name>开盘次数</name>
 			<colIdx>20</colIdx>
 			<dataType>int</dataType>
+			<summaryType>sum</summaryType>
+			<colorMap preset="OR_RD" />
 		</attribute>
+		<hierSet>
+			<hier>
+				<name>城区</name>
+				<hier>
+					<name>楼盘</name>
+				</hier>
+			</hier>
+		</hierSet>
 	</attr>
 
 	<geo>
@@ -76,12 +89,12 @@
 				<y>5</y>
 			</col>
 		</feature>
-<!-- 		<feature>
+		<feature>
 			<name>城区</name>
 			<geoType>polygon</geoType>
 			<fileName>map/44.json</fileName>
 			<fileType>geojson</fileType>
-		</feature> -->
+		</feature>
 		<feature>
 			<name>规划单元</name>
 			<geoType>polygon</geoType>
@@ -89,4 +102,7 @@
 			<fileType>geojson</fileType>
 		</feature>
 	</geo>
+	<time>
+		<fileName>sale_data_by_date.csv</fileName>
+	</time>
 </dataConfig>

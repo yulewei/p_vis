@@ -102,7 +102,7 @@ public class VariablePicker extends JPanel implements DataSetListener,
 	 */
 	private String[] setVariableNames(DataSetForApps data) {
 
-		String[] newVarNames = data.getAttrData().getNumericAttributeNames();
+		String[] newVarNames = data.getAttrData().getMeasureNames();
 		return newVarNames;
 	}
 

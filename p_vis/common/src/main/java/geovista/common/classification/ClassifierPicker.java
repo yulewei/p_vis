@@ -146,7 +146,7 @@ public class ClassifierPicker extends JPanel implements ActionListener,
 
 						}
 						double[] data = dataSet.getAttrData()
-								.getNumericDataAsDouble(currVariableIndex);
+								.getMeasureColumnAsDouble(currVariableIndex);
 						custGUI.setData(data);
 						custGUI.show();
 						custGUI.setVisible(true);
@@ -266,8 +266,8 @@ public class ClassifierPicker extends JPanel implements ActionListener,
 
 	public void setDataSet(DataSetForApps data) {
 		dataSet = data;
-		setVariableNames(dataSet.getAttrData().getNumericAttributeNames());
-		if (dataSet.getAttrData().getNumberNumericAttributes() > 1) {
+		setVariableNames(dataSet.getAttrData().getMeasureNames());
+		if (dataSet.getAttrData().getNumMeasures() > 1) {
 			variableCombo.setSelectedIndex(0);
 		}
 	}
@@ -425,7 +425,7 @@ public class ClassifierPicker extends JPanel implements ActionListener,
 
 		int nClasses = getNClasses();
 		Classifier classer = getClasser();
-		double[] data = dataSet.getAttrData().getNumericDataAsDouble(currVariableIndex);
+		double[] data = dataSet.getAttrData().getMeasureColumnAsDouble(currVariableIndex);
 		if (data.length != classification.length) {
 			if (classer instanceof ClassifierCustom) {
 				ClassifierCustom cust = (ClassifierCustom) classer;

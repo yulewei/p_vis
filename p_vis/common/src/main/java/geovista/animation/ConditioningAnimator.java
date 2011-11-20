@@ -268,7 +268,7 @@ public class ConditioningAnimator extends JPanel implements ActionListener,
 	 */
 	private void instantiateCurrentVariable(int currVar) {
 
-		double[] values = data.getAttrData().getNumericDataAsDouble(currVar);
+		double[] values = data.getAttrData().getMeasureColumnAsDouble(currVar);
 		for (int i = 0; i < obs.length; i++) {
 			obs[i].index = i;
 			obs[i].value = values[i];
@@ -324,7 +324,7 @@ public class ConditioningAnimator extends JPanel implements ActionListener,
 	public void dataSetChanged(DataSetEvent e) {
 		data = e.getDataSetForApps();
 		currConditioning = new int[data.getAttrData().getNumObservations()];
-		String[] numericVarNames = data.getAttrData().getNumericAttributeNames();
+		String[] numericVarNames = data.getAttrData().getMeasureNames();
 		for (String element : numericVarNames) {
 			varCombo.addItem(element);
 		}
@@ -334,7 +334,7 @@ public class ConditioningAnimator extends JPanel implements ActionListener,
 		for (int i = 0; i < obs.length; i++) {
 			obs[i] = new ClassedObs();
 		}
-		subspace = new int[data.getAttrData().getNumberNumericAttributes()];
+		subspace = new int[data.getAttrData().getNumMeasures()];
 		for (int i = 0; i < subspace.length; i++) {
 			subspace[i] = i;
 		}

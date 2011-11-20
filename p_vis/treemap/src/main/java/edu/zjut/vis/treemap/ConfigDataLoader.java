@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -182,14 +181,7 @@ public class ConfigDataLoader {
 			List<Object> orderedList = new ArrayList<Object>();
 			orderedList.addAll(values);
 			dataField.setOrderedValues(orderedList);
-		}
-
-		layouts = new ArrayList<Layout>();
-		layouts.add(Layout.ONE_DIM_STRIP);
-		layouts.add(Layout.ONE_DIM_LEFT_RIGHT);
-		layouts.add(Layout.ONE_DIM_TOP_BOTTOM);
-		layouts.add(Layout.TWO_DIMENSIONAL);
-		layouts.add(Layout.ABS_POSITION);
+		}		
 	}
 
 	private SummariseField parseSummaryType(String name, String summaryType,

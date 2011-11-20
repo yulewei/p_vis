@@ -239,7 +239,7 @@ public class SelectionAnimator extends JPanel implements ActionListener,
 			obs[i].index = i;
 		}
 		classPick.fireClassificationChanged();
-		subspace = new int[data.getAttrData().getNumberNumericAttributes()];
+		subspace = new int[data.getAttrData().getNumMeasures()];
 		for (int i = 0; i < subspace.length; i++) {
 			subspace[i] = i;// + 1; //oh, the agony
 		}

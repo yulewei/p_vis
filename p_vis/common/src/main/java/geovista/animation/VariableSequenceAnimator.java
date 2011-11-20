@@ -106,7 +106,7 @@ public class VariableSequenceAnimator extends JPanel implements ActionListener,
 	}
 
 	private void iterateVariables() {
-		if (currentVarIndex < data.getAttrData().getNumberNumericAttributes()) { // go up one
+		if (currentVarIndex < data.getAttrData().getNumMeasures()) { // go up one
 			// this.fireConditioningChanged(this.currConditioning);
 			fireVariableSelectionChanged(currentVarIndex);
 			ticker.setDelay(speed);
@@ -150,7 +150,7 @@ public class VariableSequenceAnimator extends JPanel implements ActionListener,
 	public void dataSetChanged(DataSetEvent e) {
 		data = e.getDataSetForApps();
 		varCombo.removeAllItems();
-		String[] numericVarNames = data.getAttrData().getNumericAttributeNames();
+		String[] numericVarNames = data.getAttrData().getMeasureNames();
 		for (String element : numericVarNames) {
 			varCombo.addItem(element);
 		}

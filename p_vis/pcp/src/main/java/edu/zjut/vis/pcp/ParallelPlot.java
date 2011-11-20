@@ -38,7 +38,7 @@ public class ParallelPlot extends ParvisPlot implements DataSetListener,
 		dataSet = e.getDataSetForApps();
 		attrData = dataSet.getAttrData();
 
-		int nVars = attrData.getNumberNumericAttributes();
+		int nVars = attrData.getNumMeasures();
 		int min = nVars < MAX_AXES ? nVars : MAX_AXES;
 		int[] vars = new int[min];
 		for (int i = 0; i < min; i++) {
@@ -54,13 +54,13 @@ public class ParallelPlot extends ParvisPlot implements DataSetListener,
 	}
 
 	private void setSubspace(int[] vars) {
-		int nNumeric = attrData.getNumberNumericAttributes();
+		int nNumeric = attrData.getNumMeasures();
 		int nVars = Math.min(vars.length, Math.min(nNumeric, MAX_AXES));
 
 		// ÊôÐÔÃû³Æ
 		String[] varNamesNew = new String[nVars + 1];
 		varNamesNew[0] = "name";
-		String[] numericAttributeNames = attrData.getNumericAttributeNames();
+		String[] numericAttributeNames = attrData.getMeasureNames();
 		for (int i = 1; i < (nVars + 1); i++) {
 			varNamesNew[i] = numericAttributeNames[i - 1];
 		}
@@ -71,7 +71,7 @@ public class ParallelPlot extends ParvisPlot implements DataSetListener,
 		for (int i = 0; i < nVars; i++) {
 			int var = vars[i];
 			if (var < nNumeric) {
-				newDataSet[i + 1] = attrData.getNumericDataAsDouble(var);
+				newDataSet[i + 1] = attrData.getMeasureColumnAsDouble(var);
 			}
 		}
 

@@ -1,10 +1,13 @@
 package edu.zjut.common.io;
 
+import java.awt.Color;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import org.gicentre.utils.colour.ColourTable;
 
 import au.com.bytecode.opencsv.CSVReader;
 
@@ -12,14 +15,20 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
+import edu.zjut.commom.color.ColourScaling;
 import edu.zjut.common.data.AttributeData;
 import edu.zjut.common.data.DataSetForApps;
 import edu.zjut.common.data.AttrType;
 import edu.zjut.common.data.EsriFeatureObj;
 import edu.zjut.common.data.GeometryData;
+import edu.zjut.common.data.SummaryType;
 import edu.zjut.common.data.TimeData;
+import edu.zjut.common.io.DataConfig.Attr;
 import edu.zjut.common.io.DataConfig.Attr.Attribute;
+import edu.zjut.common.io.DataConfig.ColorMap;
+import edu.zjut.common.io.DataConfig.Geo;
 import edu.zjut.common.io.DataConfig.Geo.Feature;
+import edu.zjut.common.io.DataConfig.Time;
 
 /**
  * 
@@ -45,9 +54,9 @@ public class DataSetLoader {
 		this.configFile = xmlfile;
 		this.config = DataConfig.loadConfig(xmlfile);
 
-		readAttributeData(config);
-		readGeometryData(config);
-		readTimeData(config);
+		readAttributeData(config.attr);
+		readGeometryData(config.geo);
+		readTimeData(config.time);
 
 		dataForApps = new DataSetForApps(attrData, geoData, timeData);
 	}
@@ -57,8 +66,8 @@ public class DataSetLoader {
 	 * 
 	 * @param config
 	 */
-	public void readAttributeData(DataConfig config) {
-		ArrayList<Attribute> attrList = config.attr.attrList;
+	public void readAttributeData(Attr attrConfig) {
+		ArrayList<Attribute> attrList = attrConfig.attrList;
 
 		int keyCol = 0;
 		int nameCol = 1;
@@ -67,29 +76,35 @@ public class DataSetLoader {
 
 		AttrType[] dataTypes = new AttrType[len];
 		String[] attributeNames = new String[len];
+		SummaryType[] summaryTypes = new SummaryType[len];
+		ColourTable[] colorTables = new ColourTable[len];
 		for (int i = 0; i < len; i++) {
 			Attribute attr = attrList.get(i);
 			if (attr.dataType.equalsIgnoreCase("id")) {
-				dataTypes[i] = AttrType.TYPE_ID;
+				dataTypes[i] = AttrType.ID;
 			}
 			if (attr.dataType.equalsIgnoreCase("int")) {
-				dataTypes[i] = AttrType.TYPE_INT;
+				dataTypes[i] = AttrType.INT;
 			} else if (attr.dataType.equalsIgnoreCase("double")) {
-				dataTypes[i] = AttrType.TYPE_DOUBLE;
+				dataTypes[i] = AttrType.DOUBLE;
 			} else if (attr.dataType.equalsIgnoreCase("string")) {
-				dataTypes[i] = AttrType.TYPE_STRING;
+				dataTypes[i] = AttrType.STRING;
 			}
 			attributeNames[i] = attr.name;
+			summaryTypes[i] = attr.summaryType == null ? null : SummaryType
+					.valueOf(attr.summaryType.toUpperCase());
+			colorTables[i] = (attr.colorMap == null ? null
+					: parseColorMap(attr.colorMap));
 
-			if (attr.name.equals(config.name))
+			if (attr.name.equals(attrConfig.name))
 				nameCol = i;
 		}
 
 		Object[] columnArrays = readFileContent(dataTypes, attrList,
-				config.attr.fileName, 1);
+				attrConfig.fileName, 1);
 
 		this.attrData = new AttributeData(nameCol, dataTypes, attributeNames,
-				columnArrays);
+				columnArrays, summaryTypes, colorTables);
 	}
 
 	/**
@@ -97,11 +112,11 @@ public class DataSetLoader {
 	 * 
 	 * @param config
 	 */
-	public void readGeometryData(DataConfig config) {
+	public void readGeometryData(Geo geoConfig) {
 		HashMap<String, Geometry> nameGeometrys = new HashMap<String, Geometry>();
 		List<EsriFeatureObj[]> layers = new ArrayList<EsriFeatureObj[]>();
 
-		ArrayList<Feature> featureList = config.geo.featureList;
+		ArrayList<Feature> featureList = geoConfig.featureList;
 
 		for (Feature feature : featureList) {
 			if (feature.fileType.equalsIgnoreCase("csv")) {
@@ -124,7 +139,7 @@ public class DataSetLoader {
 	 * 
 	 * @param config
 	 */
-	public void readTimeData(DataConfig config) {
+	public void readTimeData(Time timeConfig) {
 
 	}
 
@@ -148,25 +163,25 @@ public class DataSetLoader {
 			ex.printStackTrace();
 		}
 
-		int len = fileContent.size();
+		int len = fileContent.size() - beg;
 
 		// ≥ı ºªØcolumnArrays
 		for (int i = 0; i < dataTypes.length; i++) {
 			switch (dataTypes[i]) {
-			case TYPE_ID:
-			case TYPE_INT:
+			case ID:
+			case INT:
 				columnArrays[i] = new int[len];
 				break;
-			case TYPE_DOUBLE:
+			case DOUBLE:
 				columnArrays[i] = new double[len];
 				break;
-			case TYPE_STRING:
+			case STRING:
 				columnArrays[i] = new String[len];
 				break;
 			}
 		}
 
-		for (int row = beg; row < len; row++) {
+		for (int row = beg; row < len + beg; row++) {
 			String[] line = fileContent.get(row);
 
 			int[] ints = null;
@@ -178,17 +193,17 @@ public class DataSetLoader {
 				int col = attr.colIdx;
 				String item = line[col - 1];
 				switch (dataTypes[i]) {
-				case TYPE_ID:
-				case TYPE_INT:
+				case ID:
+				case INT:
 					ints = (int[]) columnArrays[i];
 					ints[row - beg] = Integer.parseInt(item);
 					break;
-				case TYPE_DOUBLE:
+				case DOUBLE:
 					doubles = (double[]) columnArrays[i];
 					doubles[row - beg] = item.equals("") ? 0 : Double
 							.parseDouble(item);
 					break;
-				case TYPE_STRING:
+				case STRING:
 					strings = (String[]) columnArrays[i];
 					strings[row - beg] = item;
 					break;
@@ -197,6 +212,25 @@ public class DataSetLoader {
 		}
 
 		return columnArrays;
+	}
+
+	private ColourTable parseColorMap(ColorMap colorMap) {
+		ColourTable colourTable = null;
+
+		if (colorMap.preset != null) {
+			int type = 0;
+			try {
+				type = ColourTable.class.getField(colorMap.preset).getInt(
+						ColourTable.class);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			colourTable = ColourTable.getPresetColourTable(type);
+		} else {
+			colourTable = new ColourTable();
+		}
+
+		return colourTable;
 	}
 
 	private void loadGeoCSV(HashMap<String, Geometry> nameGeometrys,

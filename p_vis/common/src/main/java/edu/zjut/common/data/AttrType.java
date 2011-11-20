@@ -3,13 +3,18 @@ package edu.zjut.common.data;
 /**
  * 
  * @author yulewei
- *
+ * 
  */
 public enum AttrType {
-	TYPE_NONE, TYPE_ID, TYPE_STRING, TYPE_INT, TYPE_DOUBLE, TYPE_BOOLEAN;
+	NONE, ID, STRING, INT, DOUBLE, BOOLEAN;
 
-	public boolean isNumericType() {
-		return this == TYPE_INT || this == TYPE_DOUBLE
-				|| this == TYPE_BOOLEAN;
+	public boolean isDimensionType() {
+		// return this == TYPE_ID || this == TYPE_STRING || this ==
+		// TYPE_BOOLEAN;
+		return this == STRING;
+	}
+
+	public boolean isMeasureType() {
+		return this == INT || this == DOUBLE;
 	}
 }

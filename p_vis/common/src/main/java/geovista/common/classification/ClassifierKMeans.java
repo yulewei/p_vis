@@ -32,8 +32,8 @@ public class ClassifierKMeans implements DataSetListener {
 	public void setDataSet(DataSetForApps data) {
 		// remove string data
 		DataSetForApps dataObjTransfer = data;
-		dataObject = dataObjTransfer.getAttrData().getDataSetNumeric();
-		attributesDisplay = dataObjTransfer.getAttrData().getNumericAttributeNames();
+		dataObject = dataObjTransfer.getAttrData().getMeasures();
+		attributesDisplay = dataObjTransfer.getAttrData().getMeasureNames();
 		dataArray = new double[dataObjTransfer.getAttrData().getNumObservations()][attributesDisplay.length];
 		// transfer data array to double array
 		for (int j = 0; j < attributesDisplay.length; j++) {

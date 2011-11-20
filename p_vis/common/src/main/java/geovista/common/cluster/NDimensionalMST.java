@@ -59,21 +59,21 @@ public class NDimensionalMST {
 
 		AttributeData data = _data.getAttrData();
 
-		points = new int[data.getNumberNumericAttributes()];
+		points = new int[data.getNumMeasures()];
 
 		// this.tempLow = new double[data.getNumberNumericAttributes()];
 		// this.tempHigh = new double[data.getNumberNumericAttributes()];
 
-		for (int i = 0; i < data.getNumberNumericAttributes(); i++) {
+		for (int i = 0; i < data.getNumMeasures(); i++) {
 			points[i] = i; // set the id = implicit index
 		}
 
-		int nEdges = (data.getNumberNumericAttributes())
-				* (data.getNumberNumericAttributes()); // matrix,
+		int nEdges = (data.getNumMeasures())
+				* (data.getNumMeasures()); // matrix,
 														// so
 														// square
 														// it
-		nEdges = nEdges - data.getNumberNumericAttributes(); // take
+		nEdges = nEdges - data.getNumMeasures(); // take
 																// diagonal
 		// away (no
 		// distances
@@ -92,10 +92,10 @@ public class NDimensionalMST {
 		double dist = 0;
 		int edgeCount = 0;
 
-		Object[] doubleData = new Object[data.getNumberNumericAttributes()];
-		for (int i = 0; i < data.getNumberNumericAttributes(); i++) {
+		Object[] doubleData = new Object[data.getNumMeasures()];
+		for (int i = 0; i < data.getNumMeasures(); i++) {
 			// +1 for datasetforapps foulness
-			doubleData[i] = data.getNumericDataAsDouble(i); // set
+			doubleData[i] = data.getMeasureColumnAsDouble(i); // set
 			// the
 			// id =
 			// implicit
@@ -104,10 +104,10 @@ public class NDimensionalMST {
 		double[] doubleOrigin = null;
 		double[] doubleDest = null;
 		logger.finest("before making edges");
-		for (int origin = 0; origin < data.getNumberNumericAttributes(); origin++) {
+		for (int origin = 0; origin < data.getNumMeasures(); origin++) {
 			int originPoint = points[origin];
 
-			for (int dest = 1; dest < data.getNumberNumericAttributes(); dest++) {
+			for (int dest = 1; dest < data.getNumMeasures(); dest++) {
 				if (origin < dest) {
 					int destPoint = points[dest];
 					doubleOrigin = (double[]) doubleData[origin];
@@ -156,7 +156,7 @@ public class NDimensionalMST {
 
 		for (int i = 0; i < selectedIndicies.length; i++) {
 			doubleData[i] = NDimensionalMST.normalize(data
-					.getNumericDataAsDouble(selectedIndicies[i])); // skip
+					.getMeasureColumnAsDouble(selectedIndicies[i])); // skip
 			// variable
 			// names
 		}

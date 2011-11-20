@@ -12,6 +12,7 @@ import java.math.RoundingMode;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -53,18 +54,20 @@ public class PTreemap extends PApplet {
 	List<Layout> layouts;
 	List<Record> records;
 
-	public PTreemap(List<DataField> hierFields,
-			List<SummariseField> summariseFields, List<Layout> layouts,
-			List<Record> records) {
-		this(hierFields, summariseFields, layouts, records, null);
+	public PTreemap() {
+		layouts = new ArrayList<Layout>();
+		layouts.add(Layout.ONE_DIM_STRIP);
+		layouts.add(Layout.ONE_DIM_LEFT_RIGHT);
+		layouts.add(Layout.ONE_DIM_TOP_BOTTOM);
+		layouts.add(Layout.TWO_DIMENSIONAL);
+		layouts.add(Layout.ABS_POSITION);
 	}
 
-	public PTreemap(List<DataField> hierFields,
-			List<SummariseField> summariseFields, List<Layout> layouts,
-			List<Record> records, String defaultHive) {
+	public void setData(List<DataField> hierFields,
+			List<SummariseField> summariseFields, List<Record> records,
+			String defaultHive) {
 		this.hierFields = hierFields;
 		this.summariseFields = summariseFields;
-		this.layouts = layouts;
 		this.records = records;
 
 		this.defaultHive = defaultHive;

@@ -23,6 +23,11 @@ public class DataConfig {
 		xstream.alias("attr", DataConfig.Attr.class);
 		xstream.addImplicitCollection(DataConfig.Attr.class, "attrList");
 		xstream.alias("attribute", DataConfig.Attr.Attribute.class);
+		xstream.alias("hier", DataConfig.Attr.Hier.class);
+
+		xstream.alias("colorMap", DataConfig.ColorMap.class);
+		xstream.useAttributeFor(DataConfig.ColorMap.class, "preset");
+		xstream.useAttributeFor(DataConfig.ColorMap.class, "scaling");
 
 		xstream.alias("geo", DataConfig.Geo.class);
 		xstream.addImplicitCollection(DataConfig.Geo.class, "featureList");
@@ -34,17 +39,34 @@ public class DataConfig {
 		return xstream;
 	}
 
+	static class ColorMap {
+		String preset;
+		String scaling;
+	}
+
 	static class Attr {
 		static class Attribute {
 			String name;
 			int colIdx;
 			String dataType;
+
+			String summaryType;
+			ColorMap colorMap;
+		}
+
+		static class Hier {
+			String name;
+			Hier hier;
 		}
 
 		String fileName;
 		String fileType;
 
+		String key;
+		String name;
+
 		ArrayList<Attribute> attrList;
+		ArrayList<Hier> hierSet;
 	}
 
 	static class Geo {
@@ -68,8 +90,6 @@ public class DataConfig {
 	}
 
 	String datasetName;
-	String key;
-	String name;
 	Attr attr;
 	Geo geo;
 	Time time;
