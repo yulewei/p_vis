@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.gicentre.apps.hide.TreemapState.Layout;
 import org.gicentre.data.DataField;
 import org.gicentre.data.summary.SummariseField;
 import org.gicentre.data.summary.SummariseNull;
@@ -55,10 +56,19 @@ public class TreemapStateGui extends TreemapState {
 	private Rectangle[] filterRectangles;
 
 	private AppearanceType[] appearanceTypesEditing;
-
 	private boolean flagToRelayoutGui = true;// flag to relayout GUI
 
 	private int guiHeight;
+
+	public TreemapStateGui(PApplet applet, int x, int y, PFont font,
+			int numOrderStates, int numSizeStates, int numColourStates,
+			List<DataField> hierFields, List<SummariseField> sumFields,
+			List<Layout> layouts) {
+		this(applet, x, y, font, numOrderStates, numSizeStates,
+				numColourStates, hierFields, new ArrayList<SummariseField>(
+						sumFields), new ArrayList<SummariseField>(sumFields),
+				new ArrayList<SummariseField>(sumFields), layouts);
+	}
 
 	/**
 	 * Constructor
@@ -102,72 +112,6 @@ public class TreemapStateGui extends TreemapState {
 		this.y = y;
 		this.f = font;
 		this.applet = applet;
-
-		// mkae sure there are no duplicates
-		// If empty, add a null value...
-		// ...but the hierarchy field values need at least one value
-
-		// set allowed hierarchy fields
-		this.allowedHierarchyFields = new ArrayList<DataField>();
-		if (allowedHierarchyFields != null) {
-			Iterator<DataField> it = allowedHierarchyFields.iterator();
-			while (it.hasNext()) {
-				DataField dataField = it.next();
-				if (dataField != null
-						&& !this.allowedHierarchyFields.contains(dataField)) {
-					this.allowedHierarchyFields.add(dataField);
-				}
-			}
-		}
-		if (this.allowedHierarchyFields.isEmpty()) {
-			System.err
-					.println("There must be at least one hierarchy field allowed. Nulls are not allowed");
-			return;
-		}
-
-		// set allowed size fields
-		this.allowedSizeFields = new ArrayList<SummariseField>();
-		if (allowedSizeFields != null) {
-			Iterator<SummariseField> it = allowedSizeFields.iterator();
-			while (it.hasNext()) {
-				SummariseField dataField = it.next();
-				if (!this.allowedSizeFields.contains(dataField))
-					this.allowedSizeFields.add(dataField);
-			}
-		}
-		if (this.allowedSizeFields.isEmpty())
-			this.allowedSizeFields.add(null);// make sure there's at least one
-												// element, even if it's null
-
-		// set allowed order fields
-		this.allowedOrderFields = new ArrayList<SummariseField>();
-		if (allowedOrderFields != null) {
-			Iterator<SummariseField> it = allowedOrderFields.iterator();
-			while (it.hasNext()) {
-				SummariseField dataField = it.next();
-				if (!this.allowedOrderFields.contains(dataField)) {
-					this.allowedOrderFields.add(dataField);
-				}
-			}
-		}
-		if (this.allowedOrderFields.isEmpty())
-			this.allowedOrderFields.add(null);// make sure there's at least one
-												// element, even if it's null
-
-		// set allowed colour fields
-		this.allowedColourFields = new ArrayList<SummariseField>();
-		if (allowedColourFields != null) {
-			this.allowedColourFields = allowedColourFields;
-		}
-		if (this.allowedColourFields.isEmpty())
-			this.allowedColourFields.add(null);// make sure there's at least one
-												// element, even if it's null
-
-		// set allowed layouts
-		this.allowedLayouts = new ArrayList<Layout>();
-		if (allowedLayouts != null) {
-			this.allowedLayouts = allowedLayouts;
-		}
 
 		applet.textFont(f);
 		textHeight = (int) (applet.textAscent() + applet.textDescent());

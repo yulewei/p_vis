@@ -36,13 +36,13 @@ import edu.zjut.vis.treemap.DataConfig.Variable;
 public class ConfigDataLoader {
 
 	private String datasetName;
-	private ArrayList<DataField> allowedHierVars;
-	private ArrayList<SummariseField> allowedOrderVars;
-	private ArrayList<SummariseField> allowedSizeVars;
-	private ArrayList<SummariseField> allowedColourVars;
-	private ArrayList<Layout> layouts;
+	private List<DataField> allowedHierVars;
+	private List<SummariseField> allowedOrderVars;
+	private List<SummariseField> allowedSizeVars;
+	private List<SummariseField> allowedColourVars;
+	private List<Layout> layouts;
 
-	private HashSet<SummariseField> summariseFields;
+	private List<SummariseField> summariseFields;
 	private List<Record> records;
 
 	public ConfigDataLoader(String configFilename) {
@@ -120,7 +120,7 @@ public class ConfigDataLoader {
 		TreeMap<Integer, DataField> hierVars = new TreeMap<Integer, DataField>();
 
 		// summary variables
-		summariseFields = new HashSet<SummariseField>();
+		summariseFields = new ArrayList<SummariseField>();
 		allowedOrderVars = new ArrayList<SummariseField>();
 		allowedSizeVars = new ArrayList<SummariseField>();
 		allowedColourVars = new ArrayList<SummariseField>();
@@ -273,7 +273,7 @@ public class ConfigDataLoader {
 	 * 
 	 * @return
 	 */
-	public HashSet<SummariseField> getSummariseFields() {
+	public List<SummariseField> getSummariseFields() {
 		return summariseFields;
 	}
 
@@ -282,7 +282,7 @@ public class ConfigDataLoader {
 	 * 
 	 * @return
 	 */
-	public ArrayList<DataField> getAllowedHierVars() {
+	public List<DataField> getAllowedHierVars() {
 		return allowedHierVars;
 	}
 
@@ -291,7 +291,7 @@ public class ConfigDataLoader {
 	 * 
 	 * @return
 	 */
-	public ArrayList<SummariseField> getAllowedOrderVars() {
+	public List<SummariseField> getAllowedOrderVars() {
 		return allowedOrderVars;
 	}
 
@@ -300,7 +300,7 @@ public class ConfigDataLoader {
 	 * 
 	 * @return
 	 */
-	public ArrayList<SummariseField> getAllowedSizeVars() {
+	public List<SummariseField> getAllowedSizeVars() {
 		return allowedSizeVars;
 	}
 
@@ -310,7 +310,7 @@ public class ConfigDataLoader {
 	 * @return
 	 */
 
-	public ArrayList<SummariseField> getAllowedColourVars() {
+	public List<SummariseField> getAllowedColourVars() {
 		return allowedColourVars;
 	}
 
@@ -319,7 +319,7 @@ public class ConfigDataLoader {
 	 * 
 	 * @return
 	 */
-	public ArrayList<Layout> getLayouts() {
+	public List<Layout> getLayouts() {
 		return layouts;
 	}
 

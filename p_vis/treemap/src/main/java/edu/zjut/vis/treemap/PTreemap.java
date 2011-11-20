@@ -15,12 +15,16 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 
 import javax.swing.tree.TreeNode;
 
 import org.gicentre.apps.hide.TreemapPanel;
 import org.gicentre.apps.hide.TreemapStateGui;
+import org.gicentre.apps.hide.TreemapState.Layout;
+import org.gicentre.data.DataField;
 import org.gicentre.data.FieldType;
+import org.gicentre.data.Record;
 import org.gicentre.data.summary.SummariseField;
 import org.gicentre.data.summary.SummariseNode;
 import org.gicentre.data.summary.SummariseNull;
@@ -43,14 +47,26 @@ public class PTreemap extends PApplet {
 	DecimalFormat df = new DecimalFormat("0.00");
 
 	String defaultHive = null;
-	ConfigDataLoader dataLoader = null;
 
-	public PTreemap(ConfigDataLoader dataLoader) {
-		this.dataLoader = dataLoader;
+	List<DataField> hierFields;
+	List<SummariseField> summariseFields;
+	List<Layout> layouts;
+	List<Record> records;
+
+	public PTreemap(List<DataField> hierFields,
+			List<SummariseField> summariseFields, List<Layout> layouts,
+			List<Record> records) {
+		this(hierFields, summariseFields, layouts, records, null);
 	}
 
-	public PTreemap(ConfigDataLoader dataLoader, String defaultHive) {
-		this.dataLoader = dataLoader;
+	public PTreemap(List<DataField> hierFields,
+			List<SummariseField> summariseFields, List<Layout> layouts,
+			List<Record> records, String defaultHive) {
+		this.hierFields = hierFields;
+		this.summariseFields = summariseFields;
+		this.layouts = layouts;
+		this.records = records;
+
 		this.defaultHive = defaultHive;
 	}
 
@@ -82,28 +98,30 @@ public class PTreemap extends PApplet {
 		font = createFont("FFScala", 12);
 
 		// create a new treemap state
+		// treemapStateGui = new TreemapStateGui(this, 0, 0, font, 2, 1, 1,
+		// dataLoader.getAllowedHierVars(),
+		// dataLoader.getAllowedOrderVars(),
+		// dataLoader.getAllowedSizeVars(),
+		// dataLoader.getAllowedColourVars(), dataLoader.getLayouts());
+
 		treemapStateGui = new TreemapStateGui(this, 0, 0, font, 2, 1, 1,
-				dataLoader.getAllowedHierVars(),
-				dataLoader.getAllowedOrderVars(),
-				dataLoader.getAllowedSizeVars(),
-				dataLoader.getAllowedColourVars(), dataLoader.getLayouts());
+				hierFields, summariseFields, layouts);
 
 		// create new treemap panel
 		treemapPanel = new TreemapPanel(this, treemapStateGui, font,
-				new Rectangle(0, 0, width, height), dataLoader.getRecords(),
-				dataLoader.getSummariseFields());
+				new Rectangle(0, 0, width, height), records, summariseFields);
 
 		if (defaultHive != null)
 			restoreState(defaultHive);
 
 		frameRate(30);
 
-//		// ensure window redraws when a window is resized
-//		this.addComponentListener(new ComponentAdapter() {
-//			public void componentResized(ComponentEvent e) {
-//				loop();
-//			}
-//		});
+		// // ensure window redraws when a window is resized
+		// this.addComponentListener(new ComponentAdapter() {
+		// public void componentResized(ComponentEvent e) {
+		// loop();
+		// }
+		// });
 	}
 
 	/**
@@ -113,7 +131,7 @@ public class PTreemap extends PApplet {
 	public void draw() {
 		// if a treemapPanel exists (there isn't if no data is loaded) and the
 		// app window has changed size, change its size
-		
+
 		if ((oldW != width || oldH != height)) {
 			oldW = width;
 			oldH = height;
@@ -199,7 +217,7 @@ public class PTreemap extends PApplet {
 		treemapStateGui.applyExpressions(expressions);
 
 		treemapPanel.flagToDoStructuralRebuild();
-//		System.out.println("Restored state to " + hive);
+		// System.out.println("Restored state to " + hive);
 	}
 
 	public void keyPressed() {
@@ -278,7 +296,7 @@ public class PTreemap extends PApplet {
 		if (!showGui || (showGui && !treemapStateGui.contains(mouseX, mouseY))) {
 			// identify the node (rectangle) that the mouse is over
 			TreemapSummaryNode node = treemapPanel.getNodeFromMouse();
-			treemapPanel.setActiveNode(node);			
+			treemapPanel.setActiveNode(node);
 
 			if (node != null) {
 				tooltipLabel = "";

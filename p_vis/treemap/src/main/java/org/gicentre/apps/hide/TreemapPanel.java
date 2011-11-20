@@ -69,9 +69,9 @@ public class TreemapPanel {
 	boolean flagToRedraw = false;
 
 	List<Record> records;
-//	private Data data;
+	// private Data data;
 
-	Collection<SummariseField> summariseFields;
+	List<SummariseField> summariseFields;
 
 	float lerp = 1; // current step in the morphing/fading process (between 0
 					// (start) to 1 (finished)
@@ -102,7 +102,7 @@ public class TreemapPanel {
 	 */
 	public TreemapPanel(PApplet applet, TreemapState treemapState, PFont font,
 			Rectangle bounds, List<Record> records,
-			Collection<SummariseField> summariseFields) {
+			List<SummariseField> summariseFields) {
 		this.applet = applet;
 		this.bounds = bounds;
 		this.treemapState = treemapState;
@@ -110,7 +110,7 @@ public class TreemapPanel {
 
 		this.records = records;
 
-//		this.data = data;
+		// this.data = data;
 		this.summariseFields = summariseFields;
 
 		// setup treemap properties
@@ -593,7 +593,8 @@ public class TreemapPanel {
 							.equals(Layout.ABS_POSITION))) {
 				// work out the colour
 				Integer colour = null;
-				if (colourFields[level - 1] != null) {
+				if (colourFields[level - 1] != null
+						&& colourFields[level - 1].getColourTable() != null) {
 					Float value = node.getSummariseNode().getSummaryAsFloat(
 							colourFields[level - 1]);
 					if (value != null) {
