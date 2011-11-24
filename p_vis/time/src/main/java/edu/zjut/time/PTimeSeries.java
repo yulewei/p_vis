@@ -14,7 +14,7 @@ import edu.zjut.chart.plot.TimeSeriesLine;
 import edu.zjut.chart.plot.TimeSeriesPlot;
 import edu.zjut.color.Legend;
 import edu.zjut.color.LegendListener;
-import edu.zjut.common.data.TimeSeriesCollection;
+import edu.zjut.common.data.time.TimeSeriesCollection;
 
 public class PTimeSeries extends PApplet implements LegendListener {
 

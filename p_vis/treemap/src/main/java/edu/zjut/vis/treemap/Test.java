@@ -5,10 +5,9 @@ import java.util.List;
 
 import javax.swing.JFrame;
 
-import org.gicentre.apps.hide.TreemapState.Layout;
-import org.gicentre.data.DataField;
-import org.gicentre.data.Record;
 import org.gicentre.data.summary.SummariseField;
+
+import edu.zjut.common.data.attr.DataField;
 
 public class Test {
 
@@ -22,10 +21,12 @@ public class Test {
 
 		List<DataField> hierFields = dataLoader.getAllowedHierVars();
 		List<SummariseField> summariseFields = dataLoader.getSummariseFields();
-		List<Record> records = dataLoader.getRecords();
+		List<Object[]> records = dataLoader.getRecords();
+		List<Object[]> columnValues = dataLoader.getColumnValues();
 
 		PTreemap pTreemap = new PTreemap();
-		pTreemap.setData(hierFields, summariseFields, records, hive);
+		pTreemap.setData(hierFields, summariseFields, records, columnValues,
+				hive);
 		pTreemap.setPreferredSize(new Dimension(500, 500));
 
 		JFrame jframe = new JFrame();

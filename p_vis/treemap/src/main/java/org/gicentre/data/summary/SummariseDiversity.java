@@ -4,9 +4,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-import org.gicentre.data.DataField;
-import org.gicentre.data.FieldType;
-import org.gicentre.data.Record;
+import edu.zjut.common.data.attr.DataField;
+import edu.zjut.common.data.attr.FieldType;
 
 public class SummariseDiversity extends SummariseField {
 
@@ -21,21 +20,18 @@ public class SummariseDiversity extends SummariseField {
 		this.fieldType = fieldType;
 	}
 
-	public Object compute(List<Record> records) {
+	public Object compute(List<Object> values) {
 		HashMap<Object, Integer> counts = new HashMap<Object, Integer>();
 
 		// count each value of datafield
 		HashSet<Object> valuesUsed = new HashSet<Object>();
-		for (Record record : records) {
-			if (useRecord(record, valuesUsed)) {
-				Object v = record.getValue(dataField);
-				Integer count = counts.get(v);
-				if (count == null) {
-					count = 0;
-				}
-				count++;
-				counts.put(v, count);
+		for (Object v : values) {
+			Integer count = counts.get(v);
+			if (count == null) {
+				count = 0;
 			}
+			count++;
+			counts.put(v, count);
 		}
 
 		// sum them

@@ -7,14 +7,11 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.gicentre.data.DataField;
-import org.gicentre.data.FieldType;
 import org.gicentre.data.summary.SummariseField;
 import org.gicentre.data.summary.SummariseNull;
 import org.gicentre.hive.Expression;
@@ -24,6 +21,9 @@ import org.gicentre.hive.Path;
 import org.gicentre.hive.Preset;
 import org.gicentre.hive.Type;
 import org.gicentre.hive.Variable;
+
+import edu.zjut.common.data.attr.DataField;
+import edu.zjut.common.data.attr.FieldType;
 
 /**
  * Stores the state of a treemap
@@ -36,7 +36,7 @@ import org.gicentre.hive.Variable;
  */
 public class TreemapState implements Hive {
 
-	protected DataField[] hierarchyFields = new DataField[0];
+	protected DataField[] hierFields = new DataField[0];
 	protected SummariseField[][] sizeFields;
 	protected SummariseField[][] orderFields;
 	protected SummariseField[][] colourFields;
@@ -285,9 +285,9 @@ public class TreemapState implements Hive {
 		this.allowedColourFields = allowedColourFields;
 		this.allowedColourFields.remove(null);// cannot have any nulls
 		this.allowedColourFields.add(0, summariseNull);// This adds HIER
-//		if (!allowedColourFields.contains(null)) {
-//			allowedColourFields.add(null);// no colour
-//		}
+		// if (!allowedColourFields.contains(null)) {
+		// allowedColourFields.add(null);// no colour
+		// }
 
 		this.allowedLayouts = allowedLayouts;
 
@@ -324,7 +324,7 @@ public class TreemapState implements Hive {
 	 * @return Number of levels
 	 */
 	public int getNumLevels() {
-		return hierarchyFields.length;
+		return hierFields.length;
 	}
 
 	/**
@@ -408,7 +408,7 @@ public class TreemapState implements Hive {
 	 * @return Array of data variables, for each level
 	 */
 	public DataField[] getHierarchyFields() {
-		return hierarchyFields;
+		return hierFields;
 	}
 
 	/**
@@ -456,7 +456,7 @@ public class TreemapState implements Hive {
 	 * @return
 	 */
 	public boolean isEmpty() {
-		return this.hierarchyFields.length == 0;
+		return this.hierFields.length == 0;
 	}
 
 	/**
@@ -474,19 +474,19 @@ public class TreemapState implements Hive {
 	public void swap(int level1, int level2) {
 		level1--;
 		level2--;
-		if (level1 != level2 && level1 < this.hierarchyFields.length
-				&& level2 < this.hierarchyFields.length) {
+		if (level1 != level2 && level1 < this.hierFields.length
+				&& level2 < this.hierFields.length) {
 
 			// copy the state
-			DataField[] hierarchyFields = new DataField[this.hierarchyFields.length];
-			SummariseField[][] sizeFields = new SummariseField[this.sizeFields.length][this.hierarchyFields.length];
-			SummariseField[][] orderFields = new SummariseField[this.orderFields.length][this.hierarchyFields.length];
-			SummariseField[][] colourFields = new SummariseField[this.colourFields.length][this.hierarchyFields.length];
-			Layout[] layouts = new Layout[this.hierarchyFields.length];
-			HashMap<AppearanceType, Integer>[] appearanceValues = new HashMap[this.hierarchyFields.length];
-			Object[] filterValues = new Object[this.hierarchyFields.length];
-			for (int i = 0; i < this.hierarchyFields.length; i++) {
-				hierarchyFields[i] = this.hierarchyFields[i];
+			DataField[] hierarchyFields = new DataField[this.hierFields.length];
+			SummariseField[][] sizeFields = new SummariseField[this.sizeFields.length][this.hierFields.length];
+			SummariseField[][] orderFields = new SummariseField[this.orderFields.length][this.hierFields.length];
+			SummariseField[][] colourFields = new SummariseField[this.colourFields.length][this.hierFields.length];
+			Layout[] layouts = new Layout[this.hierFields.length];
+			HashMap<AppearanceType, Integer>[] appearanceValues = new HashMap[this.hierFields.length];
+			Object[] filterValues = new Object[this.hierFields.length];
+			for (int i = 0; i < this.hierFields.length; i++) {
+				hierarchyFields[i] = this.hierFields[i];
 				for (int j = 0; j < sizeFields.length; j++) {
 					sizeFields[j][i] = this.sizeFields[j][i];
 				}
@@ -500,7 +500,7 @@ public class TreemapState implements Hive {
 				appearanceValues[i] = this.appearanceValues[i];
 				filterValues[i] = this.filterValues[i];
 			}
-			hierarchyFields[level1] = this.hierarchyFields[level2];
+			hierarchyFields[level1] = this.hierFields[level2];
 			for (int j = 0; j < sizeFields.length; j++) {
 				sizeFields[j][level1] = this.sizeFields[j][level2];
 			}
@@ -514,7 +514,7 @@ public class TreemapState implements Hive {
 			appearanceValues[level1] = this.appearanceValues[level2];
 			filterValues[level1] = this.filterValues[level2];
 
-			hierarchyFields[level2] = this.hierarchyFields[level1];
+			hierarchyFields[level2] = this.hierFields[level1];
 			for (int j = 0; j < sizeFields.length; j++) {
 				sizeFields[j][level2] = this.sizeFields[j][level1];
 			}
@@ -528,7 +528,7 @@ public class TreemapState implements Hive {
 			appearanceValues[level2] = this.appearanceValues[level1];
 			filterValues[level2] = this.filterValues[level1];
 
-			this.hierarchyFields = hierarchyFields;
+			this.hierFields = hierarchyFields;
 			this.sizeFields = sizeFields;
 			this.orderFields = orderFields;
 			this.colourFields = colourFields;
@@ -548,19 +548,19 @@ public class TreemapState implements Hive {
 	 *            Level to cut
 	 */
 	public void cut(int level) {
-		if (level < this.hierarchyFields.length) {
-			DataField[] hierarchyFields = new DataField[this.hierarchyFields.length - 1];
-			SummariseField[][] sizeFields = new SummariseField[this.sizeFields.length][this.hierarchyFields.length - 1];
-			SummariseField[][] orderFields = new SummariseField[this.orderFields.length][this.hierarchyFields.length - 1];
-			SummariseField[][] colourFields = new SummariseField[this.colourFields.length][this.hierarchyFields.length - 1];
-			HashMap<AppearanceType, Integer>[] appearanceValues = new HashMap[this.hierarchyFields.length - 1];
-			Layout[] layouts = new Layout[this.hierarchyFields.length - 1];
-			Object[] filterValues = new Object[this.hierarchyFields.length - 1];
+		if (level < this.hierFields.length) {
+			DataField[] hierarchyFields = new DataField[this.hierFields.length - 1];
+			SummariseField[][] sizeFields = new SummariseField[this.sizeFields.length][this.hierFields.length - 1];
+			SummariseField[][] orderFields = new SummariseField[this.orderFields.length][this.hierFields.length - 1];
+			SummariseField[][] colourFields = new SummariseField[this.colourFields.length][this.hierFields.length - 1];
+			HashMap<AppearanceType, Integer>[] appearanceValues = new HashMap[this.hierFields.length - 1];
+			Layout[] layouts = new Layout[this.hierFields.length - 1];
+			Object[] filterValues = new Object[this.hierFields.length - 1];
 
-			if (this.hierarchyFields.length > 1) {
-				for (int i = 0; i < this.hierarchyFields.length; i++) {
+			if (this.hierFields.length > 1) {
+				for (int i = 0; i < this.hierFields.length; i++) {
 					if (i < level) {
-						hierarchyFields[i] = this.hierarchyFields[i];
+						hierarchyFields[i] = this.hierFields[i];
 						for (int j = 0; j < sizeFields.length; j++) {
 							sizeFields[j][i] = this.sizeFields[j][i];
 						}
@@ -574,7 +574,7 @@ public class TreemapState implements Hive {
 						appearanceValues[i] = this.appearanceValues[i];
 						filterValues[i] = this.filterValues[i];
 					} else if (i > level) {
-						hierarchyFields[i - 1] = this.hierarchyFields[i];
+						hierarchyFields[i - 1] = this.hierFields[i];
 						for (int j = 0; j < sizeFields.length; j++) {
 							sizeFields[j][i - 1] = this.sizeFields[j][i];
 						}
@@ -590,7 +590,7 @@ public class TreemapState implements Hive {
 					}
 				}
 			}
-			this.hierarchyFields = hierarchyFields;
+			this.hierFields = hierarchyFields;
 			this.sizeFields = sizeFields;
 			this.orderFields = orderFields;
 			this.colourFields = colourFields;
@@ -621,16 +621,16 @@ public class TreemapState implements Hive {
 	public void insert(int level, DataField hierarchyField,
 			SummariseField[] orderField, SummariseField[] sizeField,
 			SummariseField[] colourField, Layout layout) {
-		if (level <= this.hierarchyFields.length) {
-			DataField[] hierarchyFields = new DataField[this.hierarchyFields.length + 1];
-			SummariseField[][] sizeFields = new SummariseField[this.sizeFields.length][this.hierarchyFields.length + 1];
-			SummariseField[][] orderFields = new SummariseField[this.orderFields.length][this.hierarchyFields.length + 1];
-			SummariseField[][] colourFields = new SummariseField[this.colourFields.length][this.hierarchyFields.length + 1];
-			Layout[] layouts = new Layout[this.hierarchyFields.length + 1];
-			Object[] filterValues = new Object[this.hierarchyFields.length + 1];
+		if (level <= this.hierFields.length) {
+			DataField[] hierarchyFields = new DataField[this.hierFields.length + 1];
+			SummariseField[][] sizeFields = new SummariseField[this.sizeFields.length][this.hierFields.length + 1];
+			SummariseField[][] orderFields = new SummariseField[this.orderFields.length][this.hierFields.length + 1];
+			SummariseField[][] colourFields = new SummariseField[this.colourFields.length][this.hierFields.length + 1];
+			Layout[] layouts = new Layout[this.hierFields.length + 1];
+			Object[] filterValues = new Object[this.hierFields.length + 1];
 
-			HashMap<AppearanceType, Integer>[] appearanceValues = new HashMap[this.hierarchyFields.length + 1];
-			if (this.hierarchyFields.length == 0) {
+			HashMap<AppearanceType, Integer>[] appearanceValues = new HashMap[this.hierFields.length + 1];
+			if (this.hierFields.length == 0) {
 				hierarchyFields[0] = hierarchyField;
 				for (int j = 0; j < sizeFields.length; j++) {
 					sizeFields[j][0] = sizeField[j];
@@ -651,7 +651,7 @@ public class TreemapState implements Hive {
 			}
 			for (int i = 0; i < hierarchyFields.length; i++) {
 				if (i < level) {
-					hierarchyFields[i] = this.hierarchyFields[i];
+					hierarchyFields[i] = this.hierFields[i];
 					for (int j = 0; j < sizeFields.length; j++) {
 						sizeFields[j][i] = this.sizeFields[j][i];
 					}
@@ -685,7 +685,7 @@ public class TreemapState implements Hive {
 					}
 
 				} else {
-					hierarchyFields[i] = this.hierarchyFields[i - 1];
+					hierarchyFields[i] = this.hierFields[i - 1];
 					for (int j = 0; j < sizeFields.length; j++) {
 						sizeFields[j][i] = this.sizeFields[j][i - 1];
 					}
@@ -700,7 +700,7 @@ public class TreemapState implements Hive {
 					filterValues[i] = this.filterValues[i - 1];
 				}
 			}
-			this.hierarchyFields = hierarchyFields;
+			this.hierFields = hierarchyFields;
 			this.sizeFields = sizeFields;
 			this.orderFields = orderFields;
 			this.colourFields = colourFields;
@@ -875,7 +875,7 @@ public class TreemapState implements Hive {
 
 			int startLevel = expression.getLevel() - 1;
 
-			if (startLevel > this.hierarchyFields.length) {
+			if (startLevel > this.hierFields.length) {
 				System.err.println("Current hierarchy is not deep enough for "
 						+ expression);
 				return false;
@@ -936,7 +936,7 @@ public class TreemapState implements Hive {
 					insert(level, hierarchyField, orderField, sizeField,
 							colourField, layout);
 				} else {
-					this.hierarchyFields[level] = hierarchyField;
+					this.hierFields[level] = hierarchyField;
 				}
 			}
 			hierHasChanged = true;
@@ -1191,23 +1191,16 @@ public class TreemapState implements Hive {
 				|| expression.getType() == Type.O_FOCUS) {
 
 			List<String> pathElements = expression.getPath().getValues();
-			for (int i = 0; i < this.hierarchyFields.length; i++) {
+			for (int i = 0; i < this.hierFields.length; i++) {
 				if (i >= pathElements.size() || pathElements.get(i).equals("*")) {
 					filterValues[i] = null;
 				} else {
-					if (hierarchyFields[i].getFieldType().equals(
-							FieldType.DOUBLE)) {
+					if (hierFields[i].getFieldType().equals(FieldType.DOUBLE)) {
 						filterValues[i] = Double.parseDouble(pathElements
 								.get(i));
-					} else if (hierarchyFields[i].getFieldType().equals(
-							FieldType.FLOAT)) {
-						filterValues[i] = Float.parseFloat(pathElements.get(i));
-					} else if (hierarchyFields[i].getFieldType().equals(
+					} else if (hierFields[i].getFieldType().equals(
 							FieldType.INT)) {
 						filterValues[i] = Integer.parseInt(pathElements.get(i));
-					} else if (hierarchyFields[i].getFieldType().equals(
-							FieldType.LONG)) {
-						filterValues[i] = Long.parseLong(pathElements.get(i));
 					} else {
 						filterValues[i] = pathElements.get(i);
 					}
@@ -1232,8 +1225,8 @@ public class TreemapState implements Hive {
 
 		// Hierarchy
 		Expression expression = new Expression(Type.S_HIER);
-		for (int i = 0; i < hierarchyFields.length; i++) {
-			expression.addVar("$" + hierarchyFields[i].getName());
+		for (int i = 0; i < hierFields.length; i++) {
+			expression.addVar("$" + hierFields[i].getName());
 		}
 		expressions.add(expression);
 
@@ -1372,14 +1365,14 @@ public class TreemapState implements Hive {
 		expression = new Expression(Type.S_FOCUS);
 		Path path = new Path();
 		boolean noFilters = true;
-		for (int i = 0; i < hierarchyFields.length; i++) {
+		for (int i = 0; i < hierFields.length; i++) {
 			if (this.filterValues[i] != null) {
 				noFilters = false;
 			}
 		}
 		// Only return oFocus if there are any filters (i.e. path is not "/")
 		if (!noFilters) {
-			for (int i = 0; i < hierarchyFields.length; i++) {
+			for (int i = 0; i < hierFields.length; i++) {
 				if (this.filterValues[i] == null) {
 					path.addWildcard();
 				} else {
@@ -1398,7 +1391,7 @@ public class TreemapState implements Hive {
 	 * Clears the state
 	 */
 	public void clear() {
-		hierarchyFields = new DataField[0];
+		hierFields = new DataField[0];
 		sizeFields = new SummariseField[sizeFields.length][0];
 		orderFields = new SummariseField[orderFields.length][0];
 		colourFields = new SummariseField[colourFields.length][0];
@@ -1417,7 +1410,7 @@ public class TreemapState implements Hive {
 				+ new SimpleDateFormat("yyyy MM dd hh:00")
 						.format(GregorianCalendar.getInstance().getTime())
 				+ " by " + System.getProperty("user.name") + "\n");
-		for (int i = 0; i < hierarchyFields.length; i++) {
+		for (int i = 0; i < hierFields.length; i++) {
 			for (AppearanceType appearanceType : AppearanceType.values()) {
 				bw.write(i + "\t" + appearanceType.name() + "\t"
 						+ appearanceValues[i].get(appearanceType) + "\n");

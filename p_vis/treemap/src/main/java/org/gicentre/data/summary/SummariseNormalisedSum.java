@@ -2,9 +2,8 @@ package org.gicentre.data.summary;
 
 import java.util.List;
 
-import org.gicentre.data.DataField;
-import org.gicentre.data.FieldType;
-import org.gicentre.data.Record;
+import edu.zjut.common.data.attr.DataField;
+import edu.zjut.common.data.attr.FieldType;
 
 public class SummariseNormalisedSum extends SummariseField {
 
@@ -21,7 +20,7 @@ public class SummariseNormalisedSum extends SummariseField {
 	 */
 	public SummariseNormalisedSum(String name, DataField dataField,
 			DataField normaliseField) {
-		this(name, dataField, normaliseField, FieldType.FLOAT);
+		this(name, dataField, normaliseField, FieldType.DOUBLE);
 	}
 
 	public SummariseNormalisedSum(String name, DataField dataField,
@@ -32,7 +31,7 @@ public class SummariseNormalisedSum extends SummariseField {
 		this.normaliseField = normaliseField;
 	}
 
-	public Object compute(List<Record> records) {
+	public Object compute(List<Object> values) {
 		if (dataField.getFieldType() == FieldType.STRING
 				|| normaliseField.getFieldType() == FieldType.STRING) {
 			return null;
@@ -40,10 +39,10 @@ public class SummariseNormalisedSum extends SummariseField {
 		double sum1 = 0;
 		double sum2 = 0;
 		try {
-			sum1 = ((Number) new SummariseSum(null, dataField).compute(records))
+			sum1 = ((Number) new SummariseSum(null, dataField).compute(values))
 					.doubleValue();
 			sum2 = ((Number) new SummariseSum(null, normaliseField)
-					.compute(records)).doubleValue();
+					.compute(values)).doubleValue();
 		} catch (NullPointerException e) {
 			// returns null (no data) if either of the stats (above) return null
 			// (no data)

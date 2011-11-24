@@ -21,7 +21,7 @@ public class AllFilter implements DataFilter {
 	 * @param record
 	 *            Whether the record matches
 	 */
-	public boolean matches(Record record) {
+	public boolean matches(Object[] record) {
 		return true;
 	}
 

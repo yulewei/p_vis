@@ -11,10 +11,10 @@ import java.util.List;
 import javax.swing.JFrame;
 
 import au.com.bytecode.opencsv.CSVReader;
-import edu.zjut.common.data.TimePeriod;
-import edu.zjut.common.data.TimeSeriesCollection;
-import edu.zjut.common.data.TimeSeriesData;
-import edu.zjut.common.data.TimeType;
+import edu.zjut.common.data.time.TimePeriod;
+import edu.zjut.common.data.time.TimeSeriesCollection;
+import edu.zjut.common.data.time.TimeSeriesData;
+import edu.zjut.common.data.time.TimeType;
 
 public class Test {
 

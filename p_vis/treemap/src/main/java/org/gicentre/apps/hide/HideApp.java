@@ -21,7 +21,6 @@ import java.util.HashSet;
 import javax.swing.tree.TreeNode;
 
 import org.gicentre.apps.hide.TreemapState.AppearanceType;
-import org.gicentre.data.FieldType;
 import org.gicentre.data.summary.SummariseField;
 import org.gicentre.data.summary.SummariseNode;
 import org.gicentre.data.summary.SummariseNull;
@@ -30,6 +29,7 @@ import org.gicentre.hive.ExpressionNotSupportedException;
 import org.gicentre.hive.Type;
 import org.gicentre.treemaps.TreemapSummaryNode;
 
+import edu.zjut.common.data.attr.FieldType;
 import edu.zjut.vis.treemap.ConfigDataLoader;
 
 import processing.core.PApplet;
@@ -112,7 +112,7 @@ public class HideApp extends PApplet {
 		// create new treemap panel
 		treemapPanel = new TreemapPanel(this, treemapStateGui, font,
 				new Rectangle(0, 0, width, height), dataLoader.getRecords(),
-				dataLoader.getSummariseFields());
+				dataLoader.getColumnValues(), dataLoader.getSummariseFields());
 
 		String datasetName = dataLoader.getDatasetName();
 
@@ -374,8 +374,7 @@ public class HideApp extends PApplet {
 							value = node.getSummariseNode().getSummaryAsString(
 									summariseField);
 						}
-						if (summariseField.getFieldType() == FieldType.INT
-								|| summariseField.getFieldType() == FieldType.LONG) {
+						if (summariseField.getFieldType() == FieldType.INT) {
 							value = node.getSummariseNode().getSummaryAsLong(
 									summariseField)
 									+ "";
@@ -395,9 +394,6 @@ public class HideApp extends PApplet {
 							}
 						}
 						tooltipData += summariseField.getName() + "=" + value;
-						if (summariseField.getUnits() != null) {
-							tooltipData += " " + summariseField.getUnits();
-						}
 						tooltipData += "\n";
 					}
 				}

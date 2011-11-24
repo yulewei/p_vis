@@ -23,14 +23,14 @@ import javax.swing.tree.TreeNode;
 import org.gicentre.apps.hide.TreemapPanel;
 import org.gicentre.apps.hide.TreemapStateGui;
 import org.gicentre.apps.hide.TreemapState.Layout;
-import org.gicentre.data.DataField;
-import org.gicentre.data.FieldType;
-import org.gicentre.data.Record;
 import org.gicentre.data.summary.SummariseField;
 import org.gicentre.data.summary.SummariseNode;
 import org.gicentre.data.summary.SummariseNull;
 import org.gicentre.hive.Expression;
 import org.gicentre.treemaps.TreemapSummaryNode;
+
+import edu.zjut.common.data.attr.DataField;
+import edu.zjut.common.data.attr.FieldType;
 
 import processing.core.PApplet;
 import processing.core.PFont;
@@ -52,7 +52,8 @@ public class PTreemap extends PApplet {
 	List<DataField> hierFields;
 	List<SummariseField> summariseFields;
 	List<Layout> layouts;
-	List<Record> records;
+	List<Object[]> records;
+	List<Object[]> columnValues;
 
 	public PTreemap() {
 		layouts = new ArrayList<Layout>();
@@ -64,11 +65,12 @@ public class PTreemap extends PApplet {
 	}
 
 	public void setData(List<DataField> hierFields,
-			List<SummariseField> summariseFields, List<Record> records,
-			String defaultHive) {
+			List<SummariseField> summariseFields, List<Object[]> records,
+			List<Object[]> columnValues, String defaultHive) {
 		this.hierFields = hierFields;
 		this.summariseFields = summariseFields;
 		this.records = records;
+		this.columnValues = columnValues;
 
 		this.defaultHive = defaultHive;
 	}
@@ -112,7 +114,8 @@ public class PTreemap extends PApplet {
 
 		// create new treemap panel
 		treemapPanel = new TreemapPanel(this, treemapStateGui, font,
-				new Rectangle(0, 0, width, height), records, summariseFields);
+				new Rectangle(0, 0, width, height), records, columnValues,
+				summariseFields);
 
 		if (defaultHive != null)
 			restoreState(defaultHive);
@@ -356,8 +359,7 @@ public class PTreemap extends PApplet {
 							value = node.getSummariseNode().getSummaryAsString(
 									summariseField);
 						}
-						if (summariseField.getFieldType() == FieldType.INT
-								|| summariseField.getFieldType() == FieldType.LONG) {
+						if (summariseField.getFieldType() == FieldType.INT) {
 							value = node.getSummariseNode().getSummaryAsLong(
 									summariseField)
 									+ "";
@@ -377,9 +379,6 @@ public class PTreemap extends PApplet {
 							}
 						}
 						tooltipData += summariseField.getName() + "=" + value;
-						if (summariseField.getUnits() != null) {
-							tooltipData += " " + summariseField.getUnits();
-						}
 						tooltipData += "\n";
 					}
 				}

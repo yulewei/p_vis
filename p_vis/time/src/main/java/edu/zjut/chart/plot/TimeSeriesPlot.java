@@ -11,10 +11,10 @@ import processing.core.PConstants;
 import edu.zjut.chart.axis.Axis.Orientation;
 import edu.zjut.chart.axis.DateAxis;
 import edu.zjut.chart.axis.NumberAxis;
-import edu.zjut.common.data.TimePeriod;
-import edu.zjut.common.data.TimeSeriesCollection;
-import edu.zjut.common.data.TimeSeriesData;
-import edu.zjut.common.data.TimeType;
+import edu.zjut.common.data.time.TimePeriod;
+import edu.zjut.common.data.time.TimeSeriesCollection;
+import edu.zjut.common.data.time.TimeSeriesData;
+import edu.zjut.common.data.time.TimeType;
 
 public abstract class TimeSeriesPlot extends Plot {
 

@@ -9,8 +9,8 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 
 import edu.zjut.common.data.DataSetForApps;
-import edu.zjut.common.data.EsriFeatureObj;
-import edu.zjut.common.data.GeometryData;
+import edu.zjut.common.data.geo.EsriFeatureObj;
+import edu.zjut.common.data.geo.GeometryData;
 import edu.zjut.common.event.DataSetEvent;
 import edu.zjut.common.event.DataSetListener;
 import edu.zjut.common.event.IndicationEvent;

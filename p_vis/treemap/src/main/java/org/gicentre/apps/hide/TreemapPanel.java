@@ -4,7 +4,6 @@ import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -13,11 +12,8 @@ import org.gicentre.apps.hide.TreemapState.AppearanceType;
 import org.gicentre.apps.hide.TreemapState.Layout;
 import org.gicentre.data.AndFilter;
 import org.gicentre.data.DataUtil;
-import org.gicentre.data.DataField;
 import org.gicentre.data.EqualsFilter;
-import org.gicentre.data.FieldType;
 import org.gicentre.data.NotFilter;
-import org.gicentre.data.Record;
 import org.gicentre.data.summary.SummariseField;
 import org.gicentre.data.summary.SummariseNode;
 import org.gicentre.data.summary.SummariseNull;
@@ -32,6 +28,8 @@ import processing.core.PConstants;
 import processing.core.PFont;
 import processing.core.PGraphics;
 import processing.core.PImage;
+import edu.zjut.common.data.attr.DataField;
+import edu.zjut.common.data.attr.FieldType;
 
 /**
  * Draws a treemap according to a TreemapState object
@@ -68,7 +66,8 @@ public class TreemapPanel {
 	boolean flagToDoNonStructuralRebuild = false;
 	boolean flagToRedraw = false;
 
-	List<Record> records;
+	List<Object[]> records;
+	List<Object[]> columnValues;
 	// private Data data;
 
 	List<SummariseField> summariseFields;
@@ -101,14 +100,15 @@ public class TreemapPanel {
 	 *            hashmap of the colour scalings.
 	 */
 	public TreemapPanel(PApplet applet, TreemapState treemapState, PFont font,
-			Rectangle bounds, List<Record> records,
-			List<SummariseField> summariseFields) {
+			Rectangle bounds, List<Object[]> records,
+			List<Object[]> columnValues, List<SummariseField> summariseFields) {
 		this.applet = applet;
 		this.bounds = bounds;
 		this.treemapState = treemapState;
 		this.font = font;
 
 		this.records = records;
+		this.columnValues = columnValues;
 
 		// this.data = data;
 		this.summariseFields = summariseFields;
@@ -177,7 +177,7 @@ public class TreemapPanel {
 		if (flagToDoStructuralRebuild) {
 
 			AndFilter filter = new AndFilter();
-			for (int i = 0; i < treemapState.hierarchyFields.length; i++) {
+			for (int i = 0; i < treemapState.hierFields.length; i++) {
 				if (treemapState.filterValues[i] != null) {
 					filter.add(new EqualsFilter(treemapState
 							.getHierarchyFields()[i],
@@ -190,7 +190,7 @@ public class TreemapPanel {
 				}
 			}
 
-			this.summaryNode = DataUtil.getSummary(records,
+			this.summaryNode = DataUtil.getSummary(records,columnValues,
 					treemapState.getHierarchyFields(), summariseFields, filter);
 			if (this.summaryNode != null)
 				addSpecifiedValues(this.summaryNode, treemapState);
@@ -487,8 +487,8 @@ public class TreemapPanel {
 		if (treemap == null)
 			return;
 
-		Float[] mins = new Float[treemapState.hierarchyFields.length];
-		Float[] maxs = new Float[treemapState.hierarchyFields.length];
+		Float[] mins = new Float[treemapState.hierFields.length];
+		Float[] maxs = new Float[treemapState.hierFields.length];
 		Arrays.fill(mins, Float.MAX_VALUE);
 		Arrays.fill(maxs, -Float.MAX_VALUE);
 
@@ -856,17 +856,11 @@ public class TreemapPanel {
 			// if it has children
 			// if this flag has been set (above)
 			// if no filters
-			if (node.getLevel() + 1 < state.hierarchyFields.length
+			if (node.getLevel() + 1 < state.hierFields.length
 					&& shouldAddSpecifiedValues[node.getLevel() + 1]
 					&& state.getFilterValues()[node.getLevel() + 1] == null) {
-				DataField dataFieldOfChildren = state.hierarchyFields[node
+				DataField dataFieldOfChildren = state.hierFields[node
 						.getLevel() + 1];
-				if (dataFieldOfChildren.getUseAllValues()) {
-					for (SummariseNode emptySummaryNode : node
-							.getEmptySummariesForChildren(dataFieldOfChildren)) {
-						node.add(emptySummaryNode);
-					}
-				}
 			}
 		}
 	}

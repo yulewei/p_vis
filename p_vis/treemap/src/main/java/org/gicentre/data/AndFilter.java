@@ -60,7 +60,7 @@ public class AndFilter implements DataFilter {
 	 * @param record
 	 *            Whether the record matches
 	 */
-	public boolean matches(Record record) {
+	public boolean matches(Object[] record) {
 		Iterator<DataFilter> it = filters.iterator();
 		while (it.hasNext()) {
 			if (!it.next().matches(record)) {

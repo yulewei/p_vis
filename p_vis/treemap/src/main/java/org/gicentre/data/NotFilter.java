@@ -27,7 +27,7 @@ public class NotFilter implements DataFilter {
 	 *            The record to test
 	 * @return whether if does not match
 	 */
-	public boolean matches(Record record) {
+	public boolean matches(Object[] record) {
 		return !dataFilter.matches(record);
 	}
 }

@@ -1,11 +1,9 @@
 package org.gicentre.data.summary;
 
-import java.util.HashSet;
 import java.util.List;
 
-import org.gicentre.data.DataField;
-import org.gicentre.data.FieldType;
-import org.gicentre.data.Record;
+import edu.zjut.common.data.attr.DataField;
+import edu.zjut.common.data.attr.FieldType;
 
 public class SummariseMean extends SummariseField {
 
@@ -19,20 +17,16 @@ public class SummariseMean extends SummariseField {
 		this.fieldType = fieldType;
 	}
 
-	public Object compute(List<Record> records) {
+	public Object compute(List<Object> values) {
 		if (dataField.getFieldType() == FieldType.STRING) {
 			return null;
 		}
 		double sum = 0;
 		int n = 0;
-		HashSet<Object> valuesUsed = new HashSet<Object>();
-		for (Record record : records) {
-			if (useRecord(record, valuesUsed)) {
-				Object v = record.getValue(dataField);
-				if (v != null && v instanceof Number) {
-					sum += ((Number) v).doubleValue();
-					n++;
-				}
+		for (Object v : values) {
+			if (v != null && v instanceof Number) {
+				sum += ((Number) v).doubleValue();
+				n++;
 			}
 		}
 		if (n == 0) {

@@ -11,7 +11,7 @@ import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 
-import edu.zjut.common.data.EsriFeatureObj;
+import edu.zjut.common.data.geo.EsriFeatureObj;
 
 /**
  * Í¼²ã

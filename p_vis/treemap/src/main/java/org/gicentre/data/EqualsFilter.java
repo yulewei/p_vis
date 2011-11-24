@@ -1,5 +1,7 @@
 package org.gicentre.data;
 
+import edu.zjut.common.data.attr.DataField;
+
 /**
  * Enables filtering of records based on whether a record variable is equal to a
  * value
@@ -31,14 +33,14 @@ public class EqualsFilter implements DataFilter {
 	 * @param record
 	 *            The record to match
 	 */
-	public boolean matches(Record record) {
+	public boolean matches(Object[] record) {
 		// check if null
-		if (record.getValue(this.var) == null) {
+		if (record[var.getColIdx()] == null) {
 			return value == null;
 		}
 		// check value if not
 		else {
-			return (record.getValue(this.var).equals(value));
+			return (record[var.getColIdx()].equals(value));
 		}
 	}
 
@@ -62,9 +64,9 @@ public class EqualsFilter implements DataFilter {
 
 	public String toString() {
 		if (value == null) {
-			return var.name + "=N/A";
+			return var.getName() + "=N/A";
 		} else {
-			return var.name + "=" + value;
+			return var.getName() + "=" + value;
 		}
 	}
 

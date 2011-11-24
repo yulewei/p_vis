@@ -5,12 +5,11 @@ import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.DefaultListModel;
+import javax.swing.DropMode;
 import javax.swing.JPanel;
 
 import org.gicentre.apps.hide.ColourScaling;
-import org.gicentre.data.DataField;
-import org.gicentre.data.FieldType;
-import org.gicentre.data.Record;
 import org.gicentre.data.summary.SummariseCount;
 import org.gicentre.data.summary.SummariseField;
 import org.gicentre.data.summary.SummariseMax;
@@ -18,12 +17,16 @@ import org.gicentre.data.summary.SummariseMean;
 import org.gicentre.data.summary.SummariseMin;
 import org.gicentre.data.summary.SummariseSum;
 import org.gicentre.data.summary.SummariseUniqueCount;
-import org.gicentre.utils.colour.ColourTable;
 
-import edu.zjut.common.data.AttrType;
-import edu.zjut.common.data.AttributeData;
+import edu.zjut.common.ctrl.FieldList;
+import edu.zjut.common.ctrl.FieldTransferHandler;
 import edu.zjut.common.data.DataSetForApps;
-import edu.zjut.common.data.SummaryType;
+import edu.zjut.common.data.attr.AttributeData;
+import edu.zjut.common.data.attr.DataField;
+import edu.zjut.common.data.attr.DimensionField;
+import edu.zjut.common.data.attr.FieldType;
+import edu.zjut.common.data.attr.MeasureField;
+import edu.zjut.common.data.attr.SummaryType;
 import edu.zjut.common.event.DataSetEvent;
 import edu.zjut.common.event.DataSetListener;
 
@@ -32,19 +35,28 @@ public class Treemap extends JPanel implements DataSetListener {
 	private DataSetForApps dataSet;
 	private AttributeData attrData;
 
+	private FieldList<String> filedList;
 	private PTreemap pTreemap;
 
 	private String defaultHive = null;
 	private List<DataField> hierFields;
 	private List<SummariseField> summariseFields;
-	private List<Record> records;
+	private List<Object[]> records;
+	private List<Object[]> columnValues;
 
 	public Treemap() {
-		BorderLayout layout = new BorderLayout();
-		this.setLayout(layout);
+		this.setLayout(new BorderLayout());
+		filedList = new FieldList();
+		filedList.setDropMode(DropMode.ON_OR_INSERT);
+		filedList.setDragEnabled(true);
+		filedList.setTransferHandler(new FieldTransferHandler());
+		DefaultListModel<String> listModel = new DefaultListModel<String>();
+		filedList.setModel(listModel);
+
+		this.add(filedList, BorderLayout.NORTH);
 
 		pTreemap = new PTreemap();
-		this.add(pTreemap);
+		this.add(pTreemap, BorderLayout.CENTER);
 		pTreemap.init();
 
 		this.setPreferredSize(new Dimension(500, 500));
@@ -60,7 +72,8 @@ public class Treemap extends JPanel implements DataSetListener {
 
 		buildTreemapData();
 
-		pTreemap.setData(hierFields, summariseFields, records, defaultHive);
+		pTreemap.setData(hierFields, summariseFields, records, columnValues,
+				defaultHive);
 
 		repaint();
 	}
@@ -68,30 +81,29 @@ public class Treemap extends JPanel implements DataSetListener {
 	private void buildTreemapData() {
 		hierFields = new ArrayList<DataField>();
 		summariseFields = new ArrayList<SummariseField>();
-		records = new ArrayList<Record>();
+		records = new ArrayList<Object[]>();
 
 		List<DataField> datafields = new ArrayList<DataField>();
 
-		Object[] columnArrays = attrData.getColumnArrays();
-		AttrType[] dataTypes = attrData.getDataTypes();
-		String[] attributeNames = attrData.getAttributeNames();
-		SummaryType[] summaryTypes = attrData.getSummaryTypes();
-		ColourTable[] colorTables = attrData.getColorTables();
+		DataField[] fields = attrData.getFeilds();
+		DimensionField[] dimensionFeilds = attrData.getDimensionFeilds();
+		MeasureField[] measureFeilds = attrData.getMeasureFeilds();
 
-		int colSize = dataTypes.length;
+		Object[][] columnArrays = attrData.getColumnArrays();
+		int colSize = fields.length;
 		int rowSize = attrData.getNumObservations();
 		for (int col = 0; col < colSize; col++) {
-			String name = attributeNames[col];
-			DataField dataField = new DataField(name, col,
-					TypeTansform(dataTypes[col]));
-			datafields.add(dataField);
+			DataField field = fields[col];
+			datafields.add(field);
 
-			if (dataTypes[col].isDimensionType()) {
-				hierFields.add(dataField);
-			} else if (dataTypes[col].isMeasureType()) {
-				SummariseField summariseField = parseSummaryType(name,
-						summaryTypes[col], dataField);
-				summariseField.setColourTable(colorTables[col]);
+			if (field instanceof DimensionField) {
+				hierFields.add(field);
+			} else if (field instanceof MeasureField) {
+				MeasureField measureFeild = (MeasureField) field;
+				SummariseField summariseField = parseSummaryType(
+						measureFeild.getName(), measureFeild.getSummaryType(),
+						field);
+				summariseField.setColourTable(measureFeild.getColorTable());
 
 				// 暂时全部用LIN
 				summariseField.setColourScaling(ColourScaling.LIN);
@@ -103,27 +115,27 @@ public class Treemap extends JPanel implements DataSetListener {
 		for (int row = 0; row < rowSize; row++) {
 			Object[] values = new Object[colSize];
 			for (int col = 0; col < colSize; col++) {
-				switch (dataTypes[col]) {
+				switch (fields[col].getFieldType()) {
 				case ID:
-					values[col] = ((int[]) columnArrays[col])[row];
+					values[col] = ((Integer[]) columnArrays[col])[row];
 					break;
 				case STRING:
 					values[col] = ((String[]) columnArrays[col])[row];
 					break;
 				case INT:
-					values[col] = ((int[]) columnArrays[col])[row];
+					values[col] = ((Integer[]) columnArrays[col])[row];
 					break;
 				case DOUBLE:
-					values[col] = ((double[]) columnArrays[col])[row];
+					values[col] = ((Double[]) columnArrays[col])[row];
 					break;
 				}
 			}
 
-			records.add(new Record(values));
+			records.add(values);
 		}
 	}
 
-	private FieldType TypeTansform(AttrType type) {
+	private FieldType TypeTansform(FieldType type) {
 		switch (type) {
 		case STRING:
 			return FieldType.STRING;

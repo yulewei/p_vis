@@ -1,19 +1,17 @@
 package org.gicentre.data.summary;
 
 import java.util.List;
-import java.util.Set;
 
 import org.gicentre.apps.hide.ColourScaling;
-import org.gicentre.data.DataField;
-import org.gicentre.data.FieldType;
-import org.gicentre.data.Record;
 import org.gicentre.utils.colour.ColourTable;
+
+import edu.zjut.common.data.attr.DataField;
+import edu.zjut.common.data.attr.FieldType;
 
 public abstract class SummariseField {
 	protected String name;
 	protected FieldType fieldType;
 	protected DataField dataField;
-	protected String units;
 
 	private ColourTable colourTable;
 	private ColourScaling colourScaling;
@@ -42,24 +40,15 @@ public abstract class SummariseField {
 		return dataField;
 	}
 
+	public int getColIdx() {
+		return dataField.getColIdx();
+	}
+
 	public FieldType getFieldType() {
 		return fieldType;
 	}
 
-	/**
-	 * Get the units which this measurement is in
-	 * 
-	 * @return
-	 */
-	public String getUnits() {
-		return units;
-	}
-
-	public void setUnits(String units) {
-		this.units = units;
-	}
-
-	public abstract Object compute(List<Record> records);
+	public abstract Object compute(List<Object> records);
 
 	protected Object correctObjectType(Object value) {
 		if (value == null) {
@@ -77,27 +66,7 @@ public abstract class SummariseField {
 			} else {
 				return ((Number) value).intValue();
 			}
-		}
-		if (fieldType == FieldType.LONG) {
-			if (value instanceof Long) {
-				return value;
-			}
-			if (value instanceof String) {
-				return Long.parseLong((String) value);
-			} else {
-				return ((Number) value).longValue();
-			}
-		}
-		if (fieldType == FieldType.FLOAT) {
-			if (value instanceof Float) {
-				return value;
-			}
-			if (value instanceof String) {
-				return Float.parseFloat((String) value);
-			} else {
-				return ((Number) value).floatValue();
-			}
-		}
+		}		
 		if (fieldType == FieldType.DOUBLE) {
 			if (value instanceof Double) {
 				return value;
@@ -109,35 +78,6 @@ public abstract class SummariseField {
 			}
 		}
 		return null;
-	}
-
-	/**
-	 * this checks if the record should be used. Returns true unless dependent
-	 * datafield applies at a specific level, in which case it will only return
-	 * true if the value of the appliesTo data variable has not been accessed.
-	 * 
-	 * @param record
-	 *            The record in question
-	 * @param valuesUsed
-	 *            Start with an empty set and pass the same one into this for
-	 *            each record in this summarisation. This method will modify
-	 *            this set if needed
-	 * 
-	 * @return
-	 */
-	protected boolean useRecord(Record record, Set<Object> valuesUsed) {
-		if (dataField.getAppliesToHierField() == null) {
-			return true;
-		} else {
-			DataField appliesToField = dataField.getAppliesToHierField();
-			Object v = record.getValue(appliesToField);
-			if (valuesUsed.contains(v)) {
-				return false;
-			} else {
-				valuesUsed.add(v);
-				return true;
-			}
-		}
 	}
 
 	public String toString() {

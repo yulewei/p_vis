@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import processing.core.PApplet;
-import edu.zjut.common.data.TimePeriod;
+import edu.zjut.common.data.time.TimePeriod;
 
 public class OverviewDetailPlot extends Plot {
 

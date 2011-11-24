@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
+import edu.zjut.common.data.time.TimePeriod;
+import edu.zjut.common.data.time.TimeSeriesData;
+import edu.zjut.common.data.time.TimeType;
+
 public class TimeSeriesCollection {
 
 	private TimeType type;

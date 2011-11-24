@@ -14,9 +14,13 @@ import javax.swing.ListCellRenderer;
 
 public class FieldListCell<E> extends JComponent implements ListCellRenderer<E> {
 
+	Color green = new Color(140, 200, 175, 200);
+	Color darkGreen = new Color(135, 170, 135, 200);
+
 	Color blue = new Color(175, 200, 230, 200);
 	Color darkBlue = new Color(135, 160, 180, 200);
 
+		
 	boolean isSelected = false;
 
 	String text = "hello";

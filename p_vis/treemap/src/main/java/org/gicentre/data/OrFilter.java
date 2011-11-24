@@ -59,7 +59,7 @@ public class OrFilter implements DataFilter {
 	 * @param record
 	 *            The record to test
 	 */
-	public boolean matches(Record record) {
+	public boolean matches(Object[] record) {
 		Iterator<DataFilter> it = filters.iterator();
 		while (it.hasNext()) {
 			if (it.next().matches(record)) {

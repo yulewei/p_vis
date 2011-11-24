@@ -2,8 +2,7 @@ package org.gicentre.data.summary;
 
 import java.util.List;
 
-import org.gicentre.data.FieldType;
-import org.gicentre.data.Record;
+import edu.zjut.common.data.attr.FieldType;
 
 /**
  * Stores custom value
@@ -19,7 +18,7 @@ public class SummariseCustom extends SummariseField {
 		this.fieldType = fieldType;
 	}
 
-	public Object compute(List<Record> records) {
+	public Object compute(List<Object> records) {
 		return value; // Just returns last set value
 	}
 
@@ -44,12 +43,8 @@ public class SummariseCustom extends SummariseField {
 			this.value = null;
 		} else if (fieldType == FieldType.INT) {
 			this.value = Integer.parseInt(value);
-		} else if (fieldType == FieldType.FLOAT) {
-			this.value = Float.parseFloat(value);
 		} else if (fieldType == FieldType.DOUBLE) {
 			this.value = Double.parseDouble(value);
-		} else if (fieldType == FieldType.LONG) {
-			this.value = Long.parseLong(value);
 		} else if (fieldType == FieldType.STRING) {
 			this.value = value;
 		}

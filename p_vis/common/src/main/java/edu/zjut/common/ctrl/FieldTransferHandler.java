@@ -10,7 +10,7 @@ import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.TransferHandler;
 
-class FieldTransferHandler extends TransferHandler {
+public class FieldTransferHandler extends TransferHandler {
 
 	public int getSourceActions(JComponent comp) {
 		return COPY_OR_MOVE;
@@ -19,7 +19,7 @@ class FieldTransferHandler extends TransferHandler {
 	public Transferable createTransferable(JComponent comp) {
 		JList<String> list = (JList<String>) comp;
 		List<String> values = list.getSelectedValuesList();
-		
+
 		// 导出选中的多个值
 		StringBuffer buff = new StringBuffer();
 		for (String v : values) {
@@ -39,6 +39,7 @@ class FieldTransferHandler extends TransferHandler {
 		JList.DropLocation dl = (JList.DropLocation) support.getDropLocation();
 
 		int index = dl.getIndex();
+		boolean insert = dl.isInsert();
 
 		String data;
 		try {
@@ -54,7 +55,10 @@ class FieldTransferHandler extends TransferHandler {
 
 		String[] values = data.split("\n");
 		for (int i = 0; i < values.length; i++) {
-			model.insertElementAt(values[i], index++);
+			if (insert)
+				model.insertElementAt(values[i], index++);
+			else
+				model.setElementAt(values[i], index++);
 		}
 
 		// model.insertElementAt(data, index);

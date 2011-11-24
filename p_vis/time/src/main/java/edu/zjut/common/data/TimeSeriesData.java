@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import edu.zjut.common.data.time.TimePeriod;
+
 public class TimeSeriesData {
 	private String timeName;
 	private String valueName;

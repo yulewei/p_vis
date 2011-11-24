@@ -9,10 +9,10 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.TreeMap;
 
-import edu.zjut.common.data.TimePeriod;
-import edu.zjut.common.data.TimeSeriesCollection;
-import edu.zjut.common.data.TimeSeriesData;
-import edu.zjut.common.data.TimeType;
+import edu.zjut.common.data.time.TimePeriod;
+import edu.zjut.common.data.time.TimeSeriesCollection;
+import edu.zjut.common.data.time.TimeSeriesData;
+import edu.zjut.common.data.time.TimeType;
 
 import au.com.bytecode.opencsv.CSVReader;
 

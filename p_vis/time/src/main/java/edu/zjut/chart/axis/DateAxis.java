@@ -5,8 +5,8 @@ import java.text.SimpleDateFormat;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
-import edu.zjut.common.data.TimePeriod;
-import edu.zjut.common.data.TimeType;
+import edu.zjut.common.data.time.TimePeriod;
+import edu.zjut.common.data.time.TimeType;
 
 public class DateAxis extends Axis {
 

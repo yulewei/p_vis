@@ -20,7 +20,7 @@
 		<variable>
 			<name>均价</name>
 			<colIdx>4</colIdx>
-			<dataType>float</dataType>
+			<dataType>double</dataType>
 			<summary>
 				<summaryType>mean</summaryType>
 				<colorMap preset="OR_RD" />
@@ -32,7 +32,7 @@
 		<variable>
 			<name>点击量</name>
 			<colIdx>2</colIdx>
-			<dataType>float</dataType>
+			<dataType>double</dataType>
 			<summary>
 				<summaryType>sum</summaryType>
 				<colorMap preset="OR_RD" />
@@ -44,7 +44,7 @@
 		<variable>
 			<name>lon</name>
 			<colIdx>5</colIdx>
-			<dataType>float</dataType>
+			<dataType>double</dataType>
 			<summary>
 				<summaryType>mean</summaryType>
 				<order />
@@ -53,7 +53,7 @@
 		<variable>
 			<name>lat</name>
 			<colIdx>6</colIdx>
-			<dataType>float</dataType>
+			<dataType>double</dataType>
 			<summary>
 				<summaryType>mean</summaryType>
 				<order />

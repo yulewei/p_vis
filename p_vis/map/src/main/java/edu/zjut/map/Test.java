@@ -19,7 +19,7 @@ import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 
-import edu.zjut.common.data.EsriFeatureObj;
+import edu.zjut.common.data.geo.EsriFeatureObj;
 import edu.zjut.common.io.EsriJSONParser;
 import edu.zjut.map.overlay.DefaultMapMarker;
 import edu.zjut.map.overlay.EsriLayer;

@@ -1,11 +1,9 @@
 package org.gicentre.data.summary;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,8 +12,8 @@ import java.util.NoSuchElementException;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import org.gicentre.data.DataField;
-import org.gicentre.data.Record;
+import edu.zjut.common.data.attr.DataField;
+
 
 public class SummariseNode extends DefaultMutableTreeNode implements
 		Comparable<SummariseNode> {
@@ -28,7 +26,7 @@ public class SummariseNode extends DefaultMutableTreeNode implements
 	private HashMap<SummariseField, Object> summariseField2Value;
 	private DataField conditioningField;
 	protected Object conditioningValue;
-	private List<Record> sortedRecords;
+	private List<Object[]> sortedRecords;
 	private int startRowIdx;
 	private int endRowIdx;
 	private int order = 0;
@@ -44,7 +42,7 @@ public class SummariseNode extends DefaultMutableTreeNode implements
 	 * @param summaryField2Value
 	 */
 	public SummariseNode(DataField dataField, Object groupByValue, int order,
-			List<Record> sortedRecords, int startIdx, int endIdx,
+			List<Object[]> sortedRecords, int startIdx, int endIdx,
 			HashMap<SummariseField, Object> summaryField2Value) {
 		this.conditioningField = dataField;
 		this.conditioningValue = groupByValue;
@@ -422,7 +420,7 @@ public class SummariseNode extends DefaultMutableTreeNode implements
 	 * Return the individual records
 	 * 
 	 */
-	public List<Record> getRecords() {
+	public List<Object[]> getRecords() {
 		return sortedRecords.subList(startRowIdx, endRowIdx + 1);
 	}
 
@@ -466,44 +464,6 @@ public class SummariseNode extends DefaultMutableTreeNode implements
 		}
 		System.err.println(summaryFieldName + " field doesn't exist");
 		return null;
-	}
-
-	/**
-	 * Returns a collection of empty summaries of any (ordered) values specifies
-	 * in the datafield that does not already exist as a child. Uses the
-	 * position of the ordered values as the natural order
-	 * 
-	 * @param datafield
-	 * @return
-	 */
-	public Collection<SummariseNode> getEmptySummariesForChildren(
-			DataField dataFieldOfChildren) {
-
-		HashSet<SummariseNode> returnNodes = new HashSet<SummariseNode>();
-		if (dataFieldOfChildren.getOrderValues() != null) {
-			for (Object value : dataFieldOfChildren.getOrderValues()) {
-				boolean exists = false;
-				if (children != null) {
-					Iterator<SummariseNode> it = children.iterator();
-					while (it.hasNext() && !exists) {
-						SummariseNode node = it.next();
-						if ((node.getConditioningValue() != null && node
-								.getConditioningValue().equals(value))
-								|| (node.getConditioningValue() == null && value == null)) {
-							exists = true;
-						}
-					}
-				}
-				if (!exists) {
-					// then create a summary node
-					returnNodes.add(new SummariseNode(dataFieldOfChildren,
-							value, dataFieldOfChildren.getOrderValues()
-									.indexOf(value), sortedRecords, 0, 0,
-							new HashMap<SummariseField, Object>()));
-				}
-			}
-		}
-		return returnNodes;
 	}
 
 	public String toString() {

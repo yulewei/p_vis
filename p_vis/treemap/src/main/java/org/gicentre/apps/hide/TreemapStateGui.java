@@ -4,11 +4,8 @@ import java.awt.Rectangle;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import org.gicentre.apps.hide.TreemapState.Layout;
-import org.gicentre.data.DataField;
 import org.gicentre.data.summary.SummariseField;
 import org.gicentre.data.summary.SummariseNull;
 import org.gicentre.hive.Expression;
@@ -19,6 +16,7 @@ import org.gicentre.utils.spatial.Direction;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PFont;
+import edu.zjut.common.data.attr.DataField;
 
 /**
  * The GUI Extends TreemapState, so also serves as this.
@@ -156,28 +154,28 @@ public class TreemapStateGui extends TreemapState {
 	 * columns are used and they are the correct widths to fit the text in,
 	 */
 	private void layoutRectangles() {
-		hierarchyRectangles = new Rectangle[this.hierarchyFields.length + 1];
-		sizeRectangles = new Rectangle[sizeFields.length][this.hierarchyFields.length + 1];
-		orderRectangles = new Rectangle[orderFields.length][this.hierarchyFields.length + 1];
-		colourRectangles = new Rectangle[colourFields.length][this.hierarchyFields.length + 1];
-		layoutRectangles = new Rectangle[this.hierarchyFields.length + 1];
-		appearanceRectangles = new Rectangle[this.hierarchyFields.length + 1];
-		filterRectangles = new Rectangle[this.hierarchyFields.length + 1];
+		hierarchyRectangles = new Rectangle[this.hierFields.length + 1];
+		sizeRectangles = new Rectangle[sizeFields.length][this.hierFields.length + 1];
+		orderRectangles = new Rectangle[orderFields.length][this.hierFields.length + 1];
+		colourRectangles = new Rectangle[colourFields.length][this.hierFields.length + 1];
+		layoutRectangles = new Rectangle[this.hierFields.length + 1];
+		appearanceRectangles = new Rectangle[this.hierFields.length + 1];
+		filterRectangles = new Rectangle[this.hierFields.length + 1];
 
-		plusRectangles = new Rectangle[this.hierarchyFields.length + 1];
-		minusRectangles = new Rectangle[this.hierarchyFields.length + 1];
+		plusRectangles = new Rectangle[this.hierFields.length + 1];
+		minusRectangles = new Rectangle[this.hierFields.length + 1];
 
-		swapRectangles = new Rectangle[this.hierarchyFields.length + 1];
+		swapRectangles = new Rectangle[this.hierFields.length + 1];
 
 		// Find maximum lengths for each column
-		int[] colWidths = new int[this.hierarchyFields.length + 1];
+		int[] colWidths = new int[this.hierFields.length + 1];
 		applet.textFont(f);
 		// do labels
 		colWidths[0] = (int) applet.textWidth("Appearance:");// the widest label
 		// then do the others
-		for (int col = 0; col < this.hierarchyFields.length; col++) {
+		for (int col = 0; col < this.hierFields.length; col++) {
 			colWidths[col + 1] = 0;
-			int w = (int) applet.textWidth(hierarchyFields[col].getName());
+			int w = (int) applet.textWidth(hierFields[col].getName());
 			if (w > colWidths[col + 1]) {
 				colWidths[col + 1] = w;
 			}
@@ -241,7 +239,7 @@ public class TreemapStateGui extends TreemapState {
 		// create rectangles
 		int rectHeight = textHeight + 1;
 		int cumX = 5;
-		for (int col = 0; col < hierarchyFields.length + 1; col++) {
+		for (int col = 0; col < hierFields.length + 1; col++) {
 			hierarchyRectangles[col] = new Rectangle(cumX, textHeight,
 					colWidths[col], rectHeight);
 			for (int j = 0; j < sizeFields.length; j++) {
@@ -268,7 +266,7 @@ public class TreemapStateGui extends TreemapState {
 					- plusMinusW / 2, 0, plusMinusW, rectHeight);
 			plusRectangles[col] = new Rectangle(cumX + colWidths[col], 0,
 					plusMinusW, rectHeight);
-			if (col < hierarchyFields.length) {
+			if (col < hierFields.length) {
 				swapRectangles[col] = new Rectangle(cumX + colWidths[col] + 1,
 						textHeight, swapArrowW, rectHeight);
 			}
@@ -313,7 +311,7 @@ public class TreemapStateGui extends TreemapState {
 		applet.textFont(f);
 		applet.fill(40);
 
-		for (int col = 0; col < hierarchyFields.length + 1; col++) {
+		for (int col = 0; col < hierFields.length + 1; col++) {
 			if (col == 0) {
 				applet.textAlign(PApplet.RIGHT, PApplet.TOP);
 				applet.text("Hierarchy:",
@@ -365,7 +363,7 @@ public class TreemapStateGui extends TreemapState {
 					applet.fill(40);
 				}
 				applet.text("+", x + (int) r.getCenterX(), y + r.y);
-				if (hierarchyFields.length == 0) {
+				if (hierFields.length == 0) {
 					clickHereToStartTooltip.draw((float) r.getMaxX(),
 							(float) r.getMaxY());
 				}
@@ -407,7 +405,7 @@ public class TreemapStateGui extends TreemapState {
 				} else {
 					applet.fill(80);
 				}
-				applet.text(this.hierarchyFields[col - 1].getName(), x
+				applet.text(this.hierFields[col - 1].getName(), x
 						+ (int) r.getX(), y + r.y);
 
 				for (int j = 0; j < sizeFields.length; j++) {
@@ -594,10 +592,10 @@ public class TreemapStateGui extends TreemapState {
 
 			// Change the value of any hierarchy variables clicked (forward/back
 			// with left/right mouse button)
-			for (int i = 1; i < hierarchyFields.length + 1; i++) {
+			for (int i = 1; i < hierFields.length + 1; i++) {
 				if (hierarchyRectangles[i].contains(mouseX, mouseY)) {
 					int idx = allowedHierarchyFields
-							.indexOf(hierarchyFields[i - 1]);
+							.indexOf(hierFields[i - 1]);
 					if (idx == -1) {
 						idx = 0;
 					}
@@ -612,12 +610,12 @@ public class TreemapStateGui extends TreemapState {
 							idx = allowedHierarchyFields.size() - 1;
 						}
 					}
-					hierarchyFields[i - 1] = allowedHierarchyFields.get(idx);
+					hierFields[i - 1] = allowedHierarchyFields.get(idx);
 
 					// check filter value is valid for this variable - otherwise
 					// set to null (<all>)
 					if (filterValues[i - 1] != null
-							&& !hierarchyFields[i - 1].getOrderValues()
+							&& !hierFields[i - 1].getOrderValues()
 									.contains(filterValues[i - 1])) {
 						filterValues[i - 1] = null;
 					}
@@ -630,7 +628,7 @@ public class TreemapStateGui extends TreemapState {
 			// Change the value of any order variables clicked (forward/back
 			// with left/right mouse button)
 			for (int j = 0; j < orderFields.length; j++) {
-				for (int i = 1; i < hierarchyFields.length + 1; i++) { // use
+				for (int i = 1; i < hierFields.length + 1; i++) { // use
 																		// hierarchyFields.length,
 																		// because
 																		// it's
@@ -663,7 +661,7 @@ public class TreemapStateGui extends TreemapState {
 			// Change the value of any size variables clicked (forward/back with
 			// left/right mouse button)
 			for (int j = 0; j < sizeFields.length; j++) {
-				for (int i = 1; i < hierarchyFields.length + 1; i++) { // use
+				for (int i = 1; i < hierFields.length + 1; i++) { // use
 																		// hierarchyFields.length,
 																		// because
 																		// it's
@@ -696,7 +694,7 @@ public class TreemapStateGui extends TreemapState {
 			// Change the value of any colour variables clicked (forward/back
 			// with left/right mouse button)
 			for (int j = 0; j < colourFields.length; j++) {
-				for (int i = 1; i < hierarchyFields.length + 1; i++) { // use
+				for (int i = 1; i < hierFields.length + 1; i++) { // use
 																		// hierarchyFields.length,
 																		// because
 																		// it's
@@ -728,7 +726,7 @@ public class TreemapStateGui extends TreemapState {
 
 			// Change the value of any layouts clicked (forward/back with
 			// left/right mouse button)
-			for (int i = 1; i < hierarchyFields.length + 1; i++) {
+			for (int i = 1; i < hierFields.length + 1; i++) {
 				if (layoutRectangles[i].contains(mouseX, mouseY)) {
 					int idx = allowedLayouts.indexOf(layouts[i - 1]);
 					if (idx == -1) {
@@ -884,13 +882,13 @@ public class TreemapStateGui extends TreemapState {
 
 			// Change the value of any filters clicked (forward/back with
 			// left/right mouse button)
-			for (int i = 1; i < hierarchyFields.length + 1; i++) {
+			for (int i = 1; i < hierFields.length + 1; i++) {
 				if (filterRectangles[i].contains(mouseX, mouseY)) {
 
 					if (mouseX < filterRectangles[i].getMaxX() - 15) {
 						// clicked on the word, not the x
-
-						Integer idx = hierarchyFields[i - 1].getOrderValues()
+					
+						Integer idx = hierFields[i - 1].getOrderValues()
 								.indexOf(filterValues[i - 1]);
 
 						if ((applet.mouseEvent.getModifiers() & InputEvent.BUTTON1_MASK) != 0) {
@@ -899,13 +897,13 @@ public class TreemapStateGui extends TreemapState {
 							} else {
 								idx++;
 							}
-							if (idx > hierarchyFields[i - 1].getOrderValues()
+							if (idx > hierFields[i - 1].getOrderValues()
 									.size() - 1) {
 								idx = null;
 							}
 						} else if ((applet.mouseEvent.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
 							if (idx == -1) {
-								idx = hierarchyFields[i - 1].getOrderValues()
+								idx = hierFields[i - 1].getOrderValues()
 										.size() - 1;
 							} else {
 								idx--;
@@ -917,7 +915,7 @@ public class TreemapStateGui extends TreemapState {
 						if (idx == null) {
 							filterValues[i - 1] = null;
 						} else {
-							filterValues[i - 1] = hierarchyFields[i - 1]
+							filterValues[i - 1] = hierFields[i - 1]
 									.getOrderValues().get(idx);
 						}
 					} else {
@@ -980,7 +978,7 @@ public class TreemapStateGui extends TreemapState {
 							}
 						} else {
 							// use the value to the left
-							defaultHierField = hierarchyFields[i - 1];
+							defaultHierField = hierFields[i - 1];
 							for (int j = 0; j < orderFields.length; j++) {
 								defaultOrderField[j] = orderFields[j][i - 1];
 							}

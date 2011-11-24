@@ -2,9 +2,9 @@ package edu.zjut.chart.plot;
 
 import java.util.List;
 
-import edu.zjut.common.data.TimePeriod;
-import edu.zjut.common.data.TimeSeriesCollection;
-import edu.zjut.common.data.TimeSeriesData;
+import edu.zjut.common.data.time.TimePeriod;
+import edu.zjut.common.data.time.TimeSeriesCollection;
+import edu.zjut.common.data.time.TimeSeriesData;
 import processing.core.PApplet;
 
 public class TimeSeriesCurve extends TimeSeriesPlot {

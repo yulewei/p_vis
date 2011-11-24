@@ -6,7 +6,7 @@ import java.awt.Dimension;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import edu.zjut.common.data.TimeSeriesCollection;
+import edu.zjut.common.data.time.TimeSeriesCollection;
 import edu.zjut.time.PTimeSeries;
 
 public class TimeSeries extends JPanel {

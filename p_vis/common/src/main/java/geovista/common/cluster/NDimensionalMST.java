@@ -11,8 +11,8 @@ import java.util.logging.Logger;
 
 import javax.swing.event.EventListenerList;
 
-import edu.zjut.common.data.AttributeData;
 import edu.zjut.common.data.DataSetForApps;
+import edu.zjut.common.data.attr.AttributeData;
 import geovista.common.classification.DescriptiveStatistics;
 
 /**

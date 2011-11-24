@@ -4,9 +4,9 @@ import java.util.Arrays;
 
 import javax.swing.JFrame;
 
-import edu.zjut.common.data.AttributeData;
 import edu.zjut.common.data.DataSetBroadcaster;
 import edu.zjut.common.data.DataSetForApps;
+import edu.zjut.common.data.attr.AttributeData;
 import edu.zjut.common.event.DataSetEvent;
 import edu.zjut.common.event.DataSetListener;
 import edu.zjut.common.io.DataSetLoader;

@@ -1,7 +1,7 @@
 package edu.zjut.vis.pcp;
 
-import edu.zjut.common.data.AttributeData;
 import edu.zjut.common.data.DataSetForApps;
+import edu.zjut.common.data.attr.AttributeData;
 
 import java.util.Vector;
 

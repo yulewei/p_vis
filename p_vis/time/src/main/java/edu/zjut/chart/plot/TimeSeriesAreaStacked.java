@@ -4,9 +4,9 @@ import java.util.List;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
-import edu.zjut.common.data.TimePeriod;
-import edu.zjut.common.data.TimeSeriesCollection;
-import edu.zjut.common.data.TimeSeriesData;
+import edu.zjut.common.data.time.TimePeriod;
+import edu.zjut.common.data.time.TimeSeriesCollection;
+import edu.zjut.common.data.time.TimeSeriesData;
 
 public class TimeSeriesAreaStacked extends TimeSeriesPlot {
 

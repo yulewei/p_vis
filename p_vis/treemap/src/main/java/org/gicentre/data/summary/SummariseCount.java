@@ -3,8 +3,7 @@ package org.gicentre.data.summary;
 import java.util.HashSet;
 import java.util.List;
 
-import org.gicentre.data.FieldType;
-import org.gicentre.data.Record;
+import edu.zjut.common.data.attr.FieldType;
 
 public class SummariseCount extends SummariseField {
 
@@ -13,16 +12,14 @@ public class SummariseCount extends SummariseField {
 		this.fieldType = FieldType.INT;
 	}
 
-	public Object compute(List<Record> records) {
+	public Object compute(List<Object> values) {
 		if (dataField == null) {
-			return records.size();
+			return values.size();
 		} else {
 			int c = 0;
 			HashSet<Object> valuesUsed = new HashSet<Object>();
-			for (Record record : records) {
-				if (useRecord(record, valuesUsed)) {
-					c++;
-				}
+			for (Object value : values) {
+				c++;
 			}
 			return c;
 		}

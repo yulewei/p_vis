@@ -15,9 +15,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 
-import edu.zjut.common.data.AttributeData;
 import edu.zjut.common.data.DataSetBroadcaster;
 import edu.zjut.common.data.DataSetForApps;
+import edu.zjut.common.data.attr.AttributeData;
+import edu.zjut.common.data.attr.DataField;
+import edu.zjut.common.data.attr.DimensionField;
+import edu.zjut.common.data.attr.MeasureField;
 import edu.zjut.common.event.DataSetEvent;
 import edu.zjut.common.event.DataSetListener;
 import edu.zjut.common.event.SubspaceEvent;
@@ -33,8 +36,8 @@ public class DataWindow extends JPanel implements DataSetListener,
 
 	DataSetForApps dataSet;
 	AttributeData attrData;
-	String[] measureNames;
-	String[] dimensionNames;
+	DimensionField[] dimensionFeilds;
+	MeasureField[] measureFeilds;
 
 	private JPanel jPanel1;
 	private JPanel jPanel2;
@@ -77,7 +80,7 @@ public class DataWindow extends JPanel implements DataSetListener,
 
 		measureList = new FieldList<String>();
 		measureList.setVisibleRowCount(10);
-		measureList.setDropMode(DropMode.INSERT);
+		measureList.setDropMode(DropMode.ON_OR_INSERT);
 		measureList.setDragEnabled(true);
 		measureList.setTransferHandler(new FieldTransferHandler());
 
@@ -92,16 +95,22 @@ public class DataWindow extends JPanel implements DataSetListener,
 		dataSet = e.getDataSetForApps();
 
 		attrData = dataSet.getAttrData();
-		dimensionNames = attrData.getDimensionNames();
-		measureNames = attrData.getMeasureNames();
 
-		DefaultListModel<String> listModel = new DefaultListModel<String>();
-		for (int i = measureNames.length - 1; i >= 0; i--) {
-			listModel.add(0, measureNames[i]);
+		dimensionFeilds = attrData.getDimensionFeilds();
+		measureFeilds = attrData.getMeasureFeilds();
+
+		DefaultListModel<String> listModel1 = new DefaultListModel<String>();
+		for (int i = measureFeilds.length - 1; i >= 0; i--) {
+			listModel1.add(0, measureFeilds[i].getName());
 		}
 
-		dimensionList.setListData(dimensionNames);
-		measureList.setModel(listModel);
+		DefaultListModel<String> listModel2 = new DefaultListModel<String>();
+		for (int i = dimensionFeilds.length - 1; i >= 0; i--) {
+			listModel2.add(0, dimensionFeilds[i].getName());
+		}
+
+		measureList.setModel(listModel1);
+		dimensionList.setModel(listModel2);
 		repaint();
 	}
 

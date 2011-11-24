@@ -16,13 +16,16 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
 import edu.zjut.common.color.ColourScaling;
-import edu.zjut.common.data.AttributeData;
 import edu.zjut.common.data.DataSetForApps;
-import edu.zjut.common.data.AttrType;
-import edu.zjut.common.data.EsriFeatureObj;
-import edu.zjut.common.data.GeometryData;
-import edu.zjut.common.data.SummaryType;
-import edu.zjut.common.data.TimeData;
+import edu.zjut.common.data.attr.FieldType;
+import edu.zjut.common.data.attr.AttributeData;
+import edu.zjut.common.data.attr.DataField;
+import edu.zjut.common.data.attr.DimensionField;
+import edu.zjut.common.data.attr.MeasureField;
+import edu.zjut.common.data.attr.SummaryType;
+import edu.zjut.common.data.geo.EsriFeatureObj;
+import edu.zjut.common.data.geo.GeometryData;
+import edu.zjut.common.data.time.TimeData;
 import edu.zjut.common.io.DataConfig.Attr;
 import edu.zjut.common.io.DataConfig.Attr.Attribute;
 import edu.zjut.common.io.DataConfig.ColorMap;
@@ -74,21 +77,23 @@ public class DataSetLoader {
 
 		int len = attrList.size();
 
-		AttrType[] dataTypes = new AttrType[len];
+		DataField[] feilds = new DataField[len];
+
+		FieldType[] dataTypes = new FieldType[len];
 		String[] attributeNames = new String[len];
 		SummaryType[] summaryTypes = new SummaryType[len];
 		ColourTable[] colorTables = new ColourTable[len];
 		for (int i = 0; i < len; i++) {
 			Attribute attr = attrList.get(i);
 			if (attr.dataType.equalsIgnoreCase("id")) {
-				dataTypes[i] = AttrType.ID;
+				dataTypes[i] = FieldType.ID;
 			}
 			if (attr.dataType.equalsIgnoreCase("int")) {
-				dataTypes[i] = AttrType.INT;
+				dataTypes[i] = FieldType.INT;
 			} else if (attr.dataType.equalsIgnoreCase("double")) {
-				dataTypes[i] = AttrType.DOUBLE;
+				dataTypes[i] = FieldType.DOUBLE;
 			} else if (attr.dataType.equalsIgnoreCase("string")) {
-				dataTypes[i] = AttrType.STRING;
+				dataTypes[i] = FieldType.STRING;
 			}
 			attributeNames[i] = attr.name;
 			summaryTypes[i] = attr.summaryType == null ? null : SummaryType
@@ -98,13 +103,24 @@ public class DataSetLoader {
 
 			if (attr.name.equals(attrConfig.name))
 				nameCol = i;
+
 		}
 
-		Object[] columnArrays = readFileContent(dataTypes, attrList,
+		Object[][] columnArrays = readFileContent(dataTypes, attrList,
 				attrConfig.fileName, 1);
 
-		this.attrData = new AttributeData(nameCol, dataTypes, attributeNames,
-				columnArrays, summaryTypes, colorTables);
+		for (int i = 0; i < len; i++) {
+			FieldType attrType = dataTypes[i];
+			if (attrType.isDimensionType()) {
+				feilds[i] = new DimensionField(i, attributeNames[i], attrType,
+						columnArrays[i], nameCol == i);
+			}
+			if (attrType.isMeasureType()) {
+				feilds[i] = new MeasureField(i, attributeNames[i], attrType,
+						columnArrays[i], summaryTypes[i], colorTables[i]);
+			}
+		}
+		this.attrData = new AttributeData(feilds, columnArrays);
 	}
 
 	/**
@@ -149,10 +165,10 @@ public class DataSetLoader {
 	 * @param attrList
 	 * @param fileName
 	 */
-	private Object[] readFileContent(AttrType[] dataTypes,
+	private Object[][] readFileContent(FieldType[] dataTypes,
 			ArrayList<Attribute> attrList, String fileName, int beg) {
 
-		Object[] columnArrays = new Object[attrList.size()];
+		Object[][] columnArrays = new Object[attrList.size()][];
 
 		List<String[]> fileContent = null;
 
@@ -170,10 +186,10 @@ public class DataSetLoader {
 			switch (dataTypes[i]) {
 			case ID:
 			case INT:
-				columnArrays[i] = new int[len];
+				columnArrays[i] = new Integer[len];
 				break;
 			case DOUBLE:
-				columnArrays[i] = new double[len];
+				columnArrays[i] = new Double[len];
 				break;
 			case STRING:
 				columnArrays[i] = new String[len];
@@ -184,8 +200,8 @@ public class DataSetLoader {
 		for (int row = beg; row < len + beg; row++) {
 			String[] line = fileContent.get(row);
 
-			int[] ints = null;
-			double[] doubles = null;
+			Integer[] ints = null;
+			Double[] doubles = null;
 			String[] strings = null;
 
 			for (int i = 0; i < attrList.size(); i++) {
@@ -195,11 +211,11 @@ public class DataSetLoader {
 				switch (dataTypes[i]) {
 				case ID:
 				case INT:
-					ints = (int[]) columnArrays[i];
+					ints = (Integer[]) columnArrays[i];
 					ints[row - beg] = Integer.parseInt(item);
 					break;
 				case DOUBLE:
-					doubles = (double[]) columnArrays[i];
+					doubles = (Double[]) columnArrays[i];
 					doubles[row - beg] = item.equals("") ? 0 : Double
 							.parseDouble(item);
 					break;

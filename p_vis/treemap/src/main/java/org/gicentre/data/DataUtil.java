@@ -1,7 +1,6 @@
 package org.gicentre.data;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -10,6 +9,8 @@ import java.util.List;
 
 import org.gicentre.data.summary.SummariseField;
 import org.gicentre.data.summary.SummariseNode;
+
+import edu.zjut.common.data.attr.DataField;
 
 /**
  * 
@@ -29,9 +30,9 @@ public class DataUtil {
 	 *            DataFilter
 	 * @return The root node of a tree that summarises the data
 	 */
-	public static SummariseNode getSummary(List<Record> records,
-			final DataField[] hierFields, List<SummariseField> sumFields,
-			DataFilter dataFilter) {
+	public static SummariseNode getSummary(List<Object[]> records,
+			List<Object[]> columnValues, final DataField[] hierFields,
+			List<SummariseField> sumFields, DataFilter dataFilter) {
 
 		int numLevels = hierFields.length;
 
@@ -41,15 +42,15 @@ public class DataUtil {
 		}
 
 		// 排序, 以便按照索引分组
-		Collections.sort(records, new Comparator<Record>() {
+		Collections.sort(records, new Comparator<Object[]>() {
 			@SuppressWarnings("unchecked")
 			@Override
-			public int compare(Record o1, Record o2) {
+			public int compare(Object[] o1, Object[] o2) {
 				for (DataField field : hierFields) {
-					Comparable<Object> v1 = (Comparable<Object>) o1
-							.getValue(field);
-					Comparable<Object> v2 = (Comparable<Object>) o2
-							.getValue(field);
+					Comparable<Object> v1 = (Comparable<Object>) o1[field
+							.getColIdx()];
+					Comparable<Object> v2 = (Comparable<Object>) o2[field
+							.getColIdx()];
 
 					int compareValue = v1.compareTo(v2);
 					if (compareValue != 0) {
@@ -60,11 +61,11 @@ public class DataUtil {
 			}
 		});
 
-		List<Record> sortedRecords = new ArrayList<Record>();
+		List<Object[]> sortedRecords = new ArrayList<Object[]>();
 		if (dataFilter == null) {
 			sortedRecords.addAll(records);
 		} else {
-			for (Record record : records) {
+			for (Object[] record : records) {
 				if (dataFilter.matches(record)) {
 					sortedRecords.add(record);
 				}
@@ -84,11 +85,11 @@ public class DataUtil {
 
 		int rowIdx = 0;
 		Object[] prevGroupByValues = new Object[numLevels];
-		for (Record record : sortedRecords) {
+		for (Object[] record : sortedRecords) {
 			Object[] curGroupByValues = new Object[numLevels];
 			boolean rollAllLevel = false;
 			for (int i = 0; i < numLevels; i++) {
-				curGroupByValues[i] = record.getValue(hierFields[i]);
+				curGroupByValues[i] = record[hierFields[i].getColIdx()];
 				if (rowIdx == 0
 						|| rollAllLevel
 						|| (prevGroupByValues[i] != null && !prevGroupByValues[i]
@@ -136,8 +137,15 @@ public class DataUtil {
 			HashMap<SummariseField, Object> summaryValues = new HashMap<SummariseField, Object>();
 
 			for (SummariseField summaryField : sumFields) {
-				Object value = summaryField.compute(sortedRecords.subList(
-						startRowIdx, endRowIdx + 1));
+
+				List<Object[]> subRecords = sortedRecords.subList(startRowIdx,
+						endRowIdx + 1);
+				List<Object> values = new ArrayList<Object>();
+				for (Object[] record : subRecords) {
+					values.add(record[summaryField.getColIdx()]);
+				}
+
+				Object value = summaryField.compute(values);
 				summaryValues.put(summaryField, value);
 			}
 
@@ -145,10 +153,8 @@ public class DataUtil {
 			int order = startRowIdx;
 			Object groupByValue = curHierValues[curDepth]
 					.get(rollUpIdxs[curDepth]);
-			List<Object> orderedValues = hierFields[curDepth].getOrderValues();
-			if (orderedValues != null) {
-				order = orderedValues.indexOf(groupByValue);
-			}
+
+			order = hierFields[curDepth].getOrderValues().indexOf(groupByValue);
 
 			SummariseNode summaryNode = new SummariseNode(hierFields[curDepth],
 					groupByValue, order, sortedRecords, startRowIdx, endRowIdx,
@@ -173,7 +179,11 @@ public class DataUtil {
 		// 计算根节点
 		HashMap<SummariseField, Object> summaryValues = new HashMap<SummariseField, Object>();
 		for (SummariseField field : sumFields) {
-			Object value = field.compute(sortedRecords);
+			List<Object> values = new ArrayList<Object>();
+			for (Object[] record : sortedRecords) {
+				values.add(record[field.getColIdx()]);
+			}
+			Object value = field.compute(values);
 			summaryValues.put(field, value);
 		}
 

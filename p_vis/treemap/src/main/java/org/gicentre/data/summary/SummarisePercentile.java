@@ -5,9 +5,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-import org.gicentre.data.DataField;
-import org.gicentre.data.FieldType;
-import org.gicentre.data.Record;
+import edu.zjut.common.data.attr.DataField;
+import edu.zjut.common.data.attr.FieldType;
 
 public class SummarisePercentile extends SummariseField {
 
@@ -25,17 +24,14 @@ public class SummarisePercentile extends SummariseField {
 		this.percentile = percentile;
 	}
 
-	public Object compute(List<Record> records) {
+	public Object compute(List<Object> values) {
 		Object value = null;
 		HashSet<Object> valuesUsed = new HashSet<Object>();
-		List<Comparable> sortedList = new ArrayList<Comparable>(records.size());
-		for (Record record : records) {
-			if (useRecord(record, valuesUsed)) {
-				Comparable<Object> comparable = (Comparable<Object>) record
-						.getValue(dataField);
-				if (comparable != null) {
-					sortedList.add(comparable);
-				}
+		List<Comparable> sortedList = new ArrayList<Comparable>(values.size());
+		for (Object v : values) {
+			Comparable<Object> comparable = (Comparable<Object>) v;
+			if (comparable != null) {
+				sortedList.add(comparable);
 			}
 		}
 		Collections.sort(sortedList);

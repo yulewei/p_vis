@@ -7,7 +7,7 @@ package edu.zjut.common.event;
 import java.util.EventObject;
 
 import edu.zjut.common.data.DataSetForApps;
-import edu.zjut.common.data.AttributeData;
+import edu.zjut.common.data.attr.AttributeData;
 
 
 /**

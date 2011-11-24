@@ -3,9 +3,8 @@ package org.gicentre.data.summary;
 import java.util.HashSet;
 import java.util.List;
 
-import org.gicentre.data.DataField;
-import org.gicentre.data.FieldType;
-import org.gicentre.data.Record;
+import edu.zjut.common.data.attr.DataField;
+import edu.zjut.common.data.attr.FieldType;
 
 public class SummariseUniqueCount extends SummariseField {
 
@@ -15,10 +14,9 @@ public class SummariseUniqueCount extends SummariseField {
 		this.fieldType = FieldType.INT;
 	}
 
-	public Object compute(List<Record> records) {
+	public Object compute(List<Object> values) {
 		HashSet<Object> uniqueValues = new HashSet<Object>();
-		for (Record record : records) {
-			Object v = record.getValue(dataField);
+		for (Object v : values) {
 			uniqueValues.add(v);
 		}
 		uniqueValues.remove(null);

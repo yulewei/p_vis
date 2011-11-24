@@ -14,6 +14,6 @@ public interface DataFilter {
 	 * @param record
 	 * @return
 	 */
-	public boolean matches(Record record);
+	public boolean matches(Object[] record);
 
 }

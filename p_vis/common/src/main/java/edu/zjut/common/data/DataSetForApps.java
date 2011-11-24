@@ -2,6 +2,10 @@ package edu.zjut.common.data;
 
 import java.util.logging.Logger;
 
+import edu.zjut.common.data.attr.AttributeData;
+import edu.zjut.common.data.geo.GeometryData;
+import edu.zjut.common.data.time.TimeData;
+
 /**
  * 
  * @author yulewei

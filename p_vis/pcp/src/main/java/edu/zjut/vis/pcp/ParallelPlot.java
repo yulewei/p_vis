@@ -7,8 +7,10 @@ import javax.swing.TransferHandler;
 
 import org.mediavirus.parvis.gui.ParallelDisplay;
 
-import edu.zjut.common.data.AttributeData;
 import edu.zjut.common.data.DataSetForApps;
+import edu.zjut.common.data.attr.AttributeData;
+import edu.zjut.common.data.attr.DataField;
+import edu.zjut.common.data.attr.MeasureField;
 import edu.zjut.common.event.DataSetEvent;
 import edu.zjut.common.event.DataSetListener;
 import edu.zjut.common.event.IndicationEvent;
@@ -61,15 +63,16 @@ public class ParallelPlot extends ParvisPlot implements DataSetListener,
 	}
 
 	private void setSubspace(int[] vars) {
-		int nNumeric = attrData.getNumMeasures();
+		MeasureField[] measureFeilds = attrData.getMeasureFeilds();
+
+		int nNumeric = measureFeilds.length;
 		int nVars = Math.min(vars.length, Math.min(nNumeric, MAX_AXES));
 
 		// 属性名称
-		String[] varNamesNew = new String[nVars + 1];
-		varNamesNew[0] = "name";
-		String[] numericAttributeNames = attrData.getMeasureNames();
+		DataField[] feilds = new DataField[nVars + 1];
+		feilds[0] = attrData.getObservationFeild();
 		for (int i = 0; i < nVars; i++) {
-			varNamesNew[i + 1] = numericAttributeNames[vars[i]];
+			feilds[i + 1] = measureFeilds[vars[i]];
 		}
 
 		// 属性数据
@@ -82,8 +85,9 @@ public class ParallelPlot extends ParvisPlot implements DataSetListener,
 			}
 		}
 
-		AttributeData attrData = new AttributeData(0, varNamesNew, newDataSet);
-		this.setDataSet(new DataSetForApps(attrData, null, null));
+		AttributeData subAttrData = new AttributeData(feilds,
+				attrData.getColumnArrays());
+		this.setDataSet(new DataSetForApps(subAttrData, null, null));
 	}
 
 	public void setDataSet(DataSetForApps dataSet) {
@@ -166,12 +170,12 @@ public class ParallelPlot extends ParvisPlot implements DataSetListener,
 			String[] values = data.split("\n");
 			int[] varsIndex = new int[values.length];
 
-			String[] names = attrData.measureNames;
+			MeasureField[] measureFeilds = attrData.getMeasureFeilds();
 
 			for (int i = 0; i < values.length; i++) {
 				int index = -1;
-				for (int k = 0; k < names.length; k++) {
-					if (names[k].equals(values[i])) {
+				for (int k = 0; k < measureFeilds.length; k++) {
+					if (measureFeilds[k].getName().equals(values[i])) {
 						index = k;
 						break;
 					}

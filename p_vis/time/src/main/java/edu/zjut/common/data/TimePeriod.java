@@ -3,6 +3,8 @@ package edu.zjut.common.data;
 import java.util.Calendar;
 import java.util.Date;
 
+import edu.zjut.common.data.time.TimeType;
+
 public class TimePeriod implements Comparable<TimePeriod> {
 
 	private int month;

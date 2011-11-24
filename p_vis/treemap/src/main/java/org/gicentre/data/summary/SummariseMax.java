@@ -3,9 +3,8 @@ package org.gicentre.data.summary;
 import java.util.HashSet;
 import java.util.List;
 
-import org.gicentre.data.DataField;
-import org.gicentre.data.FieldType;
-import org.gicentre.data.Record;
+import edu.zjut.common.data.attr.DataField;
+import edu.zjut.common.data.attr.FieldType;
 
 public class SummariseMax extends SummariseField {
 
@@ -19,17 +18,14 @@ public class SummariseMax extends SummariseField {
 		this.fieldType = fieldType;
 	}
 
-	public Object compute(List<Record> records) {
+	public Object compute(List<Object> values) {
 		Object value = null;
 		HashSet<Object> valuesUsed = new HashSet<Object>();
-		for (Record record : records) {
-			if (useRecord(record, valuesUsed)) {
-				Object v = record.getValue(dataField);
-				if (v != null
-						&& (value == null || ((Comparable) v)
-								.compareTo((Comparable) value) == -1)) {
-					value = v;
-				}
+		for (Object v : values) {
+			if (v != null
+					&& (value == null || ((Comparable) v)
+							.compareTo((Comparable) value) == -1)) {
+				value = v;
 			}
 		}
 		return correctObjectType(value);

@@ -27,13 +27,14 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 
 import edu.zjut.common.data.DataSetForApps;
+import edu.zjut.common.data.attr.AttributeData;
+import edu.zjut.common.data.attr.MeasureField;
 import edu.zjut.common.event.ConditioningEvent;
 import edu.zjut.common.event.ConditioningListener;
 import edu.zjut.common.event.DataSetEvent;
 import edu.zjut.common.event.DataSetListener;
 import edu.zjut.common.event.SubspaceEvent;
 import edu.zjut.common.event.SubspaceListener;
-
 
 /**
  * ConditioningAnimator is used to send out indication signals that correspond
@@ -168,7 +169,9 @@ public class ConditioningAnimator extends JPanel implements ActionListener,
 	 */
 	private void iterateConditionings() {// main loop
 
-		if (highCondIndex < data.getAttrData().getNumObservations() - 1) { // go up one
+		if (highCondIndex < data.getAttrData().getNumObservations() - 1) { // go
+																			// up
+																			// one
 			int index = obs[lowCondIndex].index;
 			currConditioning[index] = 0;
 			lowCondIndex++;
@@ -232,7 +235,6 @@ public class ConditioningAnimator extends JPanel implements ActionListener,
 				instantiateCurrentVariable(currVar);
 				conditionOutLowerRange();
 			}
-
 		}
 	}
 
@@ -311,7 +313,6 @@ public class ConditioningAnimator extends JPanel implements ActionListener,
 		varComboIsAdjusting = true;
 		varCombo.setSelectedIndex(currVar);
 		varComboIsAdjusting = false;
-
 	}
 
 	/*
@@ -323,18 +324,20 @@ public class ConditioningAnimator extends JPanel implements ActionListener,
 	 */
 	public void dataSetChanged(DataSetEvent e) {
 		data = e.getDataSetForApps();
-		currConditioning = new int[data.getAttrData().getNumObservations()];
-		String[] numericVarNames = data.getAttrData().getMeasureNames();
-		for (String element : numericVarNames) {
-			varCombo.addItem(element);
+
+		AttributeData attrData = data.getAttrData();
+		currConditioning = new int[attrData.getNumObservations()];
+		MeasureField[] measureFeilds = attrData.getMeasureFeilds();
+		for (MeasureField element : measureFeilds) {
+			varCombo.addItem(element.getName());
 		}
 		// tempArray = new int[data.getNumObservations()];
 
-		obs = new ClassedObs[data.getAttrData().getNumObservations()];
+		obs = new ClassedObs[attrData.getNumObservations()];
 		for (int i = 0; i < obs.length; i++) {
 			obs[i] = new ClassedObs();
 		}
-		subspace = new int[data.getAttrData().getNumMeasures()];
+		subspace = new int[measureFeilds.length];
 		for (int i = 0; i < subspace.length; i++) {
 			subspace[i] = i;
 		}

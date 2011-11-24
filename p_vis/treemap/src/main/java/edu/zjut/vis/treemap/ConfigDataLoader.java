@@ -6,13 +6,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import org.gicentre.apps.hide.ColourScaling;
 import org.gicentre.apps.hide.TreemapState.Layout;
-import org.gicentre.data.DataField;
-import org.gicentre.data.FieldType;
-import org.gicentre.data.Record;
 import org.gicentre.data.summary.SummariseCount;
 import org.gicentre.data.summary.SummariseField;
 import org.gicentre.data.summary.SummariseMax;
@@ -23,6 +19,8 @@ import org.gicentre.data.summary.SummariseUniqueCount;
 import org.gicentre.utils.colour.ColourTable;
 
 import au.com.bytecode.opencsv.CSVReader;
+import edu.zjut.common.data.attr.DataField;
+import edu.zjut.common.data.attr.FieldType;
 import edu.zjut.vis.treemap.DataConfig.ColorMap;
 import edu.zjut.vis.treemap.DataConfig.ColorMap.Rule;
 import edu.zjut.vis.treemap.DataConfig.Variable;
@@ -42,7 +40,8 @@ public class ConfigDataLoader {
 	private List<Layout> layouts;
 
 	private List<SummariseField> summariseFields;
-	private List<Record> records;
+	private List<Object[]> records;
+	private List<Object[]> columnValues;
 
 	public ConfigDataLoader(String configFilename) {
 		DataConfig config = DataConfig.loadConfig(configFilename);
@@ -70,12 +69,12 @@ public class ConfigDataLoader {
 
 	protected void parseDataFile(List<DataField> dataFields,
 			List<String[]> recordList) {
-		records = new ArrayList<Record>();
+		records = new ArrayList<Object[]>();
 
 		for (int k = 0; k < recordList.size(); k++) {
 			String[] line = recordList.get(k);
 			Object[] values = parseLine(line, dataFields);
-			records.add(new Record(values));
+			records.add(values);
 		}
 
 		// 更新列索引位置
@@ -92,14 +91,8 @@ public class ConfigDataLoader {
 			String v = line[dataField.getColIdx()];
 			if (v != null) {
 				switch (dataField.getFieldType()) {
-				case LONG:
-					values[i] = Long.parseLong(v);
-					break;
 				case INT:
 					values[i] = Integer.parseInt(v);
-					break;
-				case FLOAT:
-					values[i] = Float.parseFloat(v);
 					break;
 				case DOUBLE:
 					values[i] = Double.parseDouble(v);
@@ -125,8 +118,8 @@ public class ConfigDataLoader {
 		allowedColourVars = new ArrayList<SummariseField>();
 
 		for (Variable var : varList) {
-			DataField dataField = new DataField(var.name, var.colIdx,
-					FieldType.valueOf(var.dataType.toUpperCase()));
+			DataField dataField = new DataField(var.colIdx, var.name,
+					FieldType.valueOf(var.dataType.toUpperCase()), null);
 			datafields.add(dataField);
 
 			// values节点
@@ -135,8 +128,6 @@ public class ConfigDataLoader {
 
 			// hier节点
 			if (var.hier != null) {
-				if (var.hier.useAllValues != null)
-					dataField.setUseAllValues(var.hier.useAllValues);
 				hierVars.put(var.hier.order, dataField);
 			}
 
@@ -173,15 +164,13 @@ public class ConfigDataLoader {
 		parseDataFile(datafields, list);
 
 		for (DataField dataField : allowedHierVars) {
-			TreeSet<Object> values = new TreeSet<Object>();
-			for (Record record : records) {
-				Object value = record.getValue(dataField);
-				values.add(value);
+			Object[] values = new Object[records.size()];
+			for (int i = 0; i < records.size(); i++) {
+				Object[] record = records.get(i);
+				values[i] = record[dataField.getColIdx()];
 			}
-			List<Object> orderedList = new ArrayList<Object>();
-			orderedList.addAll(values);
-			dataField.setOrderedValues(orderedList);
-		}		
+			dataField.setColumnValues(values);
+		}
 	}
 
 	private SummariseField parseSummaryType(String name, String summaryType,
@@ -256,8 +245,12 @@ public class ConfigDataLoader {
 		summariseField.setColourTable(colourTable);
 	}
 
-	public List<Record> getRecords() {
+	public List<Object[]> getRecords() {
 		return records;
+	}
+
+	public List<Object[]> getColumnValues() {
+		return columnValues;
 	}
 
 	/**
