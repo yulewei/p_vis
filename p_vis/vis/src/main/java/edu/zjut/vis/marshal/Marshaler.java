@@ -3,7 +3,7 @@
  */
 package edu.zjut.vis.marshal;
 
-import edu.zjut.common.ui.VariablePicker;
+import edu.zjut.common.ctrl.DataWindow;
 import edu.zjut.vis.core.GeoVizToolkit;
 import edu.zjut.vis.core.ToolkitBean;
 import edu.zjut.vis.core.VizState;
@@ -39,7 +39,7 @@ public class Marshaler {
 
 		streamer.alias("VizState", VizState.class);
 		
-		streamer.alias("VariablePicker", VariablePicker.class);
+		streamer.alias("DataWindow", DataWindow.class);
 		streamer.registerConverter(new VariablePickerConverter());
 
 		streamer.alias("IndicationAnimator", IndicationAnimator.class);

@@ -15,7 +15,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
-import edu.zjut.commom.color.ColourScaling;
+import edu.zjut.common.color.ColourScaling;
 import edu.zjut.common.data.AttributeData;
 import edu.zjut.common.data.DataSetForApps;
 import edu.zjut.common.data.AttrType;

@@ -1,4 +1,4 @@
-package edu.zjut.commom.color;
+package edu.zjut.common.color;
 
 import java.awt.Color;
 

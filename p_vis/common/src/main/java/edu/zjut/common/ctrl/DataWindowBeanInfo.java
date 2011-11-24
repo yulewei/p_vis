@@ -1,7 +1,4 @@
-/* Licensed under LGPL v. 2.1 or any later version;
- see GNU LGPL for details.
- Original Author: Frank Hardisty */
-package edu.zjut.common.ui;
+package edu.zjut.common.ctrl;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -9,14 +6,15 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.beans.SimpleBeanInfo;
 
-public class VariablePickerBeanInfo extends SimpleBeanInfo {
-	static Class beanClass = VariablePicker.class;
+
+public class DataWindowBeanInfo extends SimpleBeanInfo {
+	static Class beanClass = DataWindow.class;
 	static String iconColor16x16Filename = "resources/variable16.gif";
 	static String iconColor32x32Filename = "resources/variable32.gif";
 	static String iconMono16x16Filename;
 	static String iconMono32x32Filename;
 
-	public VariablePickerBeanInfo() {
+	public DataWindowBeanInfo() {
 	}
 
 	@Override

@@ -1,5 +1,10 @@
 package edu.zjut.vis.pcp;
 
+import java.awt.datatransfer.DataFlavor;
+import java.util.Arrays;
+
+import javax.swing.TransferHandler;
+
 import org.mediavirus.parvis.gui.ParallelDisplay;
 
 import edu.zjut.common.data.AttributeData;
@@ -31,6 +36,8 @@ public class ParallelPlot extends ParvisPlot implements DataSetListener,
 	public ParallelPlot() {
 		parallelDisplay.addIndicationListener(this);
 		parallelDisplay.addSelectionListener(this);
+
+		parallelDisplay.setTransferHandler(new PCPTransferHandler());
 	}
 
 	@Override
@@ -61,8 +68,8 @@ public class ParallelPlot extends ParvisPlot implements DataSetListener,
 		String[] varNamesNew = new String[nVars + 1];
 		varNamesNew[0] = "name";
 		String[] numericAttributeNames = attrData.getMeasureNames();
-		for (int i = 1; i < (nVars + 1); i++) {
-			varNamesNew[i] = numericAttributeNames[i - 1];
+		for (int i = 0; i < nVars; i++) {
+			varNamesNew[i + 1] = numericAttributeNames[vars[i]];
 		}
 
 		// ÊôÐÔÊý¾Ý
@@ -139,5 +146,45 @@ public class ParallelPlot extends ParvisPlot implements DataSetListener,
 				((IndicationListener) listeners[i + 1]).indicationChanged(e);
 			}
 		}// next i
+	}
+
+	class PCPTransferHandler extends TransferHandler {
+
+		public boolean canImport(TransferHandler.TransferSupport support) {
+			return true;
+		}
+
+		public boolean importData(TransferHandler.TransferSupport support) {
+			String data;
+			try {
+				data = (String) support.getTransferable().getTransferData(
+						DataFlavor.stringFlavor);
+			} catch (Exception e) {
+				return false;
+			}
+
+			String[] values = data.split("\n");
+			int[] varsIndex = new int[values.length];
+
+			String[] names = attrData.measureNames;
+
+			for (int i = 0; i < values.length; i++) {
+				int index = -1;
+				for (int k = 0; k < names.length; k++) {
+					if (names[k].equals(values[i])) {
+						index = k;
+						break;
+					}
+				}
+				varsIndex[i] = index;
+			}
+
+			System.out.println(Arrays.toString(values));
+			System.out.println(Arrays.toString(varsIndex));
+
+			setSubspace(varsIndex);
+
+			return true;
+		}
 	}
 }

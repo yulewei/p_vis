@@ -1,4 +1,4 @@
-package edu.zjut.commom.color;
+package edu.zjut.common.color;
 
 public enum ColourScaling {
 	LIN, LOG

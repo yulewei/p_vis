@@ -48,6 +48,9 @@ public class Treemap extends JPanel implements DataSetListener {
 		pTreemap.init();
 
 		this.setPreferredSize(new Dimension(500, 500));
+
+		defaultHive = "sHier(/,$城区,$楼盘); sOrder(/,HIER,HIER); sSize(/,FX,FX); sColor(/,HIER,$累积成交毛坯均价); sLayout(/,SF,SF);";
+
 	}
 
 	@Override
@@ -57,7 +60,7 @@ public class Treemap extends JPanel implements DataSetListener {
 
 		buildTreemapData();
 
-		pTreemap.setData(hierFields, summariseFields, records, null);
+		pTreemap.setData(hierFields, summariseFields, records, defaultHive);
 
 		repaint();
 	}
@@ -89,10 +92,10 @@ public class Treemap extends JPanel implements DataSetListener {
 				SummariseField summariseField = parseSummaryType(name,
 						summaryTypes[col], dataField);
 				summariseField.setColourTable(colorTables[col]);
-				
+
 				// 暂时全部用LIN
 				summariseField.setColourScaling(ColourScaling.LIN);
-				
+
 				summariseFields.add(summariseField);
 			}
 		}
@@ -113,9 +116,9 @@ public class Treemap extends JPanel implements DataSetListener {
 				case DOUBLE:
 					values[col] = ((double[]) columnArrays[col])[row];
 					break;
-				}				
-			}			
-			
+				}
+			}
+
 			records.add(new Record(values));
 		}
 	}
@@ -136,7 +139,7 @@ public class Treemap extends JPanel implements DataSetListener {
 			SummaryType summaryType, DataField refDataField) {
 		if (summaryType == null)
 			return new SummariseSum(name, refDataField);
-		
+
 		switch (summaryType) {
 		case SUM:
 			return new SummariseSum(name, refDataField);

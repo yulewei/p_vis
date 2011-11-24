@@ -320,7 +320,7 @@ public class JMapPanel extends JXMapViewerX implements MouseListener,
 				overlay.setHighlighted(true);
 		}
 
-		for (int i = 1; i < layerList.size(); i++) {
+		for (int i = 0; i < layerList.size(); i++) {
 			EsriLayer layer = layerList.get(i);
 			layer.setHighlighted(false);
 			Overlay overlay = layer.containOverlay(this, mouseX, mouseY);

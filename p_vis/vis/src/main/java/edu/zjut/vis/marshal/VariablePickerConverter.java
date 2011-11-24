@@ -5,14 +5,14 @@ import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
-import edu.zjut.common.ui.VariablePicker;
+import edu.zjut.common.ctrl.DataWindow;
 
 
 public class VariablePickerConverter extends VizBeanConverter {
 
 	@Override
 	public boolean canConvert(Class clazz) {
-		return clazz.equals(VariablePicker.class);
+		return clazz.equals(DataWindow.class);
 	}
 
 	@Override
@@ -25,8 +25,8 @@ public class VariablePickerConverter extends VizBeanConverter {
 	@Override
 	public Object unmarshal(HierarchicalStreamReader reader,
 			UnmarshallingContext context) {
-		VariablePicker plot = new VariablePicker();
-		plot = (VariablePicker) super.unmarshal(reader, context, plot);
+		DataWindow plot = new DataWindow();
+		plot = (DataWindow) super.unmarshal(reader, context, plot);
 		return plot;
 
 	}

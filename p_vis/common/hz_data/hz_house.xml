@@ -2,7 +2,7 @@
 	<datasetName>杭州房地产数据</datasetName>
 
 	<attr>
-		<fileName>final_v0.9.3.csv</fileName>
+		<fileName>hz_data/final_v0.9.3.csv</fileName>
 		<fileType>csv</fileType>
 		<key>smid</key>
 		<name>楼盘</name>
@@ -81,7 +81,7 @@
 		<feature>
 			<name>楼盘</name>
 			<geoType>point</geoType>
-			<fileName>smid_geo.csv</fileName>
+			<fileName>hz_data/smid_geo.csv</fileName>
 			<fileType>csv</fileType>
 			<col>
 				<key>2</key>
@@ -89,16 +89,16 @@
 				<y>5</y>
 			</col>
 		</feature>
-		<feature>
+		<!-- <feature>
 			<name>城区</name>
 			<geoType>polygon</geoType>
-			<fileName>44.json</fileName>
+			<fileName>map/44.json</fileName>
 			<fileType>geojson</fileType>
-		</feature>
+		</feature> -->
 		<feature>
 			<name>规划单元</name>
 			<geoType>polygon</geoType>
-			<fileName>0.json</fileName>
+			<fileName>map/0.json</fileName>
 			<fileType>geojson</fileType>
 		</feature>
 	</geo>

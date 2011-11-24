@@ -3,9 +3,11 @@ package edu.zjut.vis.util;
 import java.awt.Image;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
+import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 
+import javax.imageio.ImageIO;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
@@ -37,12 +39,16 @@ public final class IconUtils {
 
 		Image img = info.getIcon(BeanInfo.ICON_COLOR_32x32);
 
-		if (img != null) {
-			icon = new ImageIcon(img);
-		} else {
-			URL url = IconUtils.class.getClass().getResource(iconbean32);
-			icon = new ImageIcon(url);
+		if (img == null) {
+			try {
+				URL url = IconUtils.class.getResource(iconbean32);
+				img = ImageIO.read(url);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
+
+		icon = new ImageIcon(img);
 
 		iconHashmap.put(clazz, icon);
 
@@ -71,8 +77,8 @@ public final class IconUtils {
 				img = bigImg.getScaledInstance(16, 16, Image.SCALE_DEFAULT);
 				icon = new ImageIcon(img);
 			} else {
-//				URL url = IconUtils.class.getClass().getResource(iconbean16);
-//				icon = new ImageIcon(url);
+				// URL url = IconUtils.class.getClass().getResource(iconbean16);
+				// icon = new ImageIcon(url);
 			}
 		}
 

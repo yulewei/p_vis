@@ -1,22 +1,22 @@
 <VizState>
   <beanSet>
     <entry>
-      <string>Treemap</string>
+      <string>DataWindow (2)</string>
       <ToolkitBean>
-        <objectClass>edu.zjut.vis.treemap.Treemap</objectClass>
+        <objectClass>edu.zjut.common.ctrl.DataWindow</objectClass>
         <originalBean/>
-        <uniqueName>Treemap</uniqueName>
+        <uniqueName>DataWindow (2)</uniqueName>
         <internalFrame>
           <location>
-            <x>279</x>
-            <y>60</y>
+            <x>293</x>
+            <y>89</y>
           </location>
           <size>
-            <width>505</width>
-            <height>510</height>
+            <width>272</width>
+            <height>469</height>
           </size>
         </internalFrame>
-        <zOrder>0</zOrder>
+        <zOrder>1</zOrder>
       </ToolkitBean>
     </entry>
     <entry>
@@ -27,15 +27,15 @@
         <uniqueName>DataWindow</uniqueName>
         <internalFrame>
           <location>
-            <x>0</x>
-            <y>0</y>
+            <x>46</x>
+            <y>48</y>
           </location>
           <size>
             <width>180</width>
             <height>450</height>
           </size>
         </internalFrame>
-        <zOrder>1</zOrder>
+        <zOrder>0</zOrder>
       </ToolkitBean>
     </entry>
   </beanSet>

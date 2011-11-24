@@ -89,12 +89,12 @@
 				<y>5</y>
 			</col>
 		</feature>
-		<feature>
+		<!-- <feature>
 			<name>城区</name>
 			<geoType>polygon</geoType>
 			<fileName>map/44.json</fileName>
 			<fileType>geojson</fileType>
-		</feature>
+		</feature> -->
 		<feature>
 			<name>规划单元</name>
 			<geoType>polygon</geoType>

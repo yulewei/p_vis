@@ -1,5 +1,6 @@
 package edu.zjut.vis.core;
 
+import edu.zjut.common.ctrl.DataWindow;
 import edu.zjut.common.data.DataSetBroadcaster;
 import edu.zjut.common.data.DataSetForApps;
 import edu.zjut.common.event.DataSetEvent;
@@ -12,7 +13,6 @@ import edu.zjut.common.event.SubspaceEvent;
 import edu.zjut.common.event.SubspaceListener;
 import edu.zjut.common.io.DataSetLoader;
 import edu.zjut.common.ui.ShapeReporter;
-import edu.zjut.common.ui.VariablePicker;
 import edu.zjut.coordination.CoordinationManager;
 import edu.zjut.coordination.FiringBean;
 import edu.zjut.vis.map.GeoMap;
@@ -137,7 +137,7 @@ public class GeoVizToolkit extends JFrame implements IndicationListener {
 
 		// VizState state = ToolkitIO.openDefaultLayout();
 		// VizState state = ToolkitIO.getVizStateFromFile("vis_state.xml");
-		VizState state = ToolkitIO.getVizStateFromFile("treemap.xml");
+		VizState state = ToolkitIO.getVizStateFromFile("datawin.xml");
 		// VizState state = ToolkitIO.getVizStateFromFile("pcp.xml");
 		// VizState state = ToolkitIO.getVizStateFromFile("map.xml");
 		// VizState state = ToolkitIO.getVizStateFromFile("final.xml");
@@ -278,7 +278,7 @@ public class GeoVizToolkit extends JFrame implements IndicationListener {
 			}
 		});
 
-		addToolToGui(VariablePicker.class);
+		addToolToGui(DataWindow.class);
 		addToolToGui(GeoMap.class);
 		addToolToGui(ParallelPlot.class);
 		addToolToGui(Treemap.class);

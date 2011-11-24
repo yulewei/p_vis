@@ -65,6 +65,7 @@ public class GeoMap extends JMapPanel implements DataSetListener,
 		List<EsriFeatureObj[]> layers = geoData.layers;
 		for (EsriFeatureObj[] features : layers) {
 			EsriLayer layer = new EsriLayer(features);
+			layer.setHighlightBorderWidth(3.0f);
 			this.addLayer(layer);
 		}
 	}
