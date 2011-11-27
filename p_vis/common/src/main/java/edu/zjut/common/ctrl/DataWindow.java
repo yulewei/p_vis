@@ -36,16 +36,16 @@ public class DataWindow extends JPanel implements DataSetListener,
 
 	DataSetForApps dataSet;
 	AttributeData attrData;
-	DimensionField[] dimensionFeilds;
-	MeasureField[] measureFeilds;
+	DimensionField[] dimensionFields;
+	MeasureField[] measureFields;
 
 	private JPanel jPanel1;
 	private JPanel jPanel2;
 
 	JButton dimensionButton;
 	JButton measureButton;
-	FieldList<String> dimensionList;
-	FieldList<String> measureList;
+	FieldList<DataField> dimensionList;
+	FieldList<DataField> measureList;
 
 	// Creates Variable Picker
 	public DataWindow() {
@@ -61,9 +61,12 @@ public class DataWindow extends JPanel implements DataSetListener,
 		dimensionButton.addActionListener(this);
 		jPanel1.add(dimensionButton, BorderLayout.NORTH);
 
-		dimensionList = new FieldList<String>();
+		dimensionList = new FieldList<DataField>();
 		dimensionList.setVisibleRowCount(10);
 		dimensionList.setDragEnabled(true);
+		dimensionList.setTransferHandler(new FieldTransferHandler(
+				FieldList.DIMENSION));
+
 		JScrollPane scrollPane1 = new JScrollPane();
 		JViewport scrollView1 = new JViewport();
 		scrollView1.add(dimensionList);
@@ -78,11 +81,12 @@ public class DataWindow extends JPanel implements DataSetListener,
 		measureButton.addActionListener(this);
 		jPanel2.add(measureButton, BorderLayout.NORTH);
 
-		measureList = new FieldList<String>();
+		measureList = new FieldList<DataField>();
 		measureList.setVisibleRowCount(10);
 		measureList.setDropMode(DropMode.ON_OR_INSERT);
 		measureList.setDragEnabled(true);
-		measureList.setTransferHandler(new FieldTransferHandler());
+		measureList.setTransferHandler(new FieldTransferHandler(
+				FieldList.MEASURE));
 
 		JScrollPane scrollPane2 = new JScrollPane();
 		JViewport scrollView2 = new JViewport();
@@ -96,21 +100,24 @@ public class DataWindow extends JPanel implements DataSetListener,
 
 		attrData = dataSet.getAttrData();
 
-		dimensionFeilds = attrData.getDimensionFeilds();
-		measureFeilds = attrData.getMeasureFeilds();
+		dimensionFields = attrData.getDimensionFields();
+		measureFields = attrData.getMeasureFields();
 
-		DefaultListModel<String> listModel1 = new DefaultListModel<String>();
-		for (int i = measureFeilds.length - 1; i >= 0; i--) {
-			listModel1.add(0, measureFeilds[i].getName());
+		DefaultListModel<DataField> listModel1 = new DefaultListModel<DataField>();
+		for (int i = measureFields.length - 1; i >= 0; i--) {
+			listModel1.add(0, measureFields[i]);
 		}
 
-		DefaultListModel<String> listModel2 = new DefaultListModel<String>();
-		for (int i = dimensionFeilds.length - 1; i >= 0; i--) {
-			listModel2.add(0, dimensionFeilds[i].getName());
+		DefaultListModel<DataField> listModel2 = new DefaultListModel<DataField>();
+		for (int i = dimensionFields.length - 1; i >= 0; i--) {
+			listModel2.add(0, dimensionFields[i]);
 		}
 
+		dimensionList.setFields(dimensionFields);
+		measureList.setFields(measureFields);
 		measureList.setModel(listModel1);
 		dimensionList.setModel(listModel2);
+
 		repaint();
 	}
 

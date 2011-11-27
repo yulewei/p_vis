@@ -3,8 +3,8 @@ package edu.zjut.common.data.attr;
 public class AttributeData {
 
 	private DataField[] fields;
-	private DimensionField[] dimensionFeilds;
-	private MeasureField[] measureFeilds;
+	private DimensionField[] dimensionFields;
+	private MeasureField[] measureFields;
 
 	private String[] dimensionNames;
 	private String[] measureNames;
@@ -12,7 +12,7 @@ public class AttributeData {
 	private Object[][] dimensions;
 	private Object[][] measures;
 
-	private DimensionField observationFeild;
+	private DimensionField observationField;
 	private String[] observationNames;
 
 	/**
@@ -20,8 +20,8 @@ public class AttributeData {
 	 */
 	private Object[][] columnArrays;
 
-	public AttributeData(DataField[] feilds, Object[][] columnArrays) {
-		this.fields = feilds;
+	public AttributeData(DataField[] fields, Object[][] columnArrays) {
+		this.fields = fields;
 		this.columnArrays = columnArrays;
 
 		// 提取维度部分
@@ -42,26 +42,26 @@ public class AttributeData {
 				len++;
 		}
 
-		dimensionFeilds = new DimensionField[len];
+		dimensionFields = new DimensionField[len];
 		for (int i = 0, k = 0; i < fields.length; i++) {
 			if (fields[i] instanceof DimensionField)
-				dimensionFeilds[k++] = (DimensionField) fields[i];
+				dimensionFields[k++] = (DimensionField) fields[i];
 		}
 
 		dimensionNames = new String[len];
 		dimensions = new Object[len][];
 		for (int i = 0; i < len; i++) {
-			dimensionNames[i] = dimensionFeilds[i].getName();
+			dimensionNames[i] = dimensionFields[i].getName();
 
-			int index = dimensionFeilds[i].getColIdx();
+			int index = dimensionFields[i].getColIdx();
 			dimensions[i] = columnArrays[index];
 
-			if (dimensionFeilds[i].isObservation())
-				observationFeild = dimensionFeilds[i];
+			if (dimensionFields[i].isObservation())
+				observationField = dimensionFields[i];
 
 		}
 
-		observationNames = (String[]) columnArrays[observationFeild.getColIdx()];
+		observationNames = (String[]) columnArrays[observationField.getColIdx()];
 	}
 
 	/**
@@ -73,25 +73,25 @@ public class AttributeData {
 			if (fields[i] instanceof MeasureField)
 				len++;
 		}
-		measureFeilds = new MeasureField[len];
+		measureFields = new MeasureField[len];
 		for (int i = 0, k = 0; i < fields.length; i++) {
 			if (fields[i] instanceof MeasureField)
-				measureFeilds[k++] = (MeasureField) fields[i];
+				measureFields[k++] = (MeasureField) fields[i];
 		}
 
 		measureNames = new String[len];
 		for (int i = 0; i < measureNames.length; i++) {
-			measureNames[i] = measureFeilds[i].getName();
+			measureNames[i] = measureFields[i].getName();
 		}
 
 		measures = new Object[len][];
 		for (int i = 0; i < len; i++) {
-			int index = measureFeilds[i].getColIdx();
+			int index = measureFields[i].getColIdx();
 			measures[i] = columnArrays[index];
 		}
 	}
 
-	public DataField[] getFeilds() {
+	public DataField[] getFields() {
 		return fields;
 	}
 
@@ -99,8 +99,8 @@ public class AttributeData {
 		return columnArrays;
 	}
 
-	public DimensionField getObservationFeild() {
-		return observationFeild;
+	public DimensionField getObservationField() {
+		return observationField;
 	}
 
 	public String[] getObservationNames() {
@@ -111,16 +111,16 @@ public class AttributeData {
 		return observationNames.length;
 	}
 
-	public DimensionField[] getDimensionFeilds() {
-		return dimensionFeilds;
+	public DimensionField[] getDimensionFields() {
+		return dimensionFields;
 	}
 
-	public MeasureField[] getMeasureFeilds() {
-		return measureFeilds;
+	public MeasureField[] getMeasureFields() {
+		return measureFields;
 	}
 
 	public int getNumMeasures() {
-		return measureFeilds.length;
+		return measureFields.length;
 	}
 
 	public String[] getMeasureNames() {
@@ -148,11 +148,11 @@ public class AttributeData {
 	}
 
 	public Object[][] getMeasureRowArrays() {
-		return transformRowArrays(measureFeilds, measures);
+		return transformRowArrays(measureFields, measures);
 	}
 
 	public Object[][] getDimensionRowArrays() {
-		return transformRowArrays(dimensionFeilds, dimensions);
+		return transformRowArrays(dimensionFields, dimensions);
 	}
 
 	private Object[][] transformRowArrays(DataField[] fields,
@@ -184,13 +184,13 @@ public class AttributeData {
 	}
 
 	public double[][] getMeasureRowsAsDouble() {
-		Object[][] measureRows = transformRowArrays(measureFeilds, measures);
+		Object[][] measureRows = transformRowArrays(measureFields, measures);
 
 		double[][] doubleRows = new double[measureRows.length][];
 		for (int i = 0; i < measureRows.length; i++) {
 			double[] row = new double[measureRows[i].length];
 			for (int j = 0; j < measureRows[i].length; j++) {
-				switch (measureFeilds[j].getFieldType()) {
+				switch (measureFields[j].getFieldType()) {
 				case DOUBLE:
 					row[j] = (double) measureRows[i][j];
 					break;
@@ -209,7 +209,7 @@ public class AttributeData {
 		Object[] measure = measures[col];
 
 		Double[] doubleData = null;
-		switch (measureFeilds[col].getFieldType()) {
+		switch (measureFields[col].getFieldType()) {
 		case DOUBLE:
 			doubleData = (Double[]) measure;
 			break;

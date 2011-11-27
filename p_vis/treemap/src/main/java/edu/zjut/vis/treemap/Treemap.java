@@ -26,7 +26,7 @@ public class Treemap extends JPanel implements DataSetListener {
 	private DataSetForApps dataSet;
 	private AttributeData attrData;
 
-	private FieldList<String> filedList;
+	private FieldList<DataField> filedList;
 	private PTreemap pTreemap;
 
 	private String defaultHive = null;
@@ -37,11 +37,12 @@ public class Treemap extends JPanel implements DataSetListener {
 
 	public Treemap() {
 		this.setLayout(new BorderLayout());
-		filedList = new FieldList<String>();
+		filedList = new FieldList<DataField>();
 		filedList.setDropMode(DropMode.ON_OR_INSERT);
 		filedList.setDragEnabled(true);
-		filedList.setTransferHandler(new FieldTransferHandler());
-		DefaultListModel<String> listModel = new DefaultListModel<String>();
+		filedList.setTransferHandler(new FieldTransferHandler(
+				FieldList.DIMENSION));
+		DefaultListModel<DataField> listModel = new DefaultListModel<DataField>();
 		filedList.setModel(listModel);
 
 		this.add(filedList, BorderLayout.NORTH);
@@ -63,6 +64,8 @@ public class Treemap extends JPanel implements DataSetListener {
 
 		buildTreemapData();
 
+		filedList.setFields(attrData.getDimensionFields());
+
 		pTreemap.setData(hierFields, summariseFields, records, columnValues,
 				defaultHive);
 
@@ -74,8 +77,8 @@ public class Treemap extends JPanel implements DataSetListener {
 		summariseFields = new ArrayList<SummariseField>();
 		records = new ArrayList<Object[]>();
 
-		DimensionField[] dimensionFeilds = attrData.getDimensionFeilds();
-		MeasureField[] measureFeilds = attrData.getMeasureFeilds();
+		DimensionField[] dimensionFeilds = attrData.getDimensionFields();
+		MeasureField[] measureFeilds = attrData.getMeasureFields();
 
 		for (DimensionField field : dimensionFeilds) {
 			hierFields.add(field);

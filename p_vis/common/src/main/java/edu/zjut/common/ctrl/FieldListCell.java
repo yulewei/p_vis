@@ -12,15 +12,12 @@ import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
-public class FieldListCell<E> extends JComponent implements ListCellRenderer<E> {
+public class FieldListCell<DataField> extends JComponent implements
+		ListCellRenderer<DataField> {
 
-	Color green = new Color(140, 200, 175, 200);
-	Color darkGreen = new Color(135, 170, 135, 200);
+	Color color;
+	Color selectedColor;
 
-	Color blue = new Color(175, 200, 230, 200);
-	Color darkBlue = new Color(135, 160, 180, 200);
-
-		
 	boolean isSelected = false;
 
 	String text = "hello";
@@ -50,9 +47,9 @@ public class FieldListCell<E> extends JComponent implements ListCellRenderer<E> 
 		g2.drawRoundRect(x, y, w, h, 20, 20);
 
 		if (!isSelected)
-			g2.setColor(blue);
+			g2.setColor(color);
 		else
-			g2.setColor(darkBlue);
+			g2.setColor(selectedColor);
 
 		g2.fillRoundRect(x, y, w, h, 20, 20);
 		g2.setColor(Color.BLACK);
@@ -60,11 +57,28 @@ public class FieldListCell<E> extends JComponent implements ListCellRenderer<E> 
 	}
 
 	@Override
-	public Component getListCellRendererComponent(JList<? extends E> list,
-			E value, int index, boolean isSelected, boolean cellHasFocus) {
-		this.text = (String) value;
+	public Component getListCellRendererComponent(
+			JList<? extends DataField> list, DataField value, int index,
+			boolean isSelected, boolean cellHasFocus) {
+		this.text = value.toString();
 		this.isSelected = isSelected;
 		return this;
+	}
+
+	public Color getColor() {
+		return color;
+	}
+
+	public void setColor(Color color) {
+		this.color = color;
+	}
+
+	public Color getSelectedColor() {
+		return selectedColor;
+	}
+
+	public void setSelectedColor(Color selectedColor) {
+		this.selectedColor = selectedColor;
 	}
 
 	public static void main(String[] args) {

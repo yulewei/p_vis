@@ -1,7 +1,6 @@
 package edu.zjut.common.ctrl;
 
 import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.util.List;
 
@@ -10,29 +9,42 @@ import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.TransferHandler;
 
+import edu.zjut.common.data.attr.DataField;
+
 public class FieldTransferHandler extends TransferHandler {
+
+	private int fieldType = FieldList.MEASURE;
+
+	public FieldTransferHandler(int fieldType) {
+		this.fieldType = fieldType;
+	}
 
 	public int getSourceActions(JComponent comp) {
 		return COPY_OR_MOVE;
 	}
 
 	public Transferable createTransferable(JComponent comp) {
-		JList<String> list = (JList<String>) comp;
-		List<String> values = list.getSelectedValuesList();
+		FieldList<DataField> list = (FieldList<DataField>) comp;
+		List<DataField> values = list.getSelectedValuesList();
 
-		// 导出选中的多个值
-		StringBuffer buff = new StringBuffer();
-		for (String v : values) {
-			buff.append(v + "\n");
-		}
-
-		return new StringSelection(buff.toString());
-
-		// return new StringSelection(list.getSelectedValue());
+		return new FieldDnD(list.getFieldType(), values);
 	}
 
 	public boolean canImport(TransferHandler.TransferSupport support) {
-		return true;
+		if (!support.isDrop()) {
+			return false;
+		}
+
+		FieldDnD data;
+		try {
+			data = (FieldDnD) support.getTransferable().getTransferData(
+					new DataFlavor(FieldDnD.class,
+							DataFlavor.javaSerializedObjectMimeType));
+		} catch (Exception e) {
+			return false;
+		}
+
+		return data.getFieldType() == fieldType;
 	}
 
 	public boolean importData(TransferHandler.TransferSupport support) {
@@ -41,24 +53,25 @@ public class FieldTransferHandler extends TransferHandler {
 		int index = dl.getIndex();
 		boolean insert = dl.isInsert();
 
-		String data;
+		FieldDnD data;
 		try {
-			data = (String) support.getTransferable().getTransferData(
-					DataFlavor.stringFlavor);
+			data = (FieldDnD) support.getTransferable().getTransferData(
+					new DataFlavor(FieldDnD.class,
+							DataFlavor.javaSerializedObjectMimeType));
 		} catch (Exception e) {
 			return false;
 		}
 
-		JList<String> list = (JList<String>) support.getComponent();
-		DefaultListModel<String> model = (DefaultListModel<String>) list
+		FieldList<DataField> list = (FieldList<DataField>) support.getComponent();
+		DefaultListModel<DataField> model = (DefaultListModel<DataField>) list
 				.getModel();
 
-		String[] values = data.split("\n");
-		for (int i = 0; i < values.length; i++) {
+		List<DataField> values = data.getValues();
+		for (int i = 0; i < values.size(); i++) {
 			if (insert)
-				model.insertElementAt(values[i], index++);
+				model.insertElementAt(values.get(i), index++);
 			else
-				model.setElementAt(values[i], index++);
+				model.setElementAt(values.get(i), index++);
 		}
 
 		// model.insertElementAt(data, index);

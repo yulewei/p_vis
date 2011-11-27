@@ -48,7 +48,7 @@ public class DataSetSpaceModel extends SimpleParallelSpaceModel {
 		int numDimensions = attrData.getNumMeasures();
 		int numObservations = attrData.getNumObservations();
 
-		MeasureField[] measureFeilds = attrData.getMeasureFeilds();
+		MeasureField[] measureFeilds = attrData.getMeasureFields();
 		String[] measureNames = attrData.getMeasureNames();
 		String[] observationNames = attrData.getObservationNames();
 

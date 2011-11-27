@@ -50,10 +50,11 @@ public abstract class SummariseField {
 		if (value == null) {
 			return null;
 		}
-		if (dataField.getFieldType() == FieldType.STRING) {
+
+		switch (dataField.getFieldType()) {
+		case STRING:
 			return value.toString();
-		}
-		if (dataField.getFieldType() == FieldType.INT) {
+		case INT:
 			if (value instanceof Integer) {
 				return value;
 			}
@@ -62,8 +63,7 @@ public abstract class SummariseField {
 			} else {
 				return ((Number) value).intValue();
 			}
-		}
-		if (dataField.getFieldType() == FieldType.DOUBLE) {
+		case DOUBLE:
 			if (value instanceof Double) {
 				return value;
 			}

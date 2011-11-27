@@ -66,4 +66,9 @@ public abstract class DataField {
 		list.addAll(values);
 		return list;
 	}
+	
+	public String toString()
+	{
+		return name;		
+	}
 }

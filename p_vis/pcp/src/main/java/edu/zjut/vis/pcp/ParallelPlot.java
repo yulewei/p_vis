@@ -63,14 +63,14 @@ public class ParallelPlot extends ParvisPlot implements DataSetListener,
 	}
 
 	private void setSubspace(int[] vars) {
-		MeasureField[] measureFeilds = attrData.getMeasureFeilds();
+		MeasureField[] measureFeilds = attrData.getMeasureFields();
 
 		int nNumeric = measureFeilds.length;
 		int nVars = Math.min(vars.length, Math.min(nNumeric, MAX_AXES));
 
 		// ÊôÐÔ×Ó¼¯
 		DataField[] feilds = new DataField[nVars + 1];
-		feilds[0] = attrData.getObservationFeild();
+		feilds[0] = attrData.getObservationField();
 		for (int i = 0; i < nVars; i++) {
 			feilds[i + 1] = measureFeilds[vars[i]];
 		}
@@ -160,7 +160,7 @@ public class ParallelPlot extends ParvisPlot implements DataSetListener,
 			String[] values = data.split("\n");
 			int[] varsIndex = new int[values.length];
 
-			MeasureField[] measureFeilds = attrData.getMeasureFeilds();
+			MeasureField[] measureFeilds = attrData.getMeasureFields();
 
 			for (int i = 0; i < values.length; i++) {
 				int index = -1;

@@ -327,7 +327,7 @@ public class ConditioningAnimator extends JPanel implements ActionListener,
 
 		AttributeData attrData = data.getAttrData();
 		currConditioning = new int[attrData.getNumObservations()];
-		MeasureField[] measureFeilds = attrData.getMeasureFeilds();
+		MeasureField[] measureFeilds = attrData.getMeasureFields();
 		for (MeasureField element : measureFeilds) {
 			varCombo.addItem(element.getName());
 		}
