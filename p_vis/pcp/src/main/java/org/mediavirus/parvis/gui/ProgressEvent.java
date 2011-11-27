@@ -38,7 +38,7 @@ public class ProgressEvent extends java.util.EventObject {
     public static final int PROGRESS_CANCEL = 3;
     
     private int type;
-    private float progress = 0.0f;
+    private double progress = 0.0;
     private long timestamp;
     private String message;
     
@@ -47,11 +47,11 @@ public class ProgressEvent extends java.util.EventObject {
         this(source, type, 0.0f);
     }
     
-    public ProgressEvent(Object source, int type, float progress) {
+    public ProgressEvent(Object source, int type, double progress) {
         this(source, type, progress, null);
     }
     
-    public ProgressEvent(Object source, int type, float progress, String message) {
+    public ProgressEvent(Object source, int type, double progress, String message) {
         super(source);
         this.type = type;
         this.progress = progress;
@@ -68,7 +68,7 @@ public class ProgressEvent extends java.util.EventObject {
         return timestamp;
     }
     
-    public float getProgress(){
+    public double getProgress(){
         return progress;
     }
     

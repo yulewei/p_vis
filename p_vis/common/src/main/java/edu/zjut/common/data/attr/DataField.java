@@ -10,7 +10,7 @@ import java.util.TreeSet;
  * @author yulewei
  * 
  */
-public class DataField {
+public abstract class DataField {
 
 	protected int colIdx;
 	protected String name;

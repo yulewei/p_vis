@@ -3,15 +3,12 @@ package org.gicentre.data.summary;
 import java.util.HashSet;
 import java.util.List;
 
-import edu.zjut.common.data.attr.DataField;
-import edu.zjut.common.data.attr.FieldType;
+import edu.zjut.common.data.attr.MeasureField;
 
 public class SummariseUniqueCount extends SummariseField {
 
-	public SummariseUniqueCount(String name, DataField dataField) {
-		this.name = name;
-		this.dataField = dataField;
-		this.fieldType = FieldType.INT;
+	public SummariseUniqueCount(MeasureField dataField) {
+		super(dataField);
 	}
 
 	public Object compute(List<Object> values) {
@@ -22,5 +19,4 @@ public class SummariseUniqueCount extends SummariseField {
 		uniqueValues.remove(null);
 		return correctObjectType(uniqueValues.size());
 	}
-
 }

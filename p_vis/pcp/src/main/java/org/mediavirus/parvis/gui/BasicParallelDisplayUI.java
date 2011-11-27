@@ -53,7 +53,7 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 	int hoverAxis = -1;
 	int hoverRecord = -1;
 
-	float axisScale[];
+	double axisScale[];
 
 	int borderH = 20;
 	int borderV = 40;
@@ -281,26 +281,26 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 
 		// axis labels
 		for (int i = 0; i < numDimensions; i++) {
-			float curx = i * stepx;
+			double curx = i * stepx;
 
 			// hovering over Axis
 			if (i == hoverAxis) {
 				g2.setStroke(new BasicStroke(1.5f));
-				g2.draw(new Line2D.Float(curx, 0, curx, height));
+				g2.draw(new Line2D.Double(curx, 0, curx, height));
 				g2.setStroke(new BasicStroke(1.0f));
 			} else {
-				g2.draw(new Line2D.Float(curx, 0, curx, height));
+				g2.draw(new Line2D.Double(curx, 0, curx, height));
 			}
 
 			String label = comp.getAxisLabel(i);
 			if (label != null) {
-				g2.drawString(label, curx - 10, height + 30);
+				g2.drawString(label, (int) (curx - 10), height + 30);
 			}
 
-			g2.drawString("" + comp.getAxisOffset(i), curx + 2,
+			g2.drawString("" + comp.getAxisOffset(i), (int) (curx + 2),
 					borderV / 2 - 22);
 			g2.drawString("" + (comp.getAxisOffset(i) + comp.getAxisScale(i)),
-					curx + 2, height + borderV / 2 - 5);
+					(int) (curx + 2), height + borderV / 2 - 5);
 
 			drawArrow(g2, (int) curx, -20, 8, false, (comp.getAxisScale(i) < 0));
 		}
@@ -309,7 +309,7 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 		if (inBrush) {
 			g2.setColor(new Color(0.7f, 0.0f, 0.0f));
 			g2.setStroke(new BasicStroke(2.5f));
-			g2.draw(new Line2D.Float(brushHoverX, brushHoverStart, brushHoverX,
+			g2.draw(new Line2D.Double(brushHoverX, brushHoverStart, brushHoverX,
 					brushHoverEnd));
 		}
 
@@ -323,12 +323,12 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 				if (angularCurX != angularRefX) { // avoid div. by zero
 					startx = angularRegion * stepx;
 					endx = (angularRegion + 1) * stepx;
-					starty = (int) (angularRefY - (angularRefX - (float) startx)
-							/ ((float) (angularCurX - angularRefX))
-							* (angularCurY - (float) angularRefY));
-					endy = (int) (angularCurY + (endx - (float) angularCurX)
-							/ ((float) (angularCurX - angularRefX))
-							* (angularCurY - (float) angularRefY));
+					starty = (int) (angularRefY - (angularRefX - (double) startx)
+							/ ((double) (angularCurX - angularRefX))
+							* (angularCurY - (double) angularRefY));
+					endy = (int) (angularCurY + (endx - (double) angularCurX)
+							/ ((double) (angularCurX - angularRefX))
+							* (angularCurY - (double) angularRefY));
 				} else {
 					startx = angularCurX;
 					endx = angularCurX;
@@ -347,12 +347,12 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 				if (angularStartX != angularRefX) { // avoid div. by zero
 					startx = angularRegion * stepx;
 					endx = (angularRegion + 1) * stepx;
-					starty = (int) (angularRefY - (angularRefX - (float) startx)
-							/ ((float) (angularStartX - angularRefX))
-							* (angularStartY - (float) angularRefY));
-					endy = (int) (angularStartY + (endx - (float) angularStartX)
-							/ ((float) (angularStartX - angularRefX))
-							* (angularStartY - (float) angularRefY));
+					starty = (int) (angularRefY - (angularRefX - (double) startx)
+							/ ((double) (angularStartX - angularRefX))
+							* (angularStartY - (double) angularRefY));
+					endy = (int) (angularStartY + (endx - (double) angularStartX)
+							/ ((double) (angularStartX - angularRefX))
+							* (angularStartY - (double) angularRefY));
 				} else {
 					startx = angularStartX;
 					endx = angularStartX;
@@ -367,12 +367,12 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 				if (angularCurX != angularRefX) { // avoid div. by zero
 					startx = angularRegion * stepx;
 					endx = (angularRegion + 1) * stepx;
-					starty = (int) (angularRefY - (angularRefX - (float) startx)
-							/ ((float) (angularCurX - angularRefX))
-							* (angularCurY - (float) angularRefY));
-					endy = (int) (angularCurY + (endx - (float) angularCurX)
-							/ ((float) (angularCurX - angularRefX))
-							* (angularCurY - (float) angularRefY));
+					starty = (int) (angularRefY - (angularRefX - (double) startx)
+							/ ((double) (angularCurX - angularRefX))
+							* (angularCurY - (double) angularRefY));
+					endy = (int) (angularCurY + (endx - (double) angularCurX)
+							/ ((double) (angularCurX - angularRefX))
+							* (angularCurY - (double) angularRefY));
 				} else {
 					startx = angularCurX;
 					endx = angularCurX;
@@ -406,12 +406,12 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 		// axis histograms
 		if (comp.getBoolPreference("histogram")) {
 			int bins = comp.getIntPreference("histogramBins");
-			float stepy = (float) height / bins;
+			double stepy = (double) height / bins;
 
 			g2.setStroke(new BasicStroke(1.0f));
 
 			for (int i = 0; i < numDimensions; i++) {
-				float curx = i * stepx;
+				double curx = i * stepx;
 
 				// if (i > 0)
 				curx -= stepx / 4;
@@ -422,8 +422,8 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 				g2.setColor(new Color(0.0f, 0.0f, 0.0f, 0.4f));
 				g2.drawRect((int) curx, 0, stepx / 2, height);
 
-				float xscale = comp.getAxisScale(i);
-				float xoffset = comp.getAxisOffset(i);
+				double xscale = comp.getAxisScale(i);
+				double xoffset = comp.getAxisOffset(i);
 
 				// include records right at the border
 				xoffset -= xscale * 0.00005f;
@@ -437,9 +437,9 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 				if (comp.getIntPreference("histogramWidth") != ParallelDisplay.HISTO_TOTALREC) {
 					if (comp.getIntPreference("histogramWidth") == ParallelDisplay.HISTO_BINREC) {
 						for (j = 0; j < bins; j++) {
-							float upper = xoffset + (j * stepy / height)
+							double upper = xoffset + (j * stepy / height)
 									* xscale;
-							float lower = xoffset + ((j + 1) * stepy / height)
+							double lower = xoffset + ((j + 1) * stepy / height)
 									* xscale;
 							int count = comp.getNumRecordsInRange(i,
 									Math.min(lower, upper),
@@ -450,9 +450,9 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 						}
 					} else if (comp.getIntPreference("histogramWidth") == ParallelDisplay.HISTO_BRUSHREC) {
 						for (j = 0; j < bins; j++) {
-							float upper = xoffset + (j * stepy / height)
+							double upper = xoffset + (j * stepy / height)
 									* xscale;
-							float lower = xoffset + ((j + 1) * stepy / height)
+							double lower = xoffset + ((j + 1) * stepy / height)
 									* xscale;
 							int count = comp.getNumBrushedInRange(i,
 									Math.min(lower, upper),
@@ -470,11 +470,12 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 
 				for (j = 0; j < bins; j++) {
 
-					float upper = xoffset + (j * stepy / height) * xscale;
-					float lower = xoffset + ((j + 1) * stepy / height) * xscale;
-					float count = comp.getNumRecordsInRange(i,
+					double upper = xoffset + (j * stepy / height) * xscale;
+					double lower = xoffset + ((j + 1) * stepy / height)
+							* xscale;
+					double count = comp.getNumRecordsInRange(i,
 							Math.min(lower, upper), Math.max(lower, upper));
-					float hwidth = ((count / baseWidth) * stepx / 2);
+					double hwidth = ((count / baseWidth) * stepx / 2);
 
 					if (hwidth > stepx / 2) {
 						hwidth = stepx / 2;
@@ -517,7 +518,7 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 			g2.setFont(newfont);
 
 			GeneralPath rPath = new GeneralPath();
-			float yval = getYValue(paintHoverRecord, 0, comp);
+			double yval = getYValue(paintHoverRecord, 0, comp);
 			rPath.moveTo(0, yval);
 
 			for (int j = 1; j < numDimensions; j++) {
@@ -538,12 +539,12 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 		if ((comp.getBoolPreference("hoverText")) && (paintHoverRecord != -1)) {
 			Color col = new Color(1.0f, 1.0f, 0.8f);
 			for (int j = 0; j < numDimensions; j++) {
-				float yval = getYValue(paintHoverRecord, j, comp);
+				double yval = getYValue(paintHoverRecord, j, comp);
 				drawTooltip(
 						g2,
 						comp.getAxisLabel(j) + "=\n"
-								+ comp.getValue(paintHoverRecord, j), stepx * j,
-						(int) yval, col);
+								+ comp.getValue(paintHoverRecord, j),
+						stepx * j, (int) yval, col);
 			}
 		}
 
@@ -746,8 +747,8 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 	 * @param comp
 	 *            our "parent" component.
 	 */
-	private float getYValue(int record, int axis, ParallelDisplay comp) {
-		float value = comp.getValue(record, axis);
+	private double getYValue(int record, int axis, ParallelDisplay comp) {
+		double value = comp.getValue(record, axis);
 
 		value -= comp.getAxisOffset(axis);
 		value *= (comp.getHeight() - 2 * borderV) / comp.getAxisScale(axis);
@@ -758,13 +759,13 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 	// record old coordinates for dragging
 	int oldMouseX, oldMouseY;
 	int activeAxis = -1;
-	float oldScale, oldOffset;
+	double oldScale, oldOffset;
 
 	// 0.0 - 1.0 value of loacion of click on axis
-	float clickValue;
+	double clickValue;
 
 	// actual value of point clicked on axis
-	float clickAxisValue;
+	double clickAxisValue;
 
 	int clickModifiers;
 
@@ -828,8 +829,8 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 	private int angularCurY = 0;
 	private int angularStartX = 0;
 	private int angularStartY = 0;
-	private float angularAngle1 = 0.0f;
-	private float angularAngle2 = 0.0f;
+	private double angularAngle1 = 0.0f;
+	private double angularAngle2 = 0.0f;
 	private int angularRegion = 0;
 	private int hoverRegion = 0;
 
@@ -860,7 +861,7 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 			oldScale = comp.getAxisScale(activeAxis);
 			oldOffset = comp.getAxisOffset(activeAxis);
 
-			clickValue = ((float) oldMouseY - borderV)
+			clickValue = ((double) oldMouseY - borderV)
 					/ (comp.getHeight() - 2 * borderV);
 			clickAxisValue = comp.getAxisOffset(activeAxis) + clickValue
 					* comp.getAxisScale(activeAxis);
@@ -945,10 +946,10 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 		switch (comp.getEditMode()) {
 		case ParallelDisplay.SCALE:
 			if (activeAxis != -1) {
-				float way = ((float) (oldMouseY - mouseY))
+				double way = ((double) (oldMouseY - mouseY))
 						/ (comp.getHeight() - 2 * borderV);
 				comp.setAxisScale(activeAxis, oldScale + (way * oldScale));
-				float newValue = clickValue
+				double newValue = clickValue
 						* (comp.getAxisScale(activeAxis) - oldScale);
 				comp.setAxisOffset(activeAxis, oldOffset - newValue);
 
@@ -957,7 +958,7 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 			break;
 		case ParallelDisplay.TRANSLATE:
 			if (activeAxis != -1) {
-				float way = ((float) (oldMouseY - mouseY))
+				double way = ((double) (oldMouseY - mouseY))
 						/ (comp.getHeight() - 2 * borderV);
 				way *= comp.getAxisScale(activeAxis);
 				comp.setAxisOffset(activeAxis, oldOffset + way);
@@ -998,14 +999,14 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 		case ParallelDisplay.BRUSH:
 			if (!inAngularBrush) {
 				brushHoverEnd = mouseY - borderV;
-				float releaseValue = ((float) mouseY - borderV)
+				double releaseValue = ((double) mouseY - borderV)
 						/ (comp.getHeight() - 2 * borderV);
 				releaseValue = comp.getAxisOffset(activeAxis) + releaseValue
 						* comp.getAxisScale(activeAxis);
-				float lowerBound = Math.min(clickAxisValue, releaseValue);
-				float upperBound = Math.max(clickAxisValue, releaseValue);
+				double lowerBound = Math.min(clickAxisValue, releaseValue);
+				double upperBound = Math.max(clickAxisValue, releaseValue);
 				boolean doSoft = comp.getBoolPreference("softBrush");
-				float radius = 0.0f;
+				double radius = 0.0f;
 				int ids[];
 				if (doSoft) {
 					radius = comp.getFloatPreference("brushRadius")
@@ -1022,14 +1023,14 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 				}
 				int id = 0;
 				for (int i = 0; i < comp.getNumRecords(); i++) {
-					float brushVal = 0.0f;
+					double brushVal = 0.0f;
 					if ((ids.length > 0) && (i == ids[id])) {
 						// record is inside brush region
 
 						brushVal = 1.0f;
 
 						if (doSoft) {
-							float val = comp.getValue(i, activeAxis);
+							double val = comp.getValue(i, activeAxis);
 							if (val < lowerBound) {
 								brushVal = 1.0f - (-val + lowerBound) / radius;
 							}
@@ -1050,29 +1051,29 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 				angularCurX = mouseX - borderH;
 				angularCurY = mouseY - borderV;
 				if (!angularPhase1) {
-					float maxratio = (angularRefY - angularStartY)
-							/ (float) (angularStartX - angularRefX);
-					float tempratio = (angularRefY - angularCurY)
-							/ (float) (angularCurX - angularRefX);
-					float minratio = Math.min(maxratio, tempratio);
+					double maxratio = (angularRefY - angularStartY)
+							/ (double) (angularStartX - angularRefX);
+					double tempratio = (angularRefY - angularCurY)
+							/ (double) (angularCurX - angularRefX);
+					double minratio = Math.min(maxratio, tempratio);
 					maxratio = Math.max(maxratio, tempratio);
 
-					angularAngle1 = (float) Math.atan(maxratio);
-					angularAngle2 = (float) Math.atan(minratio);
+					angularAngle1 = Math.atan(maxratio);
+					angularAngle2 = Math.atan(minratio);
 
 					// System.out.println("a1: " + angularAngle1 + " a2: " +
 					// angularAngle2);
 
 					for (int i = 0; i < dragBrush.getNumValues(); i++) {
-						float val1 = (comp.getValue(i, angularRegion) - comp
+						double val1 = (comp.getValue(i, angularRegion) - comp
 								.getAxisOffset(angularRegion))
 								/ comp.getAxisScale(angularRegion)
 								* (comp.getHeight() - 2 * borderV);
-						float val2 = (comp.getValue(i, angularRegion + 1) - comp
+						double val2 = (comp.getValue(i, angularRegion + 1) - comp
 								.getAxisOffset(angularRegion + 1))
 								/ comp.getAxisScale(angularRegion + 1)
 								* (comp.getHeight() - 2 * borderV);
-						float ratio = (val1 - val2) / stepx;
+						double ratio = (val1 - val2) / stepx;
 
 						// System.out.println("val1: " + val1 + " val2: " + val2
 						// + " ratio: " + ratio + "minratio: " + minratio +
@@ -1108,7 +1109,7 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 				// to see brush line in realtime
 			}
 			comp.repaint();
-			
+
 			comp.fireSelectionChanged(tempBrush);
 
 			break;
@@ -1268,9 +1269,9 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 	public int getRecordByCoordinates(int x, int y, ParallelDisplay comp) {
 		for (int i = 0; i < numDimensions - 1; i++) {
 			if ((x >= i * stepx) && (x < (i + 1) * stepx)) {
-				float part = (x - i * stepx) / (float) stepx;
+				double part = (x - i * stepx) / (double) stepx;
 				for (int j = 0; j < numRecords; j++) {
-					float recVal = (1 - part) * getYValue(j, i, comp) + part
+					double recVal = (1 - part) * getYValue(j, i, comp) + part
 							* getYValue(j, i + 1, comp);
 
 					if (Math.abs(recVal - y) < 3.0)

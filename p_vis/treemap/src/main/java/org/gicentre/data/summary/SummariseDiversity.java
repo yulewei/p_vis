@@ -1,30 +1,19 @@
 package org.gicentre.data.summary;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 
-import edu.zjut.common.data.attr.DataField;
-import edu.zjut.common.data.attr.FieldType;
+import edu.zjut.common.data.attr.MeasureField;
 
 public class SummariseDiversity extends SummariseField {
 
-	public SummariseDiversity(String name, DataField dataField) {
-		this(name, dataField, dataField.getFieldType());
-	}
-
-	public SummariseDiversity(String name, DataField dataField,
-			FieldType fieldType) {
-		this.name = name;
-		this.dataField = dataField;
-		this.fieldType = fieldType;
+	public SummariseDiversity(MeasureField dataField) {
+		super(dataField);
 	}
 
 	public Object compute(List<Object> values) {
 		HashMap<Object, Integer> counts = new HashMap<Object, Integer>();
 
-		// count each value of datafield
-		HashSet<Object> valuesUsed = new HashSet<Object>();
 		for (Object v : values) {
 			Integer count = counts.get(v);
 			if (count == null) {
@@ -50,5 +39,4 @@ public class SummariseDiversity extends SummariseField {
 		}
 		return correctObjectType(new Double((double) cumSumDiffs / sumCounts));
 	}
-
 }

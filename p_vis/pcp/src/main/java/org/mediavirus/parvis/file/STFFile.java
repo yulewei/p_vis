@@ -196,7 +196,7 @@ public class STFFile extends SimpleParallelSpaceModel {
         
         String label;
         
-        float curVal[];
+        double curVal[];
         
         while ((line = readLine(in)) != null){
             bytesRead += line.length();
@@ -205,7 +205,7 @@ public class STFFile extends SimpleParallelSpaceModel {
             fireProgressEvent(new ProgressEvent(this, ProgressEvent.PROGRESS_UPDATE, progress, "loading file"));
 
             StringTokenizer str = new StringTokenizer(line);
-            curVal = new float[numDimensions];
+            curVal = new double[numDimensions];
             
             j=0;
             s=0;

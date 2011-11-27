@@ -71,14 +71,14 @@ public interface ParallelSpaceModel {
      *
      * @return Maximum value of all records for the given dimension.
      */
-    public float getMaxValue(int dimension);
+    public double getMaxValue(int dimension);
     
     /**
      * Returns the minimum value for the given dimension.
      *
      * @return Minimum value of all records for the given dimension.
      */
-    public float getMinValue(int dimension);
+    public double getMinValue(int dimension);
     
     /**
      * Returns a specific value of the dataset.
@@ -88,7 +88,7 @@ public interface ParallelSpaceModel {
      *
      * @return The value specified by record, dimension.
      */
-    public float getValue(int record, int dimension);
+    public double getValue(int record, int dimension);
 
     /**
      * Returns all values of a specific record.
@@ -97,7 +97,7 @@ public interface ParallelSpaceModel {
      *
      * @return All values of the specified record..
      */
-    public float[] getValues(int record);
+    public double[] getValues(int record);
         
     /**
      * Returns a String label for a specific dimension.
@@ -127,7 +127,7 @@ public interface ParallelSpaceModel {
      *
      * @return A String with the label, null if no label is set.
      */
-    public String getValueLabel(int dimension, float value);
+    public String getValueLabel(int dimension, double value);
     
     /**
      * Returns a human-readable label for a specific record.

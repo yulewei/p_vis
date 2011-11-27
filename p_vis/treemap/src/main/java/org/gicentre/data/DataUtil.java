@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.gicentre.data.summary.SummariseField;
-import org.gicentre.data.summary.SummariseNode;
 
 import edu.zjut.common.data.attr.DataField;
 

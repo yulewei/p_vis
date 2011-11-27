@@ -2,42 +2,22 @@ package org.gicentre.data.summary;
 
 import java.util.List;
 
-import org.gicentre.apps.hide.ColourScaling;
 import org.gicentre.utils.colour.ColourTable;
 
-import edu.zjut.common.data.attr.DataField;
+import edu.zjut.common.color.ColorScaling;
 import edu.zjut.common.data.attr.FieldType;
+import edu.zjut.common.data.attr.MeasureField;
+import edu.zjut.common.data.attr.SummaryType;
 
 public abstract class SummariseField {
-	protected String name;
-	protected FieldType fieldType;
-	protected DataField dataField;
+	protected MeasureField dataField;
 
-	private ColourTable colourTable;
-	private ColourScaling colourScaling;
-
-	public ColourTable getColourTable() {
-		return colourTable;
-	}
-
-	public void setColourTable(ColourTable colourTable) {
-		this.colourTable = colourTable;
-	}
-
-	public ColourScaling getColourScaling() {
-		return colourScaling;
-	}
-
-	public void setColourScaling(ColourScaling colourScaling) {
-		this.colourScaling = colourScaling;
+	public SummariseField(MeasureField dataField) {
+		this.dataField = dataField;
 	}
 
 	public String getName() {
-		return name;
-	}
-
-	public DataField getDataField() {
-		return dataField;
+		return dataField.getName();
 	}
 
 	public int getColIdx() {
@@ -45,7 +25,23 @@ public abstract class SummariseField {
 	}
 
 	public FieldType getFieldType() {
-		return fieldType;
+		return dataField.getFieldType();
+	}
+
+	public ColourTable getColorTable() {
+		return dataField.getColorTable();
+	}
+
+	public void setColorTable(ColourTable colorTable) {
+		dataField.setColorTable(colorTable);
+	}
+
+	public ColorScaling getColorScaling() {
+		return dataField.getColorScaling();
+	}
+
+	public void setColorScaling(ColorScaling colorScaling) {
+		dataField.setColorScaling(colorScaling);
 	}
 
 	public abstract Object compute(List<Object> records);
@@ -54,10 +50,10 @@ public abstract class SummariseField {
 		if (value == null) {
 			return null;
 		}
-		if (fieldType == FieldType.STRING) {
+		if (dataField.getFieldType() == FieldType.STRING) {
 			return value.toString();
 		}
-		if (fieldType == FieldType.INT) {
+		if (dataField.getFieldType() == FieldType.INT) {
 			if (value instanceof Integer) {
 				return value;
 			}
@@ -66,8 +62,8 @@ public abstract class SummariseField {
 			} else {
 				return ((Number) value).intValue();
 			}
-		}		
-		if (fieldType == FieldType.DOUBLE) {
+		}
+		if (dataField.getFieldType() == FieldType.DOUBLE) {
 			if (value instanceof Double) {
 				return value;
 			}
@@ -80,8 +76,24 @@ public abstract class SummariseField {
 		return null;
 	}
 
-	public String toString() {
-		return name;
+	public static SummariseField createSummaryField(MeasureField field) {
+		SummaryType summaryType = field.getSummaryType();
+		if (summaryType == null)
+			return new SummariseSum(field);
+		switch (summaryType) {
+		case SUM:
+			return new SummariseSum(field);
+		case MEAN:
+			return new SummariseMean(field);
+		case COUNT:
+			return new SummariseCount(field);
+		case UNI_COUNT:
+			return new SummariseUniqueCount(field);
+		case MAX:
+			return new SummariseMax(field);
+		case MIN:
+			return new SummariseMin(field);
+		}
+		return new SummariseSum(field);
 	}
-
 }

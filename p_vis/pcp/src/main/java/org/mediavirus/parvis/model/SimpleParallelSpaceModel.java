@@ -38,14 +38,14 @@ import javax.swing.event.*;
 public class SimpleParallelSpaceModel implements ParallelSpaceModel {
 
     /** Contains the float[] values. */
-    protected Vector values = new Vector();
+    protected Vector<double[]> values = new Vector();
     
     /** Contains the record label Strings. */
     protected Vector recordLabels = new Vector();
     /** Contains the axis label Strings. */
     protected String axisLabels[];
     /** Contains the value label Hashtables. */
-    protected Hashtable valueLabels[];
+    protected Hashtable<Double, String> valueLabels[];
     
     /** Number of dimensions of the model. */
     protected int numDimensions = 0;
@@ -66,7 +66,7 @@ public class SimpleParallelSpaceModel implements ParallelSpaceModel {
      * @param values A float[][] containing records (first index) with float values for each dimension (second index).<br>
      *               All records must have the same number of dimensions! 
      */
-    public SimpleParallelSpaceModel(float values[][]){
+    public SimpleParallelSpaceModel(double values[][]){
         int i;
                 
         int len = values[0].length;
@@ -91,7 +91,7 @@ public class SimpleParallelSpaceModel implements ParallelSpaceModel {
      * @param values The float values of the record.
      * @param label A String label for the record.
      */
-    public void addRecord(float values[], String label){
+    public void addRecord(double[] values, String label){
         
         if (numDimensions == 0){
             initNumDimensions(values.length);
@@ -111,7 +111,7 @@ public class SimpleParallelSpaceModel implements ParallelSpaceModel {
      *
      * @param values The float values of the record.
      */
-    public void addRecord(float values[]){
+    public void addRecord(double values[]){
         addRecord(values, null);
     }
     
@@ -164,11 +164,11 @@ public class SimpleParallelSpaceModel implements ParallelSpaceModel {
      *
      * @return Maximum value of all records for the given dimension.
      */
-    public float getMaxValue(int dimension) {
+    public double getMaxValue(int dimension) {
         
-        float maxval = ((float[])values.firstElement())[dimension];
+    	double maxval = ((double[])values.firstElement())[dimension];
         for (int i=0; i<values.size(); i++){
-            if (((float[])values.elementAt(i))[dimension] > maxval) maxval = ((float[])values.elementAt(i))[dimension];
+            if (((double[])values.elementAt(i))[dimension] > maxval) maxval = ((double[])values.elementAt(i))[dimension];
         }
         
         return maxval;
@@ -180,11 +180,11 @@ public class SimpleParallelSpaceModel implements ParallelSpaceModel {
      *
      * @return Minimum value of all records for the given dimension.
      */
-    public float getMinValue(int dimension) {
+    public double getMinValue(int dimension) {
         
-        float minval = ((float[])values.firstElement())[dimension];
+    	double minval = ((double[])values.firstElement())[dimension];
         for (int i=0; i<values.size(); i++){
-            if (((float[])values.elementAt(i))[dimension] < minval) minval = ((float[])values.elementAt(i))[dimension];
+            if (((double[])values.elementAt(i))[dimension] < minval) minval = ((double[])values.elementAt(i))[dimension];
         }
         
         return minval;
@@ -199,8 +199,8 @@ public class SimpleParallelSpaceModel implements ParallelSpaceModel {
      *
      * @return The value specified by record, dimension.
      */
-    public float getValue(int record, int dimension) {
-        return ((float[])values.elementAt(record))[dimension];
+    public double getValue(int record, int dimension) {
+        return ((double[])values.elementAt(record))[dimension];
     }
 
     /**
@@ -259,9 +259,9 @@ public class SimpleParallelSpaceModel implements ParallelSpaceModel {
      *
      * @return A String with the label, null if no label is set.
      */
-    public String getValueLabel(int dimension, float value){
+    public String getValueLabel(int dimension, double value){
         if (valueLabels[dimension] != null){
-            return (String) (valueLabels[dimension].get(new Float(value)));
+            return (String) (valueLabels[dimension].get(new Double(value)));
         }
         else {
             return null;
@@ -284,11 +284,11 @@ public class SimpleParallelSpaceModel implements ParallelSpaceModel {
         }
         
         if (valueLabels[dimension] == null){
-            valueLabels[dimension] = new Hashtable();
+            valueLabels[dimension] = new Hashtable<Double, String>();
         }
         
         for (int i=0; i<values.length; i++){
-            valueLabels[dimension].put(new Float(values[i]), labels[i]);
+            valueLabels[dimension].put(new Double(values[i]), labels[i]);
         }
     }
     
@@ -305,7 +305,7 @@ public class SimpleParallelSpaceModel implements ParallelSpaceModel {
             valueLabels[dimension] = new Hashtable();
         }
         
-        valueLabels[dimension].put(new Float(value), label);
+        valueLabels[dimension].put(new Double(value), label);
 
     }
         
@@ -316,8 +316,8 @@ public class SimpleParallelSpaceModel implements ParallelSpaceModel {
      *
      * @return All values of the specified record..
      */
-    public float[] getValues(int recordnum) {
-        return (float[])values.elementAt(recordnum);
+    public double[] getValues(int recordnum) {
+        return (double[])values.elementAt(recordnum);
     }
     
     /**

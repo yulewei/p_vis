@@ -21,8 +21,8 @@ import java.util.HashSet;
 import javax.swing.tree.TreeNode;
 
 import org.gicentre.apps.hide.TreemapState.AppearanceType;
+import org.gicentre.data.SummariseNode;
 import org.gicentre.data.summary.SummariseField;
-import org.gicentre.data.summary.SummariseNode;
 import org.gicentre.data.summary.SummariseNull;
 import org.gicentre.hive.Expression;
 import org.gicentre.hive.ExpressionNotSupportedException;

@@ -68,21 +68,11 @@ public class ParallelPlot extends ParvisPlot implements DataSetListener,
 		int nNumeric = measureFeilds.length;
 		int nVars = Math.min(vars.length, Math.min(nNumeric, MAX_AXES));
 
-		// 属性名称
+		// 属性子集
 		DataField[] feilds = new DataField[nVars + 1];
 		feilds[0] = attrData.getObservationFeild();
 		for (int i = 0; i < nVars; i++) {
 			feilds[i + 1] = measureFeilds[vars[i]];
-		}
-
-		// 属性数据
-		Object[] newDataSet = new Object[nVars + 1];
-		newDataSet[0] = attrData.getObservationNames();
-		for (int i = 0; i < nVars; i++) {
-			int var = vars[i];
-			if (var < nNumeric) {
-				newDataSet[i + 1] = attrData.getMeasureColumnAsDouble(var);
-			}
 		}
 
 		AttributeData subAttrData = new AttributeData(feilds,

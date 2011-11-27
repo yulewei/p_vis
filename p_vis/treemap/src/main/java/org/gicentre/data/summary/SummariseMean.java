@@ -2,19 +2,13 @@ package org.gicentre.data.summary;
 
 import java.util.List;
 
-import edu.zjut.common.data.attr.DataField;
 import edu.zjut.common.data.attr.FieldType;
+import edu.zjut.common.data.attr.MeasureField;
 
 public class SummariseMean extends SummariseField {
 
-	public SummariseMean(String name, DataField dataField) {
-		this(name, dataField, dataField.getFieldType());
-	}
-
-	public SummariseMean(String name, DataField dataField, FieldType fieldType) {
-		this.name = name;
-		this.dataField = dataField;
-		this.fieldType = fieldType;
+	public SummariseMean(MeasureField dataField) {
+		super(dataField);
 	}
 
 	public Object compute(List<Object> values) {

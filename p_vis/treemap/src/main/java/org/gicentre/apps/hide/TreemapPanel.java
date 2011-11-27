@@ -14,8 +14,8 @@ import org.gicentre.data.AndFilter;
 import org.gicentre.data.DataUtil;
 import org.gicentre.data.EqualsFilter;
 import org.gicentre.data.NotFilter;
+import org.gicentre.data.SummariseNode;
 import org.gicentre.data.summary.SummariseField;
-import org.gicentre.data.summary.SummariseNode;
 import org.gicentre.data.summary.SummariseNull;
 import org.gicentre.treemappa.TreeMapNode;
 import org.gicentre.treemappa.TreeMapProperties;
@@ -28,6 +28,7 @@ import processing.core.PConstants;
 import processing.core.PFont;
 import processing.core.PGraphics;
 import processing.core.PImage;
+import edu.zjut.common.color.ColorScaling;
 import edu.zjut.common.data.attr.DataField;
 import edu.zjut.common.data.attr.FieldType;
 
@@ -547,8 +548,8 @@ public class TreemapPanel {
 			// make min/maxes symmetrical for diverging colour schemes
 			for (int i = 0; i < mins.length; i++) {
 				if (colourFields[i] != null
-						&& colourFields[i].getColourTable() != null
-						&& colourFields[i].getColourTable().getMinIndex() == -1) {
+						&& colourFields[i].getColorTable() != null
+						&& colourFields[i].getColorTable().getMinIndex() == -1) {
 					// then it's a diverging scheme
 					float max = Math.max(Math.abs(mins[i]), Math.abs(maxs[i]));
 					mins[i] = max * -1;
@@ -594,15 +595,15 @@ public class TreemapPanel {
 				// work out the colour
 				Integer colour = null;
 				if (colourFields[level - 1] != null
-						&& colourFields[level - 1].getColourTable() != null) {
+						&& colourFields[level - 1].getColorTable() != null) {
 					Float value = node.getSummariseNode().getSummaryAsFloat(
 							colourFields[level - 1]);
 					if (value != null) {
 						float transformedValue = ((Number) value).floatValue();
 						float transformedMin = mins[level - 1];
 						float transformedMax = maxs[level - 1];
-						if (colourFields[level - 1].getColourScaling().equals(
-								ColourScaling.LOG)) {
+						if (colourFields[level - 1].getColorScaling().equals(
+								ColorScaling.LOG)) {
 							boolean isNegative = false;
 							if (mins[level - 1] != 0) {
 								if (transformedMin < 0)
@@ -628,7 +629,7 @@ public class TreemapPanel {
 							}
 						}
 						ColourTable ct = colourFields[level - 1]
-								.getColourTable();
+								.getColorTable();
 						colour = ct.findColour(PApplet.map(transformedValue,
 								transformedMin, transformedMax,
 								ct.getMinIndex(), ct.getMaxIndex()));

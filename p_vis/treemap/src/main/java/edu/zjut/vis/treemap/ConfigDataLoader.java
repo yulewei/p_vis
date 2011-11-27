@@ -7,20 +7,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
-import org.gicentre.apps.hide.ColourScaling;
 import org.gicentre.apps.hide.TreemapState.Layout;
-import org.gicentre.data.summary.SummariseCount;
 import org.gicentre.data.summary.SummariseField;
-import org.gicentre.data.summary.SummariseMax;
-import org.gicentre.data.summary.SummariseMean;
-import org.gicentre.data.summary.SummariseMin;
-import org.gicentre.data.summary.SummariseSum;
-import org.gicentre.data.summary.SummariseUniqueCount;
 import org.gicentre.utils.colour.ColourTable;
 
 import au.com.bytecode.opencsv.CSVReader;
+import edu.zjut.common.color.ColorScaling;
 import edu.zjut.common.data.attr.DataField;
+import edu.zjut.common.data.attr.DimensionField;
 import edu.zjut.common.data.attr.FieldType;
+import edu.zjut.common.data.attr.MeasureField;
 import edu.zjut.vis.treemap.DataConfig.ColorMap;
 import edu.zjut.vis.treemap.DataConfig.ColorMap.Rule;
 import edu.zjut.vis.treemap.DataConfig.Variable;
@@ -118,13 +114,13 @@ public class ConfigDataLoader {
 		allowedColourVars = new ArrayList<SummariseField>();
 
 		for (Variable var : varList) {
-			DataField dataField = new DataField(var.colIdx, var.name,
-					FieldType.valueOf(var.dataType.toUpperCase()), null);
+			DataField dataField = null;
+			FieldType fieldType = FieldType.valueOf(var.dataType.toUpperCase());
+			if (var.summary == null) {
+				dataField = new DimensionField(var.colIdx, var.name, fieldType,
+						null);
+			}
 			datafields.add(dataField);
-
-			// values节点
-
-			// colorMap节点
 
 			// hier节点
 			if (var.hier != null) {
@@ -133,8 +129,12 @@ public class ConfigDataLoader {
 
 			// summary节点
 			if (var.summary != null) {
-				SummariseField summariseField = parseSummaryType(var.name,
-						var.summary.summaryType, dataField);
+
+				MeasureField field = new MeasureField(var.colIdx, var.name,
+						fieldType, null, null, null);
+
+				SummariseField summariseField = SummariseField
+						.createSummaryField(field);
 
 				if (var.summary.colorMap != null)
 					parseColorMap(summariseField, var.summary.colorMap);
@@ -173,31 +173,6 @@ public class ConfigDataLoader {
 		}
 	}
 
-	private SummariseField parseSummaryType(String name, String summaryType,
-			DataField refDataField) {
-		SummariseField summariseField = null;
-
-		if (summaryType.equals("sum"))
-			summariseField = new SummariseSum(name, refDataField);
-
-		else if (summaryType.equals("mean"))
-			summariseField = new SummariseMean(name, refDataField);
-
-		else if (summaryType.equals("count"))
-			summariseField = new SummariseCount(name);
-
-		else if (summaryType.equals("uniqueCount"))
-			summariseField = new SummariseUniqueCount(name, refDataField);
-
-		else if (summaryType.equals("max"))
-			summariseField = new SummariseMax(name, refDataField);
-
-		else if (summaryType.equals("min"))
-			summariseField = new SummariseMin(name, refDataField);
-
-		return summariseField;
-	}
-
 	private void parseColorMap(SummariseField summariseField, ColorMap colorMap) {
 
 		ColourTable colourTable = null;
@@ -215,13 +190,13 @@ public class ConfigDataLoader {
 			colourTable = new ColourTable();
 		}
 
-		ColourScaling colourScaling = ColourScaling.LIN;
+		ColorScaling colourScaling = ColorScaling.LIN;
 		if (colorMap.scaling != null
 				&& colorMap.scaling.equalsIgnoreCase("log")) {
-			colourScaling = ColourScaling.LOG;
+			colourScaling = ColorScaling.LOG;
 		}
 
-		summariseField.setColourScaling(colourScaling);
+		summariseField.setColorScaling(colourScaling);
 
 		if (colorMap.rules != null) {
 			for (Rule rule : colorMap.rules) {
@@ -242,7 +217,7 @@ public class ConfigDataLoader {
 			}
 		}
 
-		summariseField.setColourTable(colourTable);
+		summariseField.setColorTable(colourTable);
 	}
 
 	public List<Object[]> getRecords() {

@@ -38,7 +38,7 @@ public class Brush {
     private Color color;
     
     /** Holds value of property brushValue. */
-    private float[] brushValues;
+    private double[] brushValues;
     
     private int numBrushed = 0;
     
@@ -47,7 +47,7 @@ public class Brush {
     
     /** Creates a new instance of Brush */
     public Brush(int numValues, Color color) {
-        brushValues = new float[numValues];
+        brushValues = new double[numValues];
         this.color = color;
     }
     
@@ -57,7 +57,7 @@ public class Brush {
     }
     
     /** Creates a new instance of Brush */
-    public Brush(float[] brushValues){
+    public Brush(double[] brushValues){
         this.setBrushValues(brushValues);
     }
         
@@ -80,7 +80,7 @@ public class Brush {
      * @param index Index of the property.
      * @return Value of the property at <CODE>index</CODE>.
      */
-    public float getBrushValue(int index) {
+    public double getBrushValue(int index) {
         return this.brushValues[index];
     }    
         
@@ -88,7 +88,7 @@ public class Brush {
      * @param index Index of the property.
      * @param brushValue New value of the property at <CODE>index</CODE>.
      */
-    public void setBrushValue(int index, float brushValue) {
+    public void setBrushValue(int index, double brushValue) {
         if ((brushValue > 0.0f) && (brushValues[index] == 0.0f)){
             numBrushed++;
         }
@@ -102,8 +102,8 @@ public class Brush {
     /**
      * Sets the array with brush vallues directly.
      */
-    public void setBrushValues(float[] newValues){
-        this.brushValues = (float[])newValues.clone();
+    public void setBrushValues(double[] newValues){
+        this.brushValues = (double[])newValues.clone();
         
         numBrushed = 0;
         for (int i=0; i<brushValues.length; i++){
@@ -133,7 +133,7 @@ public class Brush {
         Brush newBrush = new Brush(brushValues.length);
         
         for (int i=0; i<brushValues.length; i++){
-            float newVal = brushValues[i] - secondBrush.getBrushValue(i);
+        	double newVal = brushValues[i] - secondBrush.getBrushValue(i);
             if (newVal < 0.0f) newVal = 0.0f;
             newBrush.setBrushValue(i,newVal);
         }
@@ -149,7 +149,7 @@ public class Brush {
         Brush newBrush = new Brush(brushValues.length);
         
         for (int i=0; i<brushValues.length; i++){
-            float newVal = brushValues[i] + secondBrush.getBrushValue(i);
+        	double newVal = brushValues[i] + secondBrush.getBrushValue(i);
             if (newVal > 1.0f) newVal = 1.0f;
             newBrush.setBrushValue(i,newVal);
         }
@@ -198,7 +198,7 @@ public class Brush {
      * Returns a new Brush identical to this one.
      */
     public Object clone(){
-        Brush newBrush = new Brush((float[])brushValues.clone());
+        Brush newBrush = new Brush((double[])brushValues.clone());
         newBrush.setName(getName());
         newBrush.setColor(getColor());
         

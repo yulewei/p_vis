@@ -7,8 +7,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import org.gicentre.apps.hide.TreemapState.Layout;
+import org.gicentre.data.SummariseNode;
 import org.gicentre.data.summary.SummariseField;
-import org.gicentre.data.summary.SummariseNode;
 import org.gicentre.data.summary.SummariseNull;
 import org.gicentre.treemappa.TreeMapNode;
 import org.gicentre.treemappa.TreeMapProperties;

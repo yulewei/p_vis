@@ -74,12 +74,12 @@ public class ParallelDisplay extends JComponent implements ChangeListener,
 	class Axis {
 		int dimension;
 
-		float scale;
-		float offset;
+		double scale;
+		double offset;
 
 		String label;
 
-		Axis(int dimension, float scale, float offset, String label) {
+		Axis(int dimension, double scale, double offset, String label) {
 			this.dimension = dimension;
 			this.scale = scale;
 			this.offset = offset;
@@ -88,7 +88,7 @@ public class ParallelDisplay extends JComponent implements ChangeListener,
 	}
 
 	/** brushed values of records */
-	protected float brushValues[] = null;
+	protected double brushValues[] = null;
 
 	/** Our model. */
 	private ParallelSpaceModel model;
@@ -290,7 +290,7 @@ public class ParallelDisplay extends JComponent implements ChangeListener,
 
 			axes = new Axis[model.getNumDimensions()];
 			String axisNames[] = new String[model.getNumDimensions()];
-			brushValues = new float[model.getNumRecords()];
+			brushValues = new double[model.getNumRecords()];
 
 			for (int i = 0; i < model.getNumDimensions(); i++) {
 				// initialize scaling of axis to show maximum detail
@@ -387,7 +387,7 @@ public class ParallelDisplay extends JComponent implements ChangeListener,
 			return null;
 	}
 
-	public float getValue(int recordNum, int axisNum) {
+	public double getValue(int recordNum, int axisNum) {
 		if (model != null) {
 			return model.getValue(recordNum, axes[axisNum].dimension);
 		} else {
@@ -395,14 +395,14 @@ public class ParallelDisplay extends JComponent implements ChangeListener,
 		}
 	}
 
-	public float getBrushValue(int num) {
+	public double getBrushValue(int num) {
 		if ((currentBrush != null) && (currentBrush.getNumValues() > num))
 			return currentBrush.getBrushValue(num);
 		else
-			return 0.0f;
+			return 0.0;
 	}
 
-	public void setBrushValue(int num, float val) {
+	public void setBrushValue(int num, double val) {
 		if ((currentBrush != null) && (currentBrush.getNumValues() > num))
 			currentBrush.setBrushValue(num, val);
 	}
@@ -453,13 +453,13 @@ public class ParallelDisplay extends JComponent implements ChangeListener,
 	 * @param max
 	 *            The upper boundary of the range (<).
 	 */
-	public int[] getRecordsByValueRange(int axisnum, float min, float max) {
+	public int[] getRecordsByValueRange(int axisnum, double min, double max) {
 
 		int ids[] = new int[getNumRecords()];
 		int count = 0;
 
 		for (int i = 0; i < getNumRecords(); i++) {
-			float val = getValue(i, axisnum);
+			double val = getValue(i, axisnum);
 			if ((val >= min) && (val < max))
 				ids[count++] = i;
 		}
@@ -482,10 +482,10 @@ public class ParallelDisplay extends JComponent implements ChangeListener,
 	 * @param max
 	 *            The upper boundary of the range (<).
 	 */
-	public int getNumRecordsInRange(int axisnum, float min, float max) {
+	public int getNumRecordsInRange(int axisnum, double min, double max) {
 		int count = 0;
 		for (int i = 0; i < getNumRecords(); i++) {
-			float val = getValue(i, axisnum);
+			double val = getValue(i, axisnum);
 			if ((val >= min) && (val < max))
 				count++;
 		}
@@ -503,10 +503,10 @@ public class ParallelDisplay extends JComponent implements ChangeListener,
 	 * @param max
 	 *            The upper boundary of the range (<).
 	 */
-	public int getNumBrushedInRange(int axisnum, float min, float max) {
-		float count = 0;
+	public int getNumBrushedInRange(int axisnum, double min, double max) {
+		double count = 0;
 		for (int i = 0; i < getNumRecords(); i++) {
-			float val = getValue(i, axisnum);
+			double val = getValue(i, axisnum);
 			if ((val >= min) && (val < max))
 				count += getBrushValue(i);
 		}
@@ -580,7 +580,7 @@ public class ParallelDisplay extends JComponent implements ChangeListener,
 	 * 
 	 * @return The offset value.
 	 **/
-	public float getAxisOffset(int num) {
+	public double getAxisOffset(int num) {
 		if (axes != null) {
 			return axes[num].offset;
 		} else
@@ -595,7 +595,7 @@ public class ParallelDisplay extends JComponent implements ChangeListener,
 	 * 
 	 * @return The scale value.
 	 **/
-	public float getAxisScale(int num) {
+	public double getAxisScale(int num) {
 		if (axes != null) {
 			return axes[num].scale;
 		} else
@@ -631,7 +631,7 @@ public class ParallelDisplay extends JComponent implements ChangeListener,
 	 * @param offset
 	 *            The offset value.
 	 **/
-	public void setAxisOffset(int axis, float offset) {
+	public void setAxisOffset(int axis, double offset) {
 		if (axes != null) {
 			axes[axis].offset = offset;
 		}
@@ -647,7 +647,7 @@ public class ParallelDisplay extends JComponent implements ChangeListener,
 	 * @param scale
 	 *            The scale value.
 	 **/
-	public void setAxisScale(int axis, float scale) {
+	public void setAxisScale(int axis, double scale) {
 		if (axes != null) {
 			axes[axis].scale = scale;
 		}
@@ -694,12 +694,12 @@ public class ParallelDisplay extends JComponent implements ChangeListener,
 	public void minMaxAbsScale() {
 		int i;
 
-		float absmax = Float.NEGATIVE_INFINITY;
-		float absmin = 0.0f;
+		double absmax = Double.NEGATIVE_INFINITY;
+		double absmin = 0.0;
 
 		for (i = 0; i < getNumAxes(); i++) {
 			// initialize scaling of axis to show maximum detail
-			float val = model.getMaxValue(axes[i].dimension);
+			double val = model.getMaxValue(axes[i].dimension);
 			if (val > absmax)
 				absmax = val;
 			val = model.getMinValue(axes[i].dimension);
@@ -772,7 +772,7 @@ public class ParallelDisplay extends JComponent implements ChangeListener,
 	 * Fills the preferences hashtable with initial default values.
 	 */
 	public void setDefaultPreferences() {
-		preferences.put("brushRadius", new Float(0.2f));
+		preferences.put("brushRadius", new Double(0.2));
 		preferences.put("softBrush", new Boolean(true));
 		preferences.put("hoverText", new Boolean(false));
 		preferences.put("hoverLine", new Boolean(true));
@@ -783,8 +783,8 @@ public class ParallelDisplay extends JComponent implements ChangeListener,
 		preferences.put("brushColor", Color.black);
 	}
 
-	public void setFloatPreference(String key, float val) {
-		Object obj = new Float(val);
+	public void setFloatPreference(String key, double val) {
+		Object obj = new Double(val);
 		preferences.put(key, obj);
 	}
 
@@ -826,14 +826,14 @@ public class ParallelDisplay extends JComponent implements ChangeListener,
 			return false;
 	}
 
-	public float getFloatPreference(String key) {
+	public double getFloatPreference(String key) {
 		Object obj = preferences.get(key);
-		if ((obj != null) && (obj instanceof Float)) {
-			return ((Float) obj).floatValue();
+		if ((obj != null) && (obj instanceof Double)) {
+			return ((Double) obj).doubleValue();
 		}
 		// we should throw an exception here;
 		else
-			return 0.0f;
+			return 0.0;
 	}
 
 	public int getIntPreference(String key) {
@@ -1025,7 +1025,7 @@ public class ParallelDisplay extends JComponent implements ChangeListener,
 
 		int count = b.getNumValues();
 		for (int i = 0; i < count; i++) {
-			float element = b.getBrushValue(i);
+			double element = b.getBrushValue(i);
 			if (element > 0f) {
 				numSelected++;
 			}
@@ -1034,7 +1034,7 @@ public class ParallelDisplay extends JComponent implements ChangeListener,
 		int[] selection = new int[numSelected];
 		int counter = 0;
 		for (int i = 0; i < count; i++) {
-			float element = b.getBrushValue(i);
+			double element = b.getBrushValue(i);
 			if (element > 0f) {
 				selection[counter] = i;
 				counter++;

@@ -288,7 +288,7 @@ class RenderThread extends Thread {
                 
                 // render all records
                 int i = 0;
-                float brushVal = 0.0f;
+                double brushVal = 0.0f;
                 Color bgcol = comp.getBackground();
                 color = comp.getColorPreference("recordColor");
                 if (brush != null){
@@ -300,7 +300,7 @@ class RenderThread extends Thread {
                 
                 for (; i<comp.getNumRecords(); i++){
                     if (i % 300 == 0){
-                        comp.fireProgressEvent(new ProgressEvent(comp, ProgressEvent.PROGRESS_UPDATE, ((float)i)/comp.getNumRecords(), "rendering " + modestr));
+                        comp.fireProgressEvent(new ProgressEvent(comp, ProgressEvent.PROGRESS_UPDATE, ((double)i)/comp.getNumRecords(), "rendering " + modestr));
                     }
                     if ((brush == null) || (brushVal = brush.getBrushValue(i)) > 0.0f){
                         // select records in brushmode, render all in normal mode

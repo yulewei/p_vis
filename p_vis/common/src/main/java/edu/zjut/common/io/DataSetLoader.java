@@ -15,7 +15,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
-import edu.zjut.common.color.ColourScaling;
+import edu.zjut.common.color.ColorScaling;
 import edu.zjut.common.data.DataSetForApps;
 import edu.zjut.common.data.attr.FieldType;
 import edu.zjut.common.data.attr.AttributeData;
@@ -85,16 +85,18 @@ public class DataSetLoader {
 		ColourTable[] colorTables = new ColourTable[len];
 		for (int i = 0; i < len; i++) {
 			Attribute attr = attrList.get(i);
-			if (attr.dataType.equalsIgnoreCase("id")) {
-				dataTypes[i] = FieldType.ID;
-			}
-			if (attr.dataType.equalsIgnoreCase("int")) {
-				dataTypes[i] = FieldType.INT;
-			} else if (attr.dataType.equalsIgnoreCase("double")) {
-				dataTypes[i] = FieldType.DOUBLE;
-			} else if (attr.dataType.equalsIgnoreCase("string")) {
-				dataTypes[i] = FieldType.STRING;
-			}
+			// if (attr.dataType.equalsIgnoreCase("id")) {
+			// dataTypes[i] = FieldType.ID;
+			// }
+			// if (attr.dataType.equalsIgnoreCase("int")) {
+			// dataTypes[i] = FieldType.INT;
+			// } else if (attr.dataType.equalsIgnoreCase("double")) {
+			// dataTypes[i] = FieldType.DOUBLE;
+			// } else if (attr.dataType.equalsIgnoreCase("string")) {
+			// dataTypes[i] = FieldType.STRING;
+			// }
+
+			dataTypes[i] = FieldType.valueOf(attr.dataType.toUpperCase());
 			attributeNames[i] = attr.name;
 			summaryTypes[i] = attr.summaryType == null ? null : SummaryType
 					.valueOf(attr.summaryType.toUpperCase());

@@ -1,4 +1,4 @@
-package org.gicentre.data.summary;
+package org.gicentre.data;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,6 +11,8 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 
 import javax.swing.tree.DefaultMutableTreeNode;
+
+import org.gicentre.data.summary.SummariseField;
 
 import edu.zjut.common.data.attr.DataField;
 
@@ -458,7 +460,7 @@ public class SummariseNode extends DefaultMutableTreeNode implements
 		Iterator<SummariseField> it = summariseField2Value.keySet().iterator();
 		while (it.hasNext()) {
 			SummariseField summariseField = it.next();
-			if (summariseField.name.equals(summaryFieldName)) {
+			if (summariseField.getName().equals(summaryFieldName)) {
 				return summariseField;
 			}
 		}

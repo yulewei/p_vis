@@ -3,7 +3,7 @@ package org.gicentre.treemaps;
 import java.awt.geom.Point2D;
 import java.util.Iterator;
 
-import org.gicentre.data.summary.SummariseNode;
+import org.gicentre.data.SummariseNode;
 import org.gicentre.treemappa.TreeMapNode;
 
 public class TreemapSummaryNode extends TreeMapNode{

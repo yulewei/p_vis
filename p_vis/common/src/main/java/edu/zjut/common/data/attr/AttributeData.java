@@ -2,15 +2,15 @@ package edu.zjut.common.data.attr;
 
 public class AttributeData {
 
-	private DataField[] feilds;
+	private DataField[] fields;
 	private DimensionField[] dimensionFeilds;
 	private MeasureField[] measureFeilds;
 
 	private String[] dimensionNames;
 	private String[] measureNames;
 
-	private Object[] dimensions;
-	private Object[] measures;
+	private Object[][] dimensions;
+	private Object[][] measures;
 
 	private DimensionField observationFeild;
 	private String[] observationNames;
@@ -21,7 +21,7 @@ public class AttributeData {
 	private Object[][] columnArrays;
 
 	public AttributeData(DataField[] feilds, Object[][] columnArrays) {
-		this.feilds = feilds;
+		this.fields = feilds;
 		this.columnArrays = columnArrays;
 
 		// 提取维度部分
@@ -37,19 +37,19 @@ public class AttributeData {
 	private void initDimensions() {
 
 		int len = 0;
-		for (int i = 0; i < feilds.length; i++) {
-			if (feilds[i] instanceof DimensionField)
+		for (int i = 0; i < fields.length; i++) {
+			if (fields[i] instanceof DimensionField)
 				len++;
 		}
 
 		dimensionFeilds = new DimensionField[len];
-		for (int i = 0, k = 0; i < feilds.length; i++) {
-			if (feilds[i] instanceof DimensionField)
-				dimensionFeilds[k++] = (DimensionField) feilds[i];
+		for (int i = 0, k = 0; i < fields.length; i++) {
+			if (fields[i] instanceof DimensionField)
+				dimensionFeilds[k++] = (DimensionField) fields[i];
 		}
 
 		dimensionNames = new String[len];
-		dimensions = new Object[len];
+		dimensions = new Object[len][];
 		for (int i = 0; i < len; i++) {
 			dimensionNames[i] = dimensionFeilds[i].getName();
 
@@ -69,14 +69,14 @@ public class AttributeData {
 	 */
 	private void initMeasures() {
 		int len = 0;
-		for (int i = 0; i < feilds.length; i++) {
-			if (feilds[i] instanceof MeasureField)
+		for (int i = 0; i < fields.length; i++) {
+			if (fields[i] instanceof MeasureField)
 				len++;
 		}
 		measureFeilds = new MeasureField[len];
-		for (int i = 0, k = 0; i < feilds.length; i++) {
-			if (feilds[i] instanceof MeasureField)
-				measureFeilds[k++] = (MeasureField) feilds[i];
+		for (int i = 0, k = 0; i < fields.length; i++) {
+			if (fields[i] instanceof MeasureField)
+				measureFeilds[k++] = (MeasureField) fields[i];
 		}
 
 		measureNames = new String[len];
@@ -84,7 +84,7 @@ public class AttributeData {
 			measureNames[i] = measureFeilds[i].getName();
 		}
 
-		measures = new Object[len];
+		measures = new Object[len][];
 		for (int i = 0; i < len; i++) {
 			int index = measureFeilds[i].getColIdx();
 			measures[i] = columnArrays[index];
@@ -92,7 +92,7 @@ public class AttributeData {
 	}
 
 	public DataField[] getFeilds() {
-		return feilds;
+		return fields;
 	}
 
 	public Object[][] getColumnArrays() {
@@ -131,11 +131,11 @@ public class AttributeData {
 		return dimensionNames;
 	}
 
-	public Object[] getDimensions() {
+	public Object[][] getDimensions() {
 		return dimensions;
 	}
 
-	public Object[] getMeasures() {
+	public Object[][] getMeasures() {
 		return measures;
 	}
 
@@ -143,43 +143,93 @@ public class AttributeData {
 		return columnArrays[col];
 	}
 
+	public Object[][] getRowArrays() {
+		return transformRowArrays(fields, columnArrays);
+	}
+
+	public Object[][] getMeasureRowArrays() {
+		return transformRowArrays(measureFeilds, measures);
+	}
+
+	public Object[][] getDimensionRowArrays() {
+		return transformRowArrays(dimensionFeilds, dimensions);
+	}
+
+	private Object[][] transformRowArrays(DataField[] fields,
+			Object[][] columnArrays) {
+		int colSize = columnArrays.length;
+		int rowSize = columnArrays[0].length;
+
+		Object[][] rowArrays = new Object[rowSize][];
+		for (int row = 0; row < rowSize; row++) {
+			Object[] values = new Object[colSize];
+			for (int col = 0; col < colSize; col++) {
+				switch (fields[col].getFieldType()) {
+				case ID:
+				case INT:
+					values[col] = ((Integer[]) columnArrays[col])[row];
+					break;
+				case STRING:
+					values[col] = ((String[]) columnArrays[col])[row];
+					break;
+				case DOUBLE:
+					values[col] = ((Double[]) columnArrays[col])[row];
+					break;
+				}
+			}
+			rowArrays[row] = values;
+		}
+
+		return rowArrays;
+	}
+
+	public double[][] getMeasureRowsAsDouble() {
+		Object[][] measureRows = transformRowArrays(measureFeilds, measures);
+
+		double[][] doubleRows = new double[measureRows.length][];
+		for (int i = 0; i < measureRows.length; i++) {
+			double[] row = new double[measureRows[i].length];
+			for (int j = 0; j < measureRows[i].length; j++) {
+				switch (measureFeilds[j].getFieldType()) {
+				case DOUBLE:
+					row[j] = (double) measureRows[i][j];
+					break;
+				case INT:
+					row[j] = (int) measureRows[i][j];
+					break;
+				}
+			}
+			doubleRows[i] = row;
+		}
+
+		return doubleRows;
+	}
+
 	public double[] getMeasureColumnAsDouble(int col) {
-		Object measure = columnArrays[measureFeilds[col].getColIdx()];
-		// because it is a string array of variable names
-		double[] doubleData = null;
-		if (measure instanceof double[]) {
-			doubleData = (double[]) measure;
-		} else if (measure instanceof int[]) {
-			int[] intData = (int[]) measure;
-			doubleData = new double[intData.length];
+		Object[] measure = measures[col];
+
+		Double[] doubleData = null;
+		switch (measureFeilds[col].getFieldType()) {
+		case DOUBLE:
+			doubleData = (Double[]) measure;
+			break;
+		case INT:
+			Integer[] intData = (Integer[]) measure;
+			doubleData = new Double[intData.length];
 			for (int i = 0; i < intData.length; i++) {
 				if (intData[i] == Integer.MIN_VALUE) {
 					doubleData[i] = Double.NaN;
 				} else {
-					doubleData[i] = intData[i];
+					doubleData[i] = Double.valueOf(intData[i]);
 				}
-			} // next i
-		} else {
-			throw new IllegalArgumentException(
-					"Unable to parse values in column " + col + " as a number");
+			}
+			break;
 		}
-		return doubleData;
-	}
 
-	public double getMeasureValueAsDouble(int col, int row) {
-		Object measure = columnArrays[measureFeilds[col].getColIdx()];
-		double[] doubleData = null;
-		double doubleVal = Double.NaN;
-		if (measure instanceof double[]) {
-			doubleData = (double[]) measure;
-			doubleVal = doubleData[row];
-		} else if (measure instanceof int[]) {
-			int[] intData = (int[]) measure;
-			doubleVal = intData[row];
-		} else {
-			throw new IllegalArgumentException(
-					"Unable to parse values in column " + col + " as a number");
+		double[] data = new double[doubleData.length];
+		for (int i = 0; i < doubleData.length; i++) {
+			data[i] = doubleData[i];
 		}
-		return doubleVal;
+		return data;
 	}
 }

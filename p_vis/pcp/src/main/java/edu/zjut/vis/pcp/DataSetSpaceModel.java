@@ -2,6 +2,7 @@ package edu.zjut.vis.pcp;
 
 import edu.zjut.common.data.DataSetForApps;
 import edu.zjut.common.data.attr.AttributeData;
+import edu.zjut.common.data.attr.MeasureField;
 
 import java.util.Vector;
 
@@ -47,26 +48,32 @@ public class DataSetSpaceModel extends SimpleParallelSpaceModel {
 		int numDimensions = attrData.getNumMeasures();
 		int numObservations = attrData.getNumObservations();
 
-		String[] numericAttributeNames = attrData.getMeasureNames();
+		MeasureField[] measureFeilds = attrData.getMeasureFeilds();
+		String[] measureNames = attrData.getMeasureNames();
 		String[] observationNames = attrData.getObservationNames();
 
 		this.initNumDimensions(numDimensions);
-		this.setAxisLabels(numericAttributeNames);
+		this.setAxisLabels(measureNames);
 
-		for (int i = 0; i < numObservations; i++) {
-			float[] dataVals = new float[numDimensions];
-			Object[] numericArrays = attrData.getMeasures();
-			for (int j = 0; j < numDimensions; j++) {
-				Object colum = numericArrays[j];
-				if (colum instanceof double[]) {
-					double[] someDoubles = (double[]) colum;
-					dataVals[j] = (float) someDoubles[i];
-				} else if (colum instanceof int[]) {
-					int[] someInts = (int[]) colum;
-					dataVals[j] = someInts[i];
-				}
-			}
-			this.addRecord(dataVals, observationNames[i]);
+//		for (int i = 0; i < numObservations; i++) {
+//			float[] dataVals = new float[numDimensions];
+//			Object[] numericArrays = attrData.getMeasures();
+//			for (int j = 0; j < numDimensions; j++) {
+//				Object colum = numericArrays[j];
+//				if (colum instanceof Double[]) {
+//					Double[] someDoubles = (Double[]) colum;
+//					dataVals[j] = (float) (double) someDoubles[i];
+//				} else if (colum instanceof Integer[]) {
+//					Integer[] someInts = (Integer[]) colum;
+//					dataVals[j] = (float) (int) someInts[i];
+//				}
+//			}
+//			this.addRecord(dataVals, observationNames[i]);
+//		}
+
+		double[][] rowArrays = attrData.getMeasureRowsAsDouble();
+		for (int i = 0; i < rowArrays.length; i++) {
+			this.addRecord(rowArrays[i], observationNames[i]);
 		}
 	}
 

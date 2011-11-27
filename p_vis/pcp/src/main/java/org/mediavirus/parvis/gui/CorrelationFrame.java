@@ -196,12 +196,12 @@ public class CorrelationFrame extends javax.swing.JFrame {
                 
         int s1 = slider1.getValue();
         int s2 = slider2.getValue();
-        float smin = (Math.min(s1,s2) - 50) / 50.0f;
-        float smax = (Math.max(s1,s2) - 50) / 50.0f;
+        double smin = (Math.min(s1,s2) - 50) / 50.0f;
+        double smax = (Math.max(s1,s2) - 50) / 50.0f;
         
         for (int i=0; i<brush.getNumValues(); i++){
-            float val1 = (parent.getValue(i, axis1) - parent.getAxisOffset(axis1)) / parent.getAxisScale(axis1);
-            float val2 = (parent.getValue(i, axis2) - parent.getAxisOffset(axis2)) / parent.getAxisScale(axis2);
+        	double val1 = (parent.getValue(i, axis1) - parent.getAxisOffset(axis1)) / parent.getAxisScale(axis1);
+        	double val2 = (parent.getValue(i, axis2) - parent.getAxisOffset(axis2)) / parent.getAxisScale(axis2);
             
             float bval = 0.0f;
             if (((val1 - val2) >= smin) && ((val1 - val2) <= smax)) bval = 1.0f;

@@ -1,5 +1,5 @@
 package edu.zjut.common.color;
 
-public enum ColourScaling {
+public enum ColorScaling {
 	LIN, LOG
 }
