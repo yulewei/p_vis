@@ -62,49 +62,18 @@ public class TreemapStateGui extends TreemapState {
 			int numOrderStates, int numSizeStates, int numColourStates,
 			List<DataField> hierFields, List<SummariseField> sumFields,
 			List<Layout> layouts) {
-		this(applet, x, y, font, numOrderStates, numSizeStates,
-				numColourStates, hierFields, new ArrayList<SummariseField>(
-						sumFields), new ArrayList<SummariseField>(sumFields),
+		this(applet, x, y, font, hierFields, new ArrayList<SummariseField>(
+				sumFields), new ArrayList<SummariseField>(sumFields),
 				new ArrayList<SummariseField>(sumFields), layouts);
 	}
 
-	/**
-	 * Constructor
-	 * 
-	 * @param applet
-	 *            Main processing sketch
-	 * @param x
-	 * @param y
-	 * @param font
-	 * @param numOrderStates
-	 *            Number of order dimensions (e.g. 1 for only 1D orders, 2 for
-	 *            2D orders,... - if supported by other classes)
-	 * @param numSizeStates
-	 *            Number of size dimensions (e.g. 2 for 2D sizes - if supported
-	 *            by other classes)
-	 * @param numColourStates
-	 *            Number of colour dimensions (e.g. 2 for lightness and
-	 *            saturation - if supported by other classes)
-	 * @param allowedHierarchyFields
-	 *            All the data variables offered by the GUI for the hierarchy
-	 * @param allowedOrderFields
-	 *            All the summary variables offered by the GUI for orders
-	 * @param allowedSizeFields
-	 *            All the summary variables offered by the GUI for sizes
-	 * @param allowedColourFields
-	 *            All the summary variables offered by the GUI for colours
-	 * @param allowedLayouts
-	 *            All the layouts that are offered in the GUI
-	 */
 	public TreemapStateGui(PApplet applet, int x, int y, PFont font,
-			int numOrderStates, int numSizeStates, int numColourStates,
 			List<DataField> allowedHierarchyFields,
 			List<SummariseField> allowedOrderFields,
 			List<SummariseField> allowedSizeFields,
 			List<SummariseField> allowedColourFields,
 			List<Layout> allowedLayouts) {
-		super(numOrderStates, numSizeStates, numColourStates,
-				allowedHierarchyFields, allowedOrderFields, allowedSizeFields,
+		super(allowedHierarchyFields, allowedOrderFields, allowedSizeFields,
 				allowedColourFields, allowedLayouts);
 		this.x = x;
 		this.y = y;
@@ -405,8 +374,8 @@ public class TreemapStateGui extends TreemapState {
 				} else {
 					applet.fill(80);
 				}
-				applet.text(this.hierFields[col - 1].getName(), x
-						+ (int) r.getX(), y + r.y);
+				applet.text(this.hierFields[col - 1].getName(),
+						x + (int) r.getX(), y + r.y);
 
 				for (int j = 0; j < sizeFields.length; j++) {
 					r = sizeRectangles[j][col];
@@ -594,29 +563,28 @@ public class TreemapStateGui extends TreemapState {
 			// with left/right mouse button)
 			for (int i = 1; i < hierFields.length + 1; i++) {
 				if (hierarchyRectangles[i].contains(mouseX, mouseY)) {
-					int idx = allowedHierarchyFields
-							.indexOf(hierFields[i - 1]);
+					int idx = allowedHierFields.indexOf(hierFields[i - 1]);
 					if (idx == -1) {
 						idx = 0;
 					}
 					if (applet.mouseEvent.getButton() == MouseEvent.BUTTON1) {
 						idx++;
-						if (idx > allowedHierarchyFields.size() - 1) {
+						if (idx > allowedHierFields.size() - 1) {
 							idx = 0;
 						}
 					} else if (applet.mouseEvent.getButton() == MouseEvent.BUTTON3) {
 						idx--;
 						if (idx < 0) {
-							idx = allowedHierarchyFields.size() - 1;
+							idx = allowedHierFields.size() - 1;
 						}
 					}
-					hierFields[i - 1] = allowedHierarchyFields.get(idx);
+					hierFields[i - 1] = allowedHierFields.get(idx);
 
 					// check filter value is valid for this variable - otherwise
 					// set to null (<all>)
 					if (filterValues[i - 1] != null
-							&& !hierFields[i - 1].getOrderValues()
-									.contains(filterValues[i - 1])) {
+							&& !hierFields[i - 1].getOrderValues().contains(
+									filterValues[i - 1])) {
 						filterValues[i - 1] = null;
 					}
 
@@ -629,11 +597,11 @@ public class TreemapStateGui extends TreemapState {
 			// with left/right mouse button)
 			for (int j = 0; j < orderFields.length; j++) {
 				for (int i = 1; i < hierFields.length + 1; i++) { // use
-																		// hierarchyFields.length,
-																		// because
-																		// it's
-																		// per
-																		// level
+																	// hierarchyFields.length,
+																	// because
+																	// it's
+																	// per
+																	// level
 					if (orderRectangles[j][i].contains(mouseX, mouseY)) {
 						int idx = allowedOrderFields
 								.indexOf(orderFields[j][i - 1]);
@@ -662,11 +630,11 @@ public class TreemapStateGui extends TreemapState {
 			// left/right mouse button)
 			for (int j = 0; j < sizeFields.length; j++) {
 				for (int i = 1; i < hierFields.length + 1; i++) { // use
-																		// hierarchyFields.length,
-																		// because
-																		// it's
-																		// per
-																		// level
+																	// hierarchyFields.length,
+																	// because
+																	// it's
+																	// per
+																	// level
 					if (sizeRectangles[j][i].contains(mouseX, mouseY)) {
 						int idx = allowedSizeFields
 								.indexOf(sizeFields[j][i - 1]);
@@ -695,11 +663,11 @@ public class TreemapStateGui extends TreemapState {
 			// with left/right mouse button)
 			for (int j = 0; j < colourFields.length; j++) {
 				for (int i = 1; i < hierFields.length + 1; i++) { // use
-																		// hierarchyFields.length,
-																		// because
-																		// it's
-																		// per
-																		// level
+																	// hierarchyFields.length,
+																	// because
+																	// it's
+																	// per
+																	// level
 					if (colourRectangles[j][i].contains(mouseX, mouseY)) {
 						int idx = allowedColourFields
 								.indexOf(colourFields[j][i - 1]);
@@ -887,7 +855,7 @@ public class TreemapStateGui extends TreemapState {
 
 					if (mouseX < filterRectangles[i].getMaxX() - 15) {
 						// clicked on the word, not the x
-					
+
 						Integer idx = hierFields[i - 1].getOrderValues()
 								.indexOf(filterValues[i - 1]);
 
@@ -897,14 +865,12 @@ public class TreemapStateGui extends TreemapState {
 							} else {
 								idx++;
 							}
-							if (idx > hierFields[i - 1].getOrderValues()
-									.size() - 1) {
+							if (idx > hierFields[i - 1].getOrderValues().size() - 1) {
 								idx = null;
 							}
 						} else if ((applet.mouseEvent.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
 							if (idx == -1) {
-								idx = hierFields[i - 1].getOrderValues()
-										.size() - 1;
+								idx = hierFields[i - 1].getOrderValues().size() - 1;
 							} else {
 								idx--;
 							}
@@ -951,9 +917,8 @@ public class TreemapStateGui extends TreemapState {
 						Layout defaultLayout = null;
 						// if the first, use the top of the allowed lists
 						if (i == 0) {
-							if (!allowedHierarchyFields.isEmpty()) {
-								defaultHierField = allowedHierarchyFields
-										.get(0);
+							if (!allowedHierFields.isEmpty()) {
+								defaultHierField = allowedHierFields.get(0);
 							}
 							if (!allowedOrderFields.isEmpty()) {
 								for (int j = 0; j < orderFields.length; j++) {

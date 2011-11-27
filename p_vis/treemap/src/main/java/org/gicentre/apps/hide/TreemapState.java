@@ -1,13 +1,7 @@
 package org.gicentre.apps.hide;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,13 +37,13 @@ public class TreemapState implements Hive {
 	protected Layout[] layouts;
 	protected Object[] filterValues;
 
-	protected List<DataField> allowedHierarchyFields;
+	protected List<DataField> allowedHierFields;
 	protected List<SummariseField> allowedSizeFields;
 	protected List<SummariseField> allowedOrderFields;
 	protected List<SummariseField> allowedColourFields;
 	protected List<Layout> allowedLayouts;
 
-	protected Map<String, DataField> hierarchyFieldsLookup;
+	protected Map<String, DataField> hierFieldsLookup;
 	protected Map<String, SummariseField> sizeFieldsLookup;
 	protected Map<String, SummariseField> orderFieldsLookup;
 	protected Map<String, SummariseField> colourFieldsLookup;
@@ -64,215 +58,26 @@ public class TreemapState implements Hive {
 	protected boolean appearanceHasChanged = false;
 
 	// Marker variable that means use default
-	//
 	protected SummariseNull summariseNull = null;
 
 	// Hashmap of the appearance states for each appearance type (see below)
 	protected HashMap<AppearanceType, Integer>[] appearanceValues;
 
-	// Appearance aspects
-	static public enum AppearanceType {
-		SHOW_LABELS, LABEL_SIZE, AUTOSIZE_LABELS, LABEL_OPACITY, ALLOW_VERTICAL_LABELS, PADDING, BORDER_WIDTH, INCLUDE_NULLS;
-
-		public String toString() {
-			switch (this) {
-			case PADDING:
-				return "Padding";
-			case LABEL_SIZE:
-				return "Label size";
-			case SHOW_LABELS:
-				return "Show labels";
-			case ALLOW_VERTICAL_LABELS:
-				return "Allow vertical labels";
-			case INCLUDE_NULLS:
-				return "Include nodata";
-			case LABEL_OPACITY:
-				return "Label opacity";
-			case AUTOSIZE_LABELS:
-				return "Autosize text";
-			case BORDER_WIDTH:
-				return "Outlines";
-			}
-			return null;
-		}
-
-		/**
-		 * Returns true if min/max is 0 and 1 (thus should be displayed as a
-		 * checkbox)
-		 * 
-		 * @return
-		 */
-		public boolean checkBox() {
-			return (this.minValue() == 0 && this.maxValue() == 1);
-		}
-
-		/**
-		 * Default values
-		 * 
-		 * @return
-		 */
-		public int defaultValue() {
-			switch (this) {
-			case PADDING:
-				return 1;
-			case ALLOW_VERTICAL_LABELS:
-				return 0;
-			case LABEL_SIZE:
-				return 20;
-			case SHOW_LABELS:
-				return 1;
-			case INCLUDE_NULLS:
-				return 1;
-			case LABEL_OPACITY:
-				return 180;
-			case AUTOSIZE_LABELS:
-				return 1;
-			case BORDER_WIDTH:
-				return 1;
-			}
-			return 0;
-		}
-
-		/**
-		 * Min values
-		 * 
-		 * @return
-		 */
-		public int minValue() {
-			switch (this) {
-			case PADDING:
-				return 0;
-			case LABEL_SIZE:
-				return 6;
-			case SHOW_LABELS:
-				return 0;
-			case ALLOW_VERTICAL_LABELS:
-				return 0;
-			case INCLUDE_NULLS:
-				return 0;
-			case LABEL_OPACITY:
-				return 20;
-			case AUTOSIZE_LABELS:
-				return 0;
-			case BORDER_WIDTH:
-				return 0;
-			}
-			return 0;
-		}
-
-		/**
-		 * Max values
-		 * 
-		 * @return
-		 */
-		public int maxValue() {
-			switch (this) {
-			case PADDING:
-				return 9999;
-			case LABEL_SIZE:
-				return 9999;
-			case SHOW_LABELS:
-				return 1;
-			case ALLOW_VERTICAL_LABELS:
-				return 1;
-			case INCLUDE_NULLS:
-				return 1;
-			case LABEL_OPACITY:
-				return 255;
-			case AUTOSIZE_LABELS:
-				return 1;
-			case BORDER_WIDTH:
-				return 20;
-			}
-			return 0;
-		}
-
-		public int incrementSize() {
-			switch (this) {
-			case PADDING:
-				return 1;
-			case LABEL_SIZE:
-				return 1;
-			case SHOW_LABELS:
-				return 1;
-			case ALLOW_VERTICAL_LABELS:
-				return 1;
-			case INCLUDE_NULLS:
-				return 1;
-			case LABEL_OPACITY:
-				return 10;
-			case AUTOSIZE_LABELS:
-				return 1;
-			case BORDER_WIDTH:
-				return 1;
-			}
-			return 0;
-		}
-
-	}
-
-	// Layouts
-	static public enum Layout {
-		ONE_DIM_LEFT_RIGHT, ONE_DIM_TOP_BOTTOM, ONE_DIM_ORDERED_SQUARIFIED, ONE_DIM_STRIP, TWO_DIMENSIONAL, ABS_POSITION;
-
-		public String toString() {
-			if (this.equals(ONE_DIM_LEFT_RIGHT)) {
-				return "LeftToRight";
-			} else if (this.equals(ONE_DIM_TOP_BOTTOM)) {
-				return "TopToBottom";
-			} else if (this.equals(ONE_DIM_ORDERED_SQUARIFIED)) {
-				return "OrderedSq";
-			} else if (this.equals(ONE_DIM_STRIP)) {
-				return "RowByRow";
-			} else if (this.equals(TWO_DIMENSIONAL)) {
-				return "2dFill";
-			} else if (this.equals(ABS_POSITION)) {
-				return "2dPlot";
-			} else
-				return null;
-		}
-	}
-
-	/**
-	 * Constructor
-	 * 
-	 * 
-	 * @param numOrderStates
-	 *            Number of order dimensions (e.g. 1 for only 1D orders, 2 for
-	 *            2D orders,... - if supported by other classes)
-	 * @param numSizeStates
-	 *            Number of size dimensions (e.g. 2 for 2D sizes - if supported
-	 *            by other classes)
-	 * @param numColourStates
-	 *            Number of colour dimensions (e.g. 2 for lightness and
-	 *            saturation - if supported by other classes)
-	 * @param allowedHierarchyFields
-	 *            All the data variables offered by the GUI for the hierarchy
-	 * @param allowedOrderFields
-	 *            All the summary variables offered by the GUI for orders
-	 * @param allowedSizeFields
-	 *            All the summary variables offered by the GUI for sizes
-	 * @param allowedColourFields
-	 *            All the summary variables offered by the GUI for colours
-	 * @param allowedLayouts
-	 *            All the layouts that are offered in the GUI
-	 */
-	public TreemapState(int numOrderStates, int numSizeStates,
-			int numColourStates, List<DataField> allowedHierarchyFields,
+	public TreemapState(List<DataField> allowedHierarchyFields,
 			List<SummariseField> allowedOrderFields,
 			List<SummariseField> allowedSizeFields,
 			List<SummariseField> allowedColourFields,
 			List<Layout> allowedLayouts) {
-		this.orderFields = new SummariseField[numOrderStates][0];
-		this.sizeFields = new SummariseField[numSizeStates][0];
-		this.colourFields = new SummariseField[numColourStates][0];
+		this.orderFields = new SummariseField[2][0];
+		this.sizeFields = new SummariseField[1][0];
+		this.colourFields = new SummariseField[1][0];
 		this.layouts = new Layout[0];
 		this.filterValues = new Object[0];
 		this.appearanceValues = new HashMap[0];
 
 		this.summariseNull = new SummariseNull("summariseNull");
 
-		this.allowedHierarchyFields = allowedHierarchyFields;
+		this.allowedHierFields = allowedHierarchyFields;
 
 		this.allowedOrderFields = allowedOrderFields;
 		this.allowedOrderFields.remove(null);// cannot have any nulls
@@ -291,10 +96,10 @@ public class TreemapState implements Hive {
 
 		this.allowedLayouts = allowedLayouts;
 
-		hierarchyFieldsLookup = new HashMap<String, DataField>();
+		hierFieldsLookup = new HashMap<String, DataField>();
 		for (DataField dataField : allowedHierarchyFields) {
 			if (dataField != null) {
-				hierarchyFieldsLookup.put(dataField.getName(), dataField);
+				hierFieldsLookup.put(dataField.getName(), dataField);
 			}
 		}
 		orderFieldsLookup = new HashMap<String, SummariseField>();
@@ -363,7 +168,7 @@ public class TreemapState implements Hive {
 	 * @return
 	 */
 	public List<DataField> getAllowedHierarchyFields() {
-		return allowedHierarchyFields;
+		return allowedHierFields;
 	}
 
 	/**
@@ -407,7 +212,7 @@ public class TreemapState implements Hive {
 	 * 
 	 * @return Array of data variables, for each level
 	 */
-	public DataField[] getHierarchyFields() {
+	public DataField[] getHierFields() {
 		return hierFields;
 	}
 
@@ -447,7 +252,7 @@ public class TreemapState implements Hive {
 	 *         hierarchy)
 	 */
 	public Layout[] getLayouts() {
-		return this.layouts;
+		return layouts;
 	}
 
 	/**
@@ -456,7 +261,7 @@ public class TreemapState implements Hive {
 	 * @return
 	 */
 	public boolean isEmpty() {
-		return this.hierFields.length == 0;
+		return hierFields.length == 0;
 	}
 
 	/**
@@ -474,71 +279,76 @@ public class TreemapState implements Hive {
 	public void swap(int level1, int level2) {
 		level1--;
 		level2--;
-		if (level1 != level2 && level1 < this.hierFields.length
-				&& level2 < this.hierFields.length) {
 
-			// copy the state
-			DataField[] hierarchyFields = new DataField[this.hierFields.length];
-			SummariseField[][] sizeFields = new SummariseField[this.sizeFields.length][this.hierFields.length];
-			SummariseField[][] orderFields = new SummariseField[this.orderFields.length][this.hierFields.length];
-			SummariseField[][] colourFields = new SummariseField[this.colourFields.length][this.hierFields.length];
-			Layout[] layouts = new Layout[this.hierFields.length];
-			HashMap<AppearanceType, Integer>[] appearanceValues = new HashMap[this.hierFields.length];
-			Object[] filterValues = new Object[this.hierFields.length];
-			for (int i = 0; i < this.hierFields.length; i++) {
-				hierarchyFields[i] = this.hierFields[i];
-				for (int j = 0; j < sizeFields.length; j++) {
-					sizeFields[j][i] = this.sizeFields[j][i];
-				}
-				for (int j = 0; j < orderFields.length; j++) {
-					orderFields[j][i] = this.orderFields[j][i];
-				}
-				for (int j = 0; j < colourFields.length; j++) {
-					colourFields[j][i] = this.colourFields[j][i];
-				}
-				layouts[i] = this.layouts[i];
-				appearanceValues[i] = this.appearanceValues[i];
-				filterValues[i] = this.filterValues[i];
-			}
-			hierarchyFields[level1] = this.hierFields[level2];
-			for (int j = 0; j < sizeFields.length; j++) {
-				sizeFields[j][level1] = this.sizeFields[j][level2];
-			}
-			for (int j = 0; j < orderFields.length; j++) {
-				orderFields[j][level1] = this.orderFields[j][level2];
-			}
-			for (int j = 0; j < colourFields.length; j++) {
-				colourFields[j][level1] = this.colourFields[j][level2];
-			}
-			layouts[level1] = this.layouts[level2];
-			appearanceValues[level1] = this.appearanceValues[level2];
-			filterValues[level1] = this.filterValues[level2];
+		int length = hierFields.length;
 
-			hierarchyFields[level2] = this.hierFields[level1];
-			for (int j = 0; j < sizeFields.length; j++) {
-				sizeFields[j][level2] = this.sizeFields[j][level1];
-			}
-			for (int j = 0; j < orderFields.length; j++) {
-				orderFields[j][level2] = this.orderFields[j][level1];
-			}
-			for (int j = 0; j < colourFields.length; j++) {
-				colourFields[j][level2] = this.colourFields[j][level1];
-			}
-			layouts[level2] = this.layouts[level1];
-			appearanceValues[level2] = this.appearanceValues[level1];
-			filterValues[level2] = this.filterValues[level1];
-
-			this.hierFields = hierarchyFields;
-			this.sizeFields = sizeFields;
-			this.orderFields = orderFields;
-			this.colourFields = colourFields;
-			this.layouts = layouts;
-			this.appearanceValues = appearanceValues;
-			this.filterValues = filterValues;
-		} else {
+		if (level1 == level2 || level1 >= length || level2 >= length) {
 			System.err.println("Cannot cut swap levels " + level1 + " and "
 					+ level2);
+			return;
 		}
+
+		// copy the state
+		DataField[] newHierFields = new DataField[length];
+		SummariseField[][] newSizeFields = new SummariseField[sizeFields.length][length];
+		SummariseField[][] newOrderFields = new SummariseField[orderFields.length][length];
+		SummariseField[][] newColourFields = new SummariseField[colourFields.length][length];
+		Layout[] newLayouts = new Layout[length];
+		HashMap<AppearanceType, Integer>[] newAppearanceValues = new HashMap[length];
+		Object[] newFilterValues = new Object[length];
+		for (int i = 0; i < length; i++) {
+			newHierFields[i] = hierFields[i];
+			for (int j = 0; j < newSizeFields.length; j++) {
+				newSizeFields[j][i] = sizeFields[j][i];
+			}
+			for (int j = 0; j < newOrderFields.length; j++) {
+				newOrderFields[j][i] = orderFields[j][i];
+			}
+			for (int j = 0; j < newColourFields.length; j++) {
+				newColourFields[j][i] = colourFields[j][i];
+			}
+			newLayouts[i] = layouts[i];
+			newAppearanceValues[i] = appearanceValues[i];
+			newFilterValues[i] = filterValues[i];
+		}
+
+		// ½»»»level1
+		newHierFields[level1] = hierFields[level2];
+		for (int j = 0; j < newSizeFields.length; j++) {
+			newSizeFields[j][level1] = sizeFields[j][level2];
+		}
+		for (int j = 0; j < newOrderFields.length; j++) {
+			newOrderFields[j][level1] = orderFields[j][level2];
+		}
+		for (int j = 0; j < newColourFields.length; j++) {
+			newColourFields[j][level1] = colourFields[j][level2];
+		}
+		newLayouts[level1] = layouts[level2];
+		newAppearanceValues[level1] = appearanceValues[level2];
+		newFilterValues[level1] = filterValues[level2];
+
+		// ½»»»level2
+		newHierFields[level2] = hierFields[level1];
+		for (int j = 0; j < newSizeFields.length; j++) {
+			newSizeFields[j][level2] = sizeFields[j][level1];
+		}
+		for (int j = 0; j < newOrderFields.length; j++) {
+			newOrderFields[j][level2] = orderFields[j][level1];
+		}
+		for (int j = 0; j < newColourFields.length; j++) {
+			newColourFields[j][level2] = colourFields[j][level1];
+		}
+		newLayouts[level2] = layouts[level1];
+		newAppearanceValues[level2] = appearanceValues[level1];
+		newFilterValues[level2] = filterValues[level1];
+
+		hierFields = newHierFields;
+		sizeFields = newSizeFields;
+		orderFields = newOrderFields;
+		colourFields = newColourFields;
+		layouts = newLayouts;
+		appearanceValues = newAppearanceValues;
+		filterValues = newFilterValues;
 	}
 
 	/**
@@ -548,58 +358,61 @@ public class TreemapState implements Hive {
 	 *            Level to cut
 	 */
 	public void cut(int level) {
-		if (level < this.hierFields.length) {
-			DataField[] hierarchyFields = new DataField[this.hierFields.length - 1];
-			SummariseField[][] sizeFields = new SummariseField[this.sizeFields.length][this.hierFields.length - 1];
-			SummariseField[][] orderFields = new SummariseField[this.orderFields.length][this.hierFields.length - 1];
-			SummariseField[][] colourFields = new SummariseField[this.colourFields.length][this.hierFields.length - 1];
-			HashMap<AppearanceType, Integer>[] appearanceValues = new HashMap[this.hierFields.length - 1];
-			Layout[] layouts = new Layout[this.hierFields.length - 1];
-			Object[] filterValues = new Object[this.hierFields.length - 1];
+		int length = hierFields.length;
 
-			if (this.hierFields.length > 1) {
-				for (int i = 0; i < this.hierFields.length; i++) {
-					if (i < level) {
-						hierarchyFields[i] = this.hierFields[i];
-						for (int j = 0; j < sizeFields.length; j++) {
-							sizeFields[j][i] = this.sizeFields[j][i];
-						}
-						for (int j = 0; j < orderFields.length; j++) {
-							orderFields[j][i] = this.orderFields[j][i];
-						}
-						for (int j = 0; j < colourFields.length; j++) {
-							colourFields[j][i] = this.colourFields[j][i];
-						}
-						layouts[i] = this.layouts[i];
-						appearanceValues[i] = this.appearanceValues[i];
-						filterValues[i] = this.filterValues[i];
-					} else if (i > level) {
-						hierarchyFields[i - 1] = this.hierFields[i];
-						for (int j = 0; j < sizeFields.length; j++) {
-							sizeFields[j][i - 1] = this.sizeFields[j][i];
-						}
-						for (int j = 0; j < orderFields.length; j++) {
-							orderFields[j][i - 1] = this.orderFields[j][i];
-						}
-						for (int j = 0; j < colourFields.length; j++) {
-							colourFields[j][i - 1] = this.colourFields[j][i];
-						}
-						layouts[i - 1] = this.layouts[i];
-						appearanceValues[i - 1] = this.appearanceValues[i];
-						filterValues[i - 1] = this.filterValues[i];
+		if (level >= length) {
+			System.err.println("Cannot cut level " + level);
+			return;
+		}
+
+		DataField[] newHierarchyFields = new DataField[length - 1];
+		SummariseField[][] newSizeFields = new SummariseField[sizeFields.length][length - 1];
+		SummariseField[][] newOrderFields = new SummariseField[orderFields.length][length - 1];
+		SummariseField[][] newColourFields = new SummariseField[colourFields.length][length - 1];
+		HashMap<AppearanceType, Integer>[] newAppearanceValues = new HashMap[length - 1];
+		Layout[] newLayouts = new Layout[length - 1];
+		Object[] newFilterValues = new Object[length - 1];
+
+		if (length > 1) {
+			for (int i = 0; i < length; i++) {
+				if (i < level) {
+					newHierarchyFields[i] = hierFields[i];
+					for (int j = 0; j < newSizeFields.length; j++) {
+						newSizeFields[j][i] = sizeFields[j][i];
 					}
+					for (int j = 0; j < newOrderFields.length; j++) {
+						newOrderFields[j][i] = orderFields[j][i];
+					}
+					for (int j = 0; j < newColourFields.length; j++) {
+						newColourFields[j][i] = colourFields[j][i];
+					}
+					newLayouts[i] = layouts[i];
+					newAppearanceValues[i] = appearanceValues[i];
+					newFilterValues[i] = filterValues[i];
+				} else if (i > level) {
+					newHierarchyFields[i - 1] = hierFields[i];
+					for (int j = 0; j < newSizeFields.length; j++) {
+						newSizeFields[j][i - 1] = sizeFields[j][i];
+					}
+					for (int j = 0; j < newOrderFields.length; j++) {
+						newOrderFields[j][i - 1] = orderFields[j][i];
+					}
+					for (int j = 0; j < newColourFields.length; j++) {
+						newColourFields[j][i - 1] = colourFields[j][i];
+					}
+					newLayouts[i - 1] = layouts[i];
+					newAppearanceValues[i - 1] = appearanceValues[i];
+					newFilterValues[i - 1] = filterValues[i];
 				}
 			}
-			this.hierFields = hierarchyFields;
-			this.sizeFields = sizeFields;
-			this.orderFields = orderFields;
-			this.colourFields = colourFields;
-			this.layouts = layouts;
-			this.filterValues = filterValues;
-			this.appearanceValues = appearanceValues;
-		} else {
-			System.err.println("Cannot cut level " + level);
 		}
+		hierFields = newHierarchyFields;
+		sizeFields = newSizeFields;
+		orderFields = newOrderFields;
+		colourFields = newColourFields;
+		layouts = newLayouts;
+		filterValues = newFilterValues;
+		appearanceValues = newAppearanceValues;
 	}
 
 	/**
@@ -621,95 +434,96 @@ public class TreemapState implements Hive {
 	public void insert(int level, DataField hierarchyField,
 			SummariseField[] orderField, SummariseField[] sizeField,
 			SummariseField[] colourField, Layout layout) {
-		if (level <= this.hierFields.length) {
-			DataField[] hierarchyFields = new DataField[this.hierFields.length + 1];
-			SummariseField[][] sizeFields = new SummariseField[this.sizeFields.length][this.hierFields.length + 1];
-			SummariseField[][] orderFields = new SummariseField[this.orderFields.length][this.hierFields.length + 1];
-			SummariseField[][] colourFields = new SummariseField[this.colourFields.length][this.hierFields.length + 1];
-			Layout[] layouts = new Layout[this.hierFields.length + 1];
-			Object[] filterValues = new Object[this.hierFields.length + 1];
+		int length = hierFields.length;
+		if (level > length) {
+			System.err.println("Cannot cut level " + level);
+			return;
+		}
 
-			HashMap<AppearanceType, Integer>[] appearanceValues = new HashMap[this.hierFields.length + 1];
-			if (this.hierFields.length == 0) {
-				hierarchyFields[0] = hierarchyField;
-				for (int j = 0; j < sizeFields.length; j++) {
-					sizeFields[j][0] = sizeField[j];
+		DataField[] newHierarchyFields = new DataField[length + 1];
+		SummariseField[][] newSizeFields = new SummariseField[sizeFields.length][length + 1];
+		SummariseField[][] newOrderFields = new SummariseField[orderFields.length][length + 1];
+		SummariseField[][] newColourFields = new SummariseField[colourFields.length][length + 1];
+		Layout[] newLayouts = new Layout[length + 1];
+		Object[] newFilterValues = new Object[length + 1];
+
+		HashMap<AppearanceType, Integer>[] newAppearanceValues = new HashMap[length + 1];
+		if (length == 0) {
+			newHierarchyFields[0] = hierarchyField;
+			for (int j = 0; j < newSizeFields.length; j++) {
+				newSizeFields[j][0] = sizeField[j];
+			}
+			for (int j = 0; j < newOrderFields.length; j++) {
+				newOrderFields[j][0] = orderField[j];
+			}
+			for (int j = 0; j < newColourFields.length; j++) {
+				newColourFields[j][0] = colourField[j];
+			}
+			newLayouts[0] = layout;
+			newAppearanceValues[0] = new HashMap<AppearanceType, Integer>();
+			for (AppearanceType appearanceType : AppearanceType.values()) {
+				newAppearanceValues[0].put(appearanceType,
+						appearanceType.defaultValue());
+			}
+			newFilterValues[0] = null;
+		}
+		for (int i = 0; i < newHierarchyFields.length; i++) {
+			if (i < level) {
+				newHierarchyFields[i] = hierFields[i];
+				for (int j = 0; j < newSizeFields.length; j++) {
+					newSizeFields[j][i] = sizeFields[j][i];
 				}
-				for (int j = 0; j < orderFields.length; j++) {
-					orderFields[j][0] = orderField[j];
+				for (int j = 0; j < newOrderFields.length; j++) {
+					newOrderFields[j][i] = orderFields[j][i];
 				}
-				for (int j = 0; j < colourFields.length; j++) {
-					colourFields[j][0] = colourField[j];
+				for (int j = 0; j < newColourFields.length; j++) {
+					newColourFields[j][i] = colourFields[j][i];
 				}
-				layouts[0] = layout;
-				appearanceValues[0] = new HashMap<AppearanceType, Integer>();
+				newLayouts[i] = layouts[i];
+				newAppearanceValues[i] = appearanceValues[i];
+				newFilterValues[i] = filterValues[i];
+			} else if (i == level) {
+				newHierarchyFields[i] = hierarchyField;
+				for (int j = 0; j < newSizeFields.length; j++) {
+					newSizeFields[j][i] = sizeField[j];
+				}
+				for (int j = 0; j < newOrderFields.length; j++) {
+					newOrderFields[j][i] = orderField[j];
+				}
+				for (int j = 0; j < newColourFields.length; j++) {
+					newColourFields[j][i] = colourField[j];
+				}
+				newLayouts[i] = layout;
+				newFilterValues[i] = null;
+				newAppearanceValues[i] = new HashMap<AppearanceType, Integer>();
 				for (AppearanceType appearanceType : AppearanceType.values()) {
-					appearanceValues[0].put(appearanceType,
+					newAppearanceValues[i].put(appearanceType,
 							appearanceType.defaultValue());
 				}
-				filterValues[0] = null;
-			}
-			for (int i = 0; i < hierarchyFields.length; i++) {
-				if (i < level) {
-					hierarchyFields[i] = this.hierFields[i];
-					for (int j = 0; j < sizeFields.length; j++) {
-						sizeFields[j][i] = this.sizeFields[j][i];
-					}
-					for (int j = 0; j < orderFields.length; j++) {
-						orderFields[j][i] = this.orderFields[j][i];
-					}
-					for (int j = 0; j < colourFields.length; j++) {
-						colourFields[j][i] = this.colourFields[j][i];
-					}
-					layouts[i] = this.layouts[i];
-					appearanceValues[i] = this.appearanceValues[i];
-					filterValues[i] = this.filterValues[i];
-				} else if (i == level) {
-					hierarchyFields[i] = hierarchyField;
-					for (int j = 0; j < sizeFields.length; j++) {
-						sizeFields[j][i] = sizeField[j];
-					}
-					for (int j = 0; j < orderFields.length; j++) {
-						orderFields[j][i] = orderField[j];
-					}
-					for (int j = 0; j < colourFields.length; j++) {
-						colourFields[j][i] = colourField[j];
-					}
-					layouts[i] = layout;
-					filterValues[i] = null;
-					appearanceValues[i] = new HashMap<AppearanceType, Integer>();
-					for (AppearanceType appearanceType : AppearanceType
-							.values()) {
-						appearanceValues[i].put(appearanceType,
-								appearanceType.defaultValue());
-					}
 
-				} else {
-					hierarchyFields[i] = this.hierFields[i - 1];
-					for (int j = 0; j < sizeFields.length; j++) {
-						sizeFields[j][i] = this.sizeFields[j][i - 1];
-					}
-					for (int j = 0; j < orderFields.length; j++) {
-						orderFields[j][i] = this.orderFields[j][i - 1];
-					}
-					for (int j = 0; j < colourFields.length; j++) {
-						colourFields[j][i] = this.colourFields[j][i - 1];
-					}
-					layouts[i] = this.layouts[i - 1];
-					appearanceValues[i] = this.appearanceValues[i - 1];
-					filterValues[i] = this.filterValues[i - 1];
+			} else {
+				newHierarchyFields[i] = hierFields[i - 1];
+				for (int j = 0; j < newSizeFields.length; j++) {
+					newSizeFields[j][i] = sizeFields[j][i - 1];
 				}
+				for (int j = 0; j < newOrderFields.length; j++) {
+					newOrderFields[j][i] = orderFields[j][i - 1];
+				}
+				for (int j = 0; j < newColourFields.length; j++) {
+					newColourFields[j][i] = colourFields[j][i - 1];
+				}
+				newLayouts[i] = layouts[i - 1];
+				newAppearanceValues[i] = appearanceValues[i - 1];
+				newFilterValues[i] = filterValues[i - 1];
 			}
-			this.hierFields = hierarchyFields;
-			this.sizeFields = sizeFields;
-			this.orderFields = orderFields;
-			this.colourFields = colourFields;
-			this.layouts = layouts;
-			this.appearanceValues = appearanceValues;
-			this.filterValues = filterValues;
-		} else {
-			System.err.println("Cannot cut level " + level);
 		}
+		hierFields = newHierarchyFields;
+		sizeFields = newSizeFields;
+		orderFields = newOrderFields;
+		colourFields = newColourFields;
+		layouts = newLayouts;
+		appearanceValues = newAppearanceValues;
+		filterValues = newFilterValues;
 	}
 
 	/**
@@ -894,7 +708,7 @@ public class TreemapState implements Hive {
 							.println("The hierarchy can only have variables in.");
 					return false;
 				}
-				DataField dataField = hierarchyFieldsLookup.get(var.getName());
+				DataField dataField = hierFieldsLookup.get(var.getName());
 				if (dataField == null) {
 					System.err.println(var.getName() + " not found for "
 							+ expression);
@@ -1106,21 +920,20 @@ public class TreemapState implements Hive {
 						}
 					}
 				}
-
 			}
 
 			if (expression.getType() == Type.S_ORDER
 					|| expression.getType() == Type.O_ORDER) {
-				this.orderFields = newFields;
-				this.orderHasChanged = true;
+				orderFields = newFields;
+				orderHasChanged = true;
 			} else if (expression.getType() == Type.S_SIZE
 					|| expression.getType() == Type.O_SIZE) {
-				this.sizeFields = newFields;
-				this.sizeHasChanged = true;
+				sizeFields = newFields;
+				sizeHasChanged = true;
 			} else if (expression.getType() == Type.S_COLOR
 					|| expression.getType() == Type.O_COLOR) {
-				this.colourFields = newFields;
-				this.colourHasChanged = true;
+				colourFields = newFields;
+				colourHasChanged = true;
 			}
 
 			return true;
@@ -1131,7 +944,7 @@ public class TreemapState implements Hive {
 				|| expression.getType() == Type.O_LAYOUT) {
 			int startLevel = expression.getLevel() - 1;
 
-			Layout[] oldLayouts = this.layouts;
+			Layout[] oldLayouts = layouts;
 
 			if (startLevel + expression.getVarGroups().size() > oldLayouts.length) {
 				System.err.println("Hierarchy not deep enough");
@@ -1191,7 +1004,7 @@ public class TreemapState implements Hive {
 				|| expression.getType() == Type.O_FOCUS) {
 
 			List<String> pathElements = expression.getPath().getValues();
-			for (int i = 0; i < this.hierFields.length; i++) {
+			for (int i = 0; i < hierFields.length; i++) {
 				if (i >= pathElements.size() || pathElements.get(i).equals("*")) {
 					filterValues[i] = null;
 				} else {
@@ -1376,7 +1189,7 @@ public class TreemapState implements Hive {
 				if (this.filterValues[i] == null) {
 					path.addWildcard();
 				} else {
-					path.addNode(this.filterValues[i].toString());
+					path.addNode(filterValues[i].toString());
 				}
 			}
 			expression.setPath(path);
@@ -1397,58 +1210,4 @@ public class TreemapState implements Hive {
 		colourFields = new SummariseField[colourFields.length][0];
 		layouts = new Layout[0];
 	}
-
-	/**
-	 * Saves the state of the appearance values (not captured in HiVE) to file.
-	 * This can be subsequently restored
-	 * 
-	 * @param filename
-	 */
-	public void outputAppearanceStateToFile(String filename) throws IOException {
-		BufferedWriter bw = new BufferedWriter(new PrintWriter(filename));
-		bw.write("//Appearance state for HiDE, written on "
-				+ new SimpleDateFormat("yyyy MM dd hh:00")
-						.format(GregorianCalendar.getInstance().getTime())
-				+ " by " + System.getProperty("user.name") + "\n");
-		for (int i = 0; i < hierFields.length; i++) {
-			for (AppearanceType appearanceType : AppearanceType.values()) {
-				bw.write(i + "\t" + appearanceType.name() + "\t"
-						+ appearanceValues[i].get(appearanceType) + "\n");
-			}
-		}
-		bw.close();
-		System.out.println("Saved appearance to " + filename);
-	}
-
-	/**
-	 * Restores the appearance values
-	 * 
-	 * @param filename
-	 */
-	public void inputAppearanceStateFromFile(BufferedReader br)
-			throws IOException, NumberFormatException {
-		// make a copy
-		HashMap<AppearanceType, Integer>[] appearanceValues = this.appearanceValues;
-		while (br.ready()) {
-			String line = br.readLine();
-			if (!line.startsWith("//")) {
-				String[] toks = line.split("\t");
-				if (toks.length == 3) {
-					int level = Integer.parseInt(toks[0]);
-					AppearanceType appearanceType = AppearanceType
-							.valueOf(toks[1]);
-					int value = Integer.parseInt(toks[2]);
-					// try to restore
-					if (level < appearanceValues.length) {
-						appearanceValues[level].put(appearanceType, value);
-					}
-				}
-			}
-		}
-		br.close();
-		this.appearanceValues = appearanceValues;
-		this.hierHasChanged = true;
-		this.appearanceHasChanged = true;
-	}
-
 }

@@ -12,8 +12,17 @@ import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
+import edu.zjut.common.data.attr.DimensionField;
+import edu.zjut.common.data.attr.MeasureField;
+
 public class FieldListCell<DataField> extends JComponent implements
 		ListCellRenderer<DataField> {
+
+	Color green = new Color(140, 200, 175, 200);
+	Color darkGreen = new Color(135, 170, 135, 200);
+
+	Color blue = new Color(175, 200, 230, 200);
+	Color darkBlue = new Color(135, 160, 180, 200);
 
 	Color color;
 	Color selectedColor;
@@ -60,6 +69,16 @@ public class FieldListCell<DataField> extends JComponent implements
 	public Component getListCellRendererComponent(
 			JList<? extends DataField> list, DataField value, int index,
 			boolean isSelected, boolean cellHasFocus) {
+		if (value instanceof DimensionField) {
+			color = green;
+			selectedColor = darkGreen;
+		}
+
+		if (value instanceof MeasureField) {
+			color = blue;
+			selectedColor = darkBlue;
+		}
+
 		this.text = value.toString();
 		this.isSelected = isSelected;
 		return this;

@@ -11,7 +11,7 @@ import javax.swing.TransferHandler;
 
 import edu.zjut.common.data.attr.DataField;
 
-public class FieldTransferHandler extends TransferHandler {
+class FieldTransferHandler extends TransferHandler {
 
 	private int fieldType = FieldList.MEASURE;
 
@@ -27,7 +27,7 @@ public class FieldTransferHandler extends TransferHandler {
 		FieldList<DataField> list = (FieldList<DataField>) comp;
 		List<DataField> values = list.getSelectedValuesList();
 
-		return new FieldDnD(list.getFieldType(), values);
+		return new FieldDnD(fieldType, values);
 	}
 
 	public boolean canImport(TransferHandler.TransferSupport support) {
@@ -62,7 +62,8 @@ public class FieldTransferHandler extends TransferHandler {
 			return false;
 		}
 
-		FieldList<DataField> list = (FieldList<DataField>) support.getComponent();
+		FieldList<DataField> list = (FieldList<DataField>) support
+				.getComponent();
 		DefaultListModel<DataField> model = (DefaultListModel<DataField>) list
 				.getModel();
 

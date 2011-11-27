@@ -20,9 +20,9 @@ import java.util.List;
 
 import javax.swing.tree.TreeNode;
 
+import org.gicentre.apps.hide.Layout;
 import org.gicentre.apps.hide.TreemapPanel;
 import org.gicentre.apps.hide.TreemapStateGui;
-import org.gicentre.apps.hide.TreemapState.Layout;
 import org.gicentre.data.SummariseNode;
 import org.gicentre.data.summary.SummariseField;
 import org.gicentre.data.summary.SummariseNull;
@@ -113,9 +113,8 @@ public class PTreemap extends PApplet {
 				hierFields, summariseFields, layouts);
 
 		// create new treemap panel
-		treemapPanel = new TreemapPanel(this, treemapStateGui, font,
-				new Rectangle(0, 0, width, height), records, columnValues,
-				summariseFields);
+		treemapPanel = new TreemapPanel(this, font, new Rectangle(0, 0, width,
+				height), records, columnValues, summariseFields);
 
 		if (defaultHive != null)
 			restoreState(defaultHive);
@@ -148,13 +147,13 @@ public class PTreemap extends PApplet {
 		background(255);
 
 		// otherwise draw the graphic
-		treemapPanel.draw();
+		treemapPanel.draw(treemapStateGui);
 
 		if (showGui) {
 			treemapStateGui.draw();
 		}
 
-		if (treemapStateGui.getHierarchyFields().length == 0) {
+		if (treemapStateGui.getHierFields().length == 0) {
 			fill(150);
 			textFont(font);
 			textSize(20);
@@ -196,7 +195,8 @@ public class PTreemap extends PApplet {
 			fill(100);
 			textSize(10);
 			textLeading(11);
-			text(tooltipData, x + offsetX, mouseY + offsetY + 14);
+			text(tooltipData == null ? "" : tooltipData, x + offsetX, mouseY
+					+ offsetY + 14);
 		}
 
 		if (showHive) {
@@ -227,7 +227,6 @@ public class PTreemap extends PApplet {
 	}
 
 	public void keyPressed() {
-
 		if (key == 'e' || key == 'E') {
 			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 			String filename = "screenshot_" + dateFormat.format(new Date())

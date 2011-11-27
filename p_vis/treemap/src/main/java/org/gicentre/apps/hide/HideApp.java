@@ -15,26 +15,21 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 
 import javax.swing.tree.TreeNode;
 
-import org.gicentre.apps.hide.TreemapState.AppearanceType;
 import org.gicentre.data.SummariseNode;
 import org.gicentre.data.summary.SummariseField;
 import org.gicentre.data.summary.SummariseNull;
 import org.gicentre.hive.Expression;
-import org.gicentre.hive.ExpressionNotSupportedException;
-import org.gicentre.hive.Type;
 import org.gicentre.treemaps.TreemapSummaryNode;
-
-import edu.zjut.common.data.attr.FieldType;
-import edu.zjut.vis.treemap.ConfigDataLoader;
 
 import processing.core.PApplet;
 import processing.core.PFont;
 import processing.core.PImage;
+import edu.zjut.common.data.attr.FieldType;
+import edu.zjut.vis.treemap.ConfigDataLoader;
 
 /**
  * HiDE Software application for exploring datasets through hierarchical layouts
@@ -103,16 +98,16 @@ public class HideApp extends PApplet {
 		dataLoader = new ConfigDataLoader(filename);
 
 		// create a new treemap state
-		treemapStateGui = new TreemapStateGui(this, 0, 0, font, 2, 1, 1,
+		treemapStateGui = new TreemapStateGui(this, 0, 0, font,
 				dataLoader.getAllowedHierVars(),
 				dataLoader.getAllowedOrderVars(),
 				dataLoader.getAllowedSizeVars(),
 				dataLoader.getAllowedColourVars(), dataLoader.getLayouts());
 
 		// create new treemap panel
-		treemapPanel = new TreemapPanel(this, treemapStateGui, font,
-				new Rectangle(0, 0, width, height), dataLoader.getRecords(),
-				dataLoader.getColumnValues(), dataLoader.getSummariseFields());
+		treemapPanel = new TreemapPanel(this, font, new Rectangle(0, 0, width,
+				height), dataLoader.getRecords(), dataLoader.getColumnValues(),
+				dataLoader.getSummariseFields());
 
 		String datasetName = dataLoader.getDatasetName();
 
@@ -155,9 +150,9 @@ public class HideApp extends PApplet {
 		background(255);
 
 		// otherwise draw the graphic
-		treemapPanel.draw();
+		treemapPanel.draw(treemapStateGui);
 
-		if (treemapStateGui.getHierarchyFields().length > 0
+		if (treemapStateGui.getHierFields().length > 0
 				&& treemapPanel.treemap == null) {
 			fill(150);
 			textFont(font);
@@ -171,7 +166,7 @@ public class HideApp extends PApplet {
 			treemapStateGui.draw();
 		}
 
-		if (treemapStateGui.getHierarchyFields().length == 0) {
+		if (treemapStateGui.getHierFields().length == 0) {
 			fill(150);
 			textFont(font);
 			textSize(20);

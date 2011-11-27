@@ -1,6 +1,5 @@
 package edu.zjut.common.ctrl;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
@@ -10,77 +9,53 @@ import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.ListModel;
 
-import edu.zjut.common.data.attr.DataField;
-import edu.zjut.common.data.attr.DimensionField;
-import edu.zjut.common.data.attr.MeasureField;
-
-public class FieldList<DataField> extends JList<DataField> implements KeyListener {
+public class FieldList<DataField> extends JList<DataField> implements
+		KeyListener {
 
 	public static final int VERTICAL = 0;
 	public static final int HORIZONTAL = 3;
-
-	Color green = new Color(140, 200, 175, 200);
-	Color darkGreen = new Color(135, 170, 135, 200);
-
-	Color blue = new Color(175, 200, 230, 200);
-	Color darkBlue = new Color(135, 160, 180, 200);
 
 	public static final int DIMENSION = 0;
 	public static final int MEASURE = 1;
 
 	private int fieldType = MEASURE;
-	private DataField[] fields;
 
 	private FieldListCell<DataField> cellRenderer;
 	private boolean isHorizontal = false;
 	private int listHeight;
 
 	public FieldList() {
-		init();
+		init(MEASURE);
 	}
 
-	public FieldList(ListModel<DataField> dataModel) {
+	public FieldList(int fieldType) {
+		init(fieldType);
+	}
+
+	public FieldList(int fieldType, ListModel<DataField> dataModel) {
 		super(dataModel);
-		init();
+		init(fieldType);
 	}
 
 	public FieldList(final DataField[] listData) {
 		super(listData);
-		init();
+		init(fieldType);
 	}
 
-	private void init() {
+	private void init(int fieldType) {
+		this.fieldType = fieldType;
+
 		this.addKeyListener(this);
+
+		this.setTransferHandler(new FieldTransferHandler(fieldType));
+
 		this.cellRenderer = new FieldListCell<DataField>();
 		this.setCellRenderer(cellRenderer);
 		this.setPreferredSize(new Dimension(100, 25));
 	}
 
-	public DataField[] getFields() {
-		return fields;
-	}
-
 	public int getFieldType() {
 		return fieldType;
-	}
-
-	public void setFields(DataField[] fields) {
-		this.fields = fields;
-
-		if (fields[0] instanceof DimensionField)
-			this.fieldType = DIMENSION;
-		if (fields[0] instanceof MeasureField)
-			this.fieldType = MEASURE;
-
-		if (fieldType == DIMENSION) {
-			cellRenderer.setColor(green);
-			cellRenderer.setSelectedColor(darkGreen);
-		}
-
-		if (fieldType == MEASURE) {
-			cellRenderer.setColor(blue);
-			cellRenderer.setSelectedColor(darkBlue);
-		}
 	}
 
 	public void setLayoutOrientation(int layoutOrientation) {

@@ -10,7 +10,6 @@ import javax.swing.DefaultListModel;
 import javax.swing.DropMode;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
@@ -61,11 +60,9 @@ public class DataWindow extends JPanel implements DataSetListener,
 		dimensionButton.addActionListener(this);
 		jPanel1.add(dimensionButton, BorderLayout.NORTH);
 
-		dimensionList = new FieldList<DataField>();
+		dimensionList = new FieldList<DataField>(FieldList.DIMENSION);
 		dimensionList.setVisibleRowCount(10);
 		dimensionList.setDragEnabled(true);
-		dimensionList.setTransferHandler(new FieldTransferHandler(
-				FieldList.DIMENSION));
 
 		JScrollPane scrollPane1 = new JScrollPane();
 		JViewport scrollView1 = new JViewport();
@@ -81,12 +78,10 @@ public class DataWindow extends JPanel implements DataSetListener,
 		measureButton.addActionListener(this);
 		jPanel2.add(measureButton, BorderLayout.NORTH);
 
-		measureList = new FieldList<DataField>();
+		measureList = new FieldList<DataField>(FieldList.MEASURE);
 		measureList.setVisibleRowCount(10);
 		measureList.setDropMode(DropMode.ON_OR_INSERT);
 		measureList.setDragEnabled(true);
-		measureList.setTransferHandler(new FieldTransferHandler(
-				FieldList.MEASURE));
 
 		JScrollPane scrollPane2 = new JScrollPane();
 		JViewport scrollView2 = new JViewport();
@@ -113,8 +108,6 @@ public class DataWindow extends JPanel implements DataSetListener,
 			listModel2.add(0, dimensionFields[i]);
 		}
 
-		dimensionList.setFields(dimensionFields);
-		measureList.setFields(measureFields);
 		measureList.setModel(listModel1);
 		dimensionList.setModel(listModel2);
 

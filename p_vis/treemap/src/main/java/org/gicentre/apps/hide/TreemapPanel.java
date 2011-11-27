@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import org.gicentre.apps.hide.TreemapState.AppearanceType;
-import org.gicentre.apps.hide.TreemapState.Layout;
 import org.gicentre.data.AndFilter;
 import org.gicentre.data.DataUtil;
 import org.gicentre.data.EqualsFilter;
@@ -53,7 +51,6 @@ public class TreemapPanel {
 	TreemapSummaryNode treemap; // treemap
 	HashMap<Integer, TreemapSummaryNode> oldTreemapNodes = new HashMap<Integer, TreemapSummaryNode>();
 
-	TreemapState treemapState; // treemap state
 	private boolean localColourMin = false;
 	boolean showLabels = true;
 	private SummariseNode summaryNode;
@@ -100,12 +97,11 @@ public class TreemapPanel {
 	 * @param colourScalings
 	 *            hashmap of the colour scalings.
 	 */
-	public TreemapPanel(PApplet applet, TreemapState treemapState, PFont font,
-			Rectangle bounds, List<Object[]> records,
-			List<Object[]> columnValues, List<SummariseField> summariseFields) {
+	public TreemapPanel(PApplet applet, PFont font, Rectangle bounds,
+			List<Object[]> records, List<Object[]> columnValues,
+			List<SummariseField> summariseFields) {
 		this.applet = applet;
 		this.bounds = bounds;
-		this.treemapState = treemapState;
 		this.font = font;
 
 		this.records = records;
@@ -154,8 +150,7 @@ public class TreemapPanel {
 		}
 	}
 
-	public void draw() {
-
+	public void draw(TreemapState treemapState) {
 		boolean pregenerateMorphs = false;
 
 		if (treemapState.hasHierChanged()) {
@@ -176,23 +171,22 @@ public class TreemapPanel {
 		}
 
 		if (flagToDoStructuralRebuild) {
-
 			AndFilter filter = new AndFilter();
 			for (int i = 0; i < treemapState.hierFields.length; i++) {
 				if (treemapState.filterValues[i] != null) {
-					filter.add(new EqualsFilter(treemapState
-							.getHierarchyFields()[i],
+					filter.add(new EqualsFilter(
+							treemapState.getHierFields()[i],
 							treemapState.filterValues[i]));
 				}
 				if (treemapState.getAppearanceValue(
 						AppearanceType.INCLUDE_NULLS, i) == 0) {
 					filter.add(new NotFilter(new EqualsFilter(treemapState
-							.getHierarchyFields()[i], null)));
+							.getHierFields()[i], null)));
 				}
 			}
 
-			this.summaryNode = DataUtil.getSummary(records,columnValues,
-					treemapState.getHierarchyFields(), summariseFields, filter);
+			this.summaryNode = DataUtil.getSummary(records, columnValues,
+					treemapState.getHierFields(), summariseFields, filter);
 			if (this.summaryNode != null)
 				addSpecifiedValues(this.summaryNode, treemapState);
 
@@ -220,13 +214,13 @@ public class TreemapPanel {
 
 		// Build treemap
 		if (flagToDoNonStructuralRebuild && this.summaryNode != null) {
-			for (int i = 0; i < treemapState.getHierarchyFields().length; i++) {
+			for (int i = 0; i < treemapState.getHierFields().length; i++) {
 				treeMapProperties.setParameter(
 						"border" + i,
 						treemapState.getAppearanceValue(AppearanceType.PADDING,
 								i) + "");
 			}
-			buildTreemap();
+			buildTreemap(treemapState);
 		}
 
 		if (this.summaryNode == null) {
@@ -245,8 +239,8 @@ public class TreemapPanel {
 				applet.g = pGraphics;
 				pGraphics.beginDraw();
 				applet.background(255);
-				drawTreemapShapes(localLerp);
-				drawTreemapLabels(localLerp);
+				drawTreemapShapes(treemapState, localLerp);
+				drawTreemapLabels(treemapState, localLerp);
 				pGraphics.endDraw();
 				listAnimatedBuffers.add(0, pGraphics);
 
@@ -278,8 +272,8 @@ public class TreemapPanel {
 			buffer.beginDraw();
 
 			// draw treemap
-			drawTreemapShapes(lerp);
-			drawTreemapLabels(lerp);
+			drawTreemapShapes(treemapState, lerp);
+			drawTreemapLabels(treemapState, lerp);
 
 			buffer.endDraw();
 			applet.g = oldG;
@@ -370,7 +364,7 @@ public class TreemapPanel {
 		return localColourMin;
 	}
 
-	private void drawTreemapLabels(float lerp) {
+	private void drawTreemapLabels(TreemapState treemapState, float lerp) {
 		if (treemap == null)
 			return;
 
@@ -482,7 +476,7 @@ public class TreemapPanel {
 		}
 	}
 
-	private void drawTreemapShapes(float lerp) {
+	private void drawTreemapShapes(TreemapState treemapState, float lerp) {
 		// paint background white
 		applet.background(255);
 		if (treemap == null)
@@ -698,7 +692,7 @@ public class TreemapPanel {
 	 * Builds the treemap geometry
 	 * 
 	 */
-	private void buildTreemap() {
+	private void buildTreemap(TreemapState treemapState) {
 		// store old treemap nodes
 		if (treemap != null) {
 			Iterator<TreeMapNode> it = treemap.iterator();
@@ -838,13 +832,11 @@ public class TreemapPanel {
 		// find out which ones NOT to add these values to, be checking if the
 		// variable
 		// exists further down the hierarchy
-		boolean[] shouldAddSpecifiedValues = new boolean[state
-				.getHierarchyFields().length];
+		boolean[] shouldAddSpecifiedValues = new boolean[state.getHierFields().length];
 		Arrays.fill(shouldAddSpecifiedValues, true);
-		for (int i = 1; i < state.getHierarchyFields().length; i++) {
+		for (int i = 1; i < state.getHierFields().length; i++) {
 			for (int j = 0; j < i; j++) {
-				if (state.getHierarchyFields()[j].equals(state
-						.getHierarchyFields()[i])) {
+				if (state.getHierFields()[j].equals(state.getHierFields()[i])) {
 					shouldAddSpecifiedValues[i] = false;
 				}
 			}

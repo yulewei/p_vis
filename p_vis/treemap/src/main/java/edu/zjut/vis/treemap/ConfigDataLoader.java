@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
-import org.gicentre.apps.hide.TreemapState.Layout;
+import org.gicentre.apps.hide.Layout;
 import org.gicentre.data.summary.SummariseField;
 import org.gicentre.utils.colour.ColourTable;
 
@@ -279,7 +279,7 @@ public class ConfigDataLoader {
 	 * 
 	 * @return
 	 */
-	public List<Layout> getLayouts() {
+	public List<org.gicentre.apps.hide.Layout> getLayouts() {
 		return layouts;
 	}
 

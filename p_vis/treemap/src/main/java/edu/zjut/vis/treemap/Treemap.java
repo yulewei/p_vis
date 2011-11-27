@@ -12,7 +12,6 @@ import javax.swing.JPanel;
 import org.gicentre.data.summary.SummariseField;
 
 import edu.zjut.common.ctrl.FieldList;
-import edu.zjut.common.ctrl.FieldTransferHandler;
 import edu.zjut.common.data.DataSetForApps;
 import edu.zjut.common.data.attr.AttributeData;
 import edu.zjut.common.data.attr.DataField;
@@ -37,11 +36,9 @@ public class Treemap extends JPanel implements DataSetListener {
 
 	public Treemap() {
 		this.setLayout(new BorderLayout());
-		filedList = new FieldList<DataField>();
+		filedList = new FieldList<DataField>(FieldList.DIMENSION);
 		filedList.setDropMode(DropMode.ON_OR_INSERT);
 		filedList.setDragEnabled(true);
-		filedList.setTransferHandler(new FieldTransferHandler(
-				FieldList.DIMENSION));
 		DefaultListModel<DataField> listModel = new DefaultListModel<DataField>();
 		filedList.setModel(listModel);
 
@@ -63,8 +60,6 @@ public class Treemap extends JPanel implements DataSetListener {
 		attrData = dataSet.getAttrData();
 
 		buildTreemapData();
-
-		filedList.setFields(attrData.getDimensionFields());
 
 		pTreemap.setData(hierFields, summariseFields, records, columnValues,
 				defaultHive);
