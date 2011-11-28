@@ -119,8 +119,8 @@ public class ConfigDataLoader {
 			if (var.summary == null) {
 				dataField = new DimensionField(var.colIdx, var.name, fieldType,
 						null);
+				datafields.add(dataField);
 			}
-			datafields.add(dataField);
 
 			// hier½Úµã
 			if (var.hier != null) {
@@ -132,6 +132,7 @@ public class ConfigDataLoader {
 
 				MeasureField field = new MeasureField(var.colIdx, var.name,
 						fieldType, null, null, null);
+				datafields.add(field);
 
 				SummariseField summariseField = SummariseField
 						.createSummaryField(field);
