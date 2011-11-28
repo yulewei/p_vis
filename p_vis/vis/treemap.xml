@@ -20,7 +20,7 @@
       </ToolkitBean>
     </entry>
     <entry>
-      <string>VariablePicker</string>
+      <string>DataWindow</string>
       <ToolkitBean>
         <objectClass>edu.zjut.common.ctrl.DataWindow</objectClass>
         <originalBean/>

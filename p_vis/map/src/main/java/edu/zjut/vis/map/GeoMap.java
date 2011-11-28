@@ -1,14 +1,24 @@
 package edu.zjut.vis.map;
 
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.datatransfer.DataFlavor;
 import java.awt.event.MouseEvent;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+
+import javax.swing.TransferHandler;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 
+import edu.zjut.common.ctrl.FieldDnD;
+import edu.zjut.common.ctrl.FieldList;
 import edu.zjut.common.data.DataSetForApps;
+import edu.zjut.common.data.attr.AttributeData;
+import edu.zjut.common.data.attr.DataField;
+import edu.zjut.common.data.attr.MeasureField;
 import edu.zjut.common.data.geo.EsriFeatureObj;
 import edu.zjut.common.data.geo.GeometryData;
 import edu.zjut.common.event.DataSetEvent;
@@ -25,7 +35,9 @@ import edu.zjut.map.overlay.Overlay;
 public class GeoMap extends JMapPanel implements DataSetListener,
 		IndicationListener, SelectionListener {
 
-	private DataSetForApps dataSet = null;
+	private DataSetForApps dataSet;
+	private AttributeData attrData;
+	private GeometryData geoData;
 
 	private int indication = -1;
 	private int[] selection;
@@ -35,15 +47,18 @@ public class GeoMap extends JMapPanel implements DataSetListener,
 
 	public GeoMap() {
 		this.loadMapConfig("config/map_config.xml");
+		this.setTransferHandler(new MapTransferHandler(FieldList.MEASURE));
+
 		this.setPreferredSize(new Dimension(500, 500));
 	}
 
 	@Override
 	public void dataSetChanged(DataSetEvent e) {
 		dataSet = e.getDataSetForApps();
-		GeometryData geoData = dataSet.getGeoData();
+		attrData = dataSet.getAttrData();
+		geoData = dataSet.getGeoData();
 
-		HashMap<String, Geometry> nameGeometrys = geoData.nameGeometrys;
+		HashMap<String, Geometry> nameGeometrys = geoData.getNameGeometrys();
 		indexMarkerMap = new HashMap<Integer, Overlay>();
 		markerIndexMap = new HashMap<Overlay, Integer>();
 
@@ -54,6 +69,7 @@ public class GeoMap extends JMapPanel implements DataSetListener,
 			if (geo != null && geo instanceof Point) {
 				MapMarker marker = new MapMarker((Point) geo, obs);
 				marker.setRadius(5);
+
 				this.addOverlay(marker);
 
 				indexMarkerMap.put(i, marker);
@@ -62,7 +78,7 @@ public class GeoMap extends JMapPanel implements DataSetListener,
 		}
 
 		// ÃÌº”Õº≤„
-		List<EsriFeatureObj[]> layers = geoData.layers;
+		List<EsriFeatureObj[]> layers = geoData.getLayers();
 		for (EsriFeatureObj[] features : layers) {
 			EsriLayer layer = new EsriLayer(features);
 			layer.setHighlightBorderWidth(3.0f);
@@ -143,5 +159,62 @@ public class GeoMap extends JMapPanel implements DataSetListener,
 				((IndicationListener) listeners[i + 1]).indicationChanged(e);
 			}
 		}// next i
+	}
+
+	public void buildMarkerAppearance(MeasureField[] measureFeilds) {
+		MeasureField colorField = measureFeilds[0];
+
+		for (Integer index : indexMarkerMap.keySet()) {
+			MapMarker marker = (MapMarker) indexMarkerMap.get(index);
+			marker.setBorder(false);
+			marker.setFillColor(new Color(colorField.findColor(index)));
+		}
+		
+		repaint();
+	}
+
+	class MapTransferHandler extends TransferHandler {
+		private int fieldType = FieldList.MEASURE;
+
+		public MapTransferHandler(int fieldType) {
+			this.fieldType = fieldType;
+		}
+
+		public boolean canImport(TransferHandler.TransferSupport support) {
+			if (!support.isDrop()) {
+				return false;
+			}
+
+			FieldDnD data;
+			try {
+				data = (FieldDnD) support.getTransferable().getTransferData(
+						new DataFlavor(FieldDnD.class,
+								DataFlavor.javaSerializedObjectMimeType));
+			} catch (Exception e) {
+				return false;
+			}
+
+			return data.getFieldType() == fieldType;
+		}
+
+		public boolean importData(TransferHandler.TransferSupport support) {
+			FieldDnD data;
+			try {
+				data = (FieldDnD) support.getTransferable().getTransferData(
+						new DataFlavor(FieldDnD.class,
+								DataFlavor.javaSerializedObjectMimeType));
+			} catch (Exception e) {
+				return false;
+			}
+
+			List<DataField> values = data.getValues();
+			MeasureField[] measureFeilds = new MeasureField[values.size()];
+			for (int i = 0; i < values.size(); i++)
+				measureFeilds[i] = (MeasureField) values.get(i);
+
+			buildMarkerAppearance(measureFeilds);
+
+			return true;
+		}
 	}
 }

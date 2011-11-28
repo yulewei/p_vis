@@ -5,18 +5,24 @@ import java.util.List;
 
 import com.vividsolutions.jts.geom.Geometry;
 
-
-
 public class GeometryData {
 
 	// 地名, 几何
-	public HashMap<String, Geometry> nameGeometrys;
+	private HashMap<String, Geometry> nameGeometrys;
 
-	public List<EsriFeatureObj[]> layers;
+	private List<EsriFeatureObj[]> layers;
 
 	public GeometryData(HashMap<String, Geometry> nameGeometrys,
 			List<EsriFeatureObj[]> layers) {
 		this.nameGeometrys = nameGeometrys;
 		this.layers = layers;
+	}
+
+	public HashMap<String, Geometry> getNameGeometrys() {
+		return nameGeometrys;
+	}
+
+	public List<EsriFeatureObj[]> getLayers() {
+		return layers;
 	}
 }

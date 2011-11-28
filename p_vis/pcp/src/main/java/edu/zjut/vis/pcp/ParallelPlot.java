@@ -2,11 +2,14 @@ package edu.zjut.vis.pcp;
 
 import java.awt.datatransfer.DataFlavor;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.TransferHandler;
 
 import org.mediavirus.parvis.gui.ParallelDisplay;
 
+import edu.zjut.common.ctrl.FieldDnD;
+import edu.zjut.common.ctrl.FieldList;
 import edu.zjut.common.data.DataSetForApps;
 import edu.zjut.common.data.attr.AttributeData;
 import edu.zjut.common.data.attr.DataField;
@@ -33,13 +36,13 @@ public class ParallelPlot extends ParvisPlot implements DataSetListener,
 
 	int[] savedSelection;
 	private DataSetForApps dataSet;
-	AttributeData attrData;
+	private AttributeData attrData;
 
 	public ParallelPlot() {
 		parallelDisplay.addIndicationListener(this);
 		parallelDisplay.addSelectionListener(this);
 
-		parallelDisplay.setTransferHandler(new PCPTransferHandler());
+		parallelDisplay.setTransferHandler(new PCPTransferHandler(FieldList.MEASURE));
 	}
 
 	@Override
@@ -143,29 +146,47 @@ public class ParallelPlot extends ParvisPlot implements DataSetListener,
 	}
 
 	class PCPTransferHandler extends TransferHandler {
+		private int fieldType = FieldList.MEASURE;
 
-		public boolean canImport(TransferHandler.TransferSupport support) {
-			return true;
+		public PCPTransferHandler(int fieldType) {
+			this.fieldType = fieldType;
 		}
 
-		public boolean importData(TransferHandler.TransferSupport support) {
-			String data;
+		public boolean canImport(TransferHandler.TransferSupport support) {
+			if (!support.isDrop()) {
+				return false;
+			}
+
+			FieldDnD data;
 			try {
-				data = (String) support.getTransferable().getTransferData(
-						DataFlavor.stringFlavor);
+				data = (FieldDnD) support.getTransferable().getTransferData(
+						new DataFlavor(FieldDnD.class,
+								DataFlavor.javaSerializedObjectMimeType));
 			} catch (Exception e) {
 				return false;
 			}
 
-			String[] values = data.split("\n");
-			int[] varsIndex = new int[values.length];
+			return data.getFieldType() == fieldType;
+		}
+
+		public boolean importData(TransferHandler.TransferSupport support) {
+			FieldDnD data;
+			try {
+				data = (FieldDnD) support.getTransferable().getTransferData(
+						new DataFlavor(FieldDnD.class,
+								DataFlavor.javaSerializedObjectMimeType));
+			} catch (Exception e) {
+				return false;
+			}
+
+			List<DataField> values = data.getValues();
+			int[] varsIndex = new int[values.size()];
 
 			MeasureField[] measureFeilds = attrData.getMeasureFields();
-
-			for (int i = 0; i < values.length; i++) {
+			for (int i = 0; i < values.size(); i++) {
 				int index = -1;
 				for (int k = 0; k < measureFeilds.length; k++) {
-					if (measureFeilds[k].getName().equals(values[i])) {
+					if (measureFeilds[k].getName().equals(values.get(i).getName())) {
 						index = k;
 						break;
 					}
@@ -173,7 +194,6 @@ public class ParallelPlot extends ParvisPlot implements DataSetListener,
 				varsIndex[i] = index;
 			}
 
-			System.out.println(Arrays.toString(values));
 			System.out.println(Arrays.toString(varsIndex));
 
 			setSubspace(varsIndex);
