@@ -33,19 +33,20 @@ public enum Layout {
 	SA;
 
 	public String toString() {
-		if (this.equals(HZ)) {
+		switch (this) {
+		case HZ:
 			return "HZ";
-		} else if (this.equals(VT)) {
+		case VT:
 			return "VT";
-		} else if (this.equals(OS)) {
+		case OS:
 			return "OS";
-		} else if (this.equals(ST)) {
+		case ST:
 			return "ST";
-		} else if (this.equals(SP)) {
+		case SP:
 			return "SP";
-		} else if (this.equals(SA)) {
+		case SA:
 			return "SA";
-		} else
-			return null;
+		}
+		return null;
 	}
 }

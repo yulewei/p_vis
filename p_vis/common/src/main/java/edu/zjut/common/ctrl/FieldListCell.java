@@ -37,6 +37,8 @@ public class FieldListCell<E> extends JComponent implements ListCellRenderer<E> 
 
 	@Override
 	protected void paintComponent(Graphics g) {
+		Graphics2D g2 = (Graphics2D) g;
+
 		int width = this.getWidth();
 		int height = this.getHeight();
 
@@ -47,10 +49,12 @@ public class FieldListCell<E> extends JComponent implements ListCellRenderer<E> 
 		int x = gap, y = height / 2 - h / 2;
 
 		int textGap = 20;
-		if (width < 100)
+		if (width < 100) {
+			int textwidth = g2.getFontMetrics().stringWidth(text);
 			textGap = (int) (width * 0.2);
+			textGap = (width - textwidth) / 2;
+		}
 
-		Graphics2D g2 = (Graphics2D) g;
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
 
