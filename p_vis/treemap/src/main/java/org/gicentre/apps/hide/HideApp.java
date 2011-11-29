@@ -106,7 +106,7 @@ public class HideApp extends PApplet {
 
 		// create new treemap panel
 		treemapPanel = new TreemapPanel(this, font, new Rectangle(0, 0, width,
-				height), dataLoader.getRecords(), dataLoader.getColumnValues(),
+				height), dataLoader.getRecords(),
 				dataLoader.getSummariseFields());
 
 		String datasetName = dataLoader.getDatasetName();

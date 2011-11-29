@@ -3,13 +3,14 @@ package edu.zjut.vis.treemap;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
-import javax.swing.DefaultListModel;
-import javax.swing.DropMode;
 import javax.swing.JPanel;
 
+import org.gicentre.apps.hide.TreemapState;
 import org.gicentre.data.summary.SummariseField;
+import org.gicentre.hive.Expression;
 
 import edu.zjut.common.ctrl.FieldList;
 import edu.zjut.common.data.DataSetForApps;
@@ -25,32 +26,33 @@ public class Treemap extends JPanel implements DataSetListener {
 	private DataSetForApps dataSet;
 	private AttributeData attrData;
 
-	private FieldList<DataField> filedList;
-	private PTreemap pTreemap;
+	ControlPanel statePanel;
+	// private PTreemap pTreemap;
+	private TreemapApplet pTreemap;
 
 	private String defaultHive = null;
+	private TreemapState treemapState;
 	private List<DataField> hierFields;
 	private List<SummariseField> summariseFields;
 	private List<Object[]> records;
-	private List<Object[]> columnValues;
 
 	public Treemap() {
 		this.setLayout(new BorderLayout());
-		filedList = new FieldList<DataField>(FieldList.DIMENSION);
-		filedList.setDropMode(DropMode.ON_OR_INSERT);
-		filedList.setDragEnabled(true);
-		DefaultListModel<DataField> listModel = new DefaultListModel<DataField>();
-		filedList.setModel(listModel);
 
-		this.add(filedList, BorderLayout.NORTH);
+		statePanel = new ControlPanel();
+		this.add(statePanel, BorderLayout.WEST);
+		statePanel.setPreferredSize(new Dimension(200, 500));
 
-		pTreemap = new PTreemap();
+		// pTreemap = new PTreemap();
+		pTreemap = new TreemapApplet();
+
 		this.add(pTreemap, BorderLayout.CENTER);
-		pTreemap.init();
 
 		this.setPreferredSize(new Dimension(500, 500));
 
-		defaultHive = "sHier(/,$城区,$楼盘); sOrder(/,HIER,HIER); sSize(/,FX,FX); sColor(/,HIER,$累积成交毛坯均价); sLayout(/,SF,SF);";
+		pTreemap.init();
+
+		defaultHive = "sHier(/,$城区,$楼盘); sOrder(/,HIER,HIER); sSize(/,FX,FX); sColor(/,HIER,$毛坯均价); sLayout(/,SF,SF);";
 
 	}
 
@@ -61,8 +63,13 @@ public class Treemap extends JPanel implements DataSetListener {
 
 		buildTreemapData();
 
-		pTreemap.setData(hierFields, summariseFields, records, columnValues,
-				defaultHive);
+		treemapState = new TreemapState(hierFields, summariseFields);
+		Collection<Expression> expressions = Expression
+				.parseExpressions(defaultHive);
+		treemapState.applyExpressions(expressions);
+
+		statePanel.setState(treemapState, pTreemap);
+		pTreemap.setData(treemapState, summariseFields, records);
 
 		repaint();
 	}

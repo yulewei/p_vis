@@ -2,6 +2,7 @@ package org.gicentre.data.summary;
 
 import java.util.List;
 
+import edu.zjut.common.data.attr.FieldType;
 import edu.zjut.common.data.attr.MeasureField;
 
 public class SummariseNull extends SummariseField {

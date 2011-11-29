@@ -37,7 +37,6 @@ public class ConfigDataLoader {
 
 	private List<SummariseField> summariseFields;
 	private List<Object[]> records;
-	private List<Object[]> columnValues;
 
 	public ConfigDataLoader(String configFilename) {
 		DataConfig config = DataConfig.loadConfig(configFilename);
@@ -225,9 +224,6 @@ public class ConfigDataLoader {
 		return records;
 	}
 
-	public List<Object[]> getColumnValues() {
-		return columnValues;
-	}
 
 	/**
 	 * Gets all the summary variables

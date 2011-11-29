@@ -1,18 +1,17 @@
 package edu.zjut.common.ctrl;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.logging.Logger;
 
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.DropMode;
-import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
+import javax.swing.SwingConstants;
 
 import edu.zjut.common.data.DataSetBroadcaster;
 import edu.zjut.common.data.DataSetForApps;
@@ -22,13 +21,10 @@ import edu.zjut.common.data.attr.DimensionField;
 import edu.zjut.common.data.attr.MeasureField;
 import edu.zjut.common.event.DataSetEvent;
 import edu.zjut.common.event.DataSetListener;
-import edu.zjut.common.event.SubspaceEvent;
-import edu.zjut.common.event.SubspaceListener;
 import edu.zjut.common.io.DataSetLoader;
 import edu.zjut.coordination.CoordinationManager;
 
-public class DataWindow extends JPanel implements DataSetListener,
-		SubspaceListener, ActionListener {
+public class DataWindow extends JPanel implements DataSetListener {
 
 	private static final long serialVersionUID = 1L;
 	final static Logger logger = Logger.getLogger(DataWindow.class.getName());
@@ -41,8 +37,8 @@ public class DataWindow extends JPanel implements DataSetListener,
 	private JPanel jPanel1;
 	private JPanel jPanel2;
 
-	JButton dimensionButton;
-	JButton measureButton;
+	JLabel dimensionLabel;
+	JLabel measureLabel;
 	FieldList<DataField> dimensionList;
 	FieldList<DataField> measureList;
 
@@ -56,9 +52,9 @@ public class DataWindow extends JPanel implements DataSetListener,
 		jPanel1.setLayout(new BorderLayout());
 		add(jPanel1);
 
-		dimensionButton = new JButton("Dimensions");
-		dimensionButton.addActionListener(this);
-		jPanel1.add(dimensionButton, BorderLayout.NORTH);
+		dimensionLabel = new JLabel("Dimensions");
+		dimensionLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		jPanel1.add(dimensionLabel, BorderLayout.NORTH);
 
 		dimensionList = new FieldList<DataField>(FieldList.DIMENSION);
 		dimensionList.setVisibleRowCount(10);
@@ -74,9 +70,9 @@ public class DataWindow extends JPanel implements DataSetListener,
 		jPanel2.setLayout(new BorderLayout());
 		add(jPanel2);
 
-		measureButton = new JButton("Measures");
-		measureButton.addActionListener(this);
-		jPanel2.add(measureButton, BorderLayout.NORTH);
+		measureLabel = new JLabel("Measures");
+		measureLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		jPanel2.add(measureLabel, BorderLayout.NORTH);
 
 		measureList = new FieldList<DataField>(FieldList.MEASURE);
 		measureList.setVisibleRowCount(10);
@@ -112,44 +108,6 @@ public class DataWindow extends JPanel implements DataSetListener,
 		dimensionList.setModel(listModel2);
 
 		repaint();
-	}
-
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == measureButton) {
-			fireSubspaceChanged(measureList.getSelectedIndices());
-		}
-	}
-
-	public void subspaceChanged(SubspaceEvent e) {
-		int[] subspace = e.getSubspace();
-		measureList.setSelectedIndices(subspace);
-	}
-
-	public void fireSubspaceChanged(int[] selection) {
-		// Guaranteed to return a non-null array
-		Object[] listeners = listenerList.getListenerList();
-		SubspaceEvent e = null;
-
-		// Process the listeners last to first, notifying
-		// those that are interested in this event
-		for (int i = listeners.length - 2; i >= 0; i -= 2) {
-			if (listeners[i] == SubspaceListener.class) {
-				// Lazily create the event:
-				if (e == null) {
-					e = new SubspaceEvent(this, selection);
-				}
-
-				((SubspaceListener) listeners[i + 1]).subspaceChanged(e);
-			}
-		}
-	}
-
-	public void addSubspaceListener(SubspaceListener l) {
-		listenerList.add(SubspaceListener.class, l);
-	}
-
-	public void removeSubspaceListener(SubspaceListener l) {
-		listenerList.remove(SubspaceListener.class, l);
 	}
 
 	public static void main(String[] args) {

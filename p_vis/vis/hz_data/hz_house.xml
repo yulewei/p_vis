@@ -54,7 +54,7 @@
 			<dataType>double</dataType>
 		</attribute>
 		<attribute>
-			<name>累积成交毛坯均价</name>
+			<name>毛坯均价</name>
 			<colIdx>18</colIdx>
 			<dataType>double</dataType>
 			<summaryType>mean</summaryType>

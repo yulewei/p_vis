@@ -22,11 +22,9 @@ public class Test {
 		List<DataField> hierFields = dataLoader.getAllowedHierVars();
 		List<SummariseField> summariseFields = dataLoader.getSummariseFields();
 		List<Object[]> records = dataLoader.getRecords();
-		List<Object[]> columnValues = dataLoader.getColumnValues();
 
 		PTreemap pTreemap = new PTreemap();
-		pTreemap.setData(hierFields, summariseFields, records, columnValues,
-				hive);
+		pTreemap.setData(hierFields, summariseFields, records, hive);
 		pTreemap.setPreferredSize(new Dimension(500, 500));
 
 		JFrame jframe = new JFrame();

@@ -98,14 +98,12 @@ public class TreemapPanel {
 	 *            hashmap of the colour scalings.
 	 */
 	public TreemapPanel(PApplet applet, PFont font, Rectangle bounds,
-			List<Object[]> records, List<Object[]> columnValues,
-			List<SummariseField> summariseFields) {
+			List<Object[]> records, List<SummariseField> summariseFields) {
 		this.applet = applet;
 		this.bounds = bounds;
 		this.font = font;
 
 		this.records = records;
-		this.columnValues = columnValues;
 
 		// this.data = data;
 		this.summariseFields = summariseFields;
@@ -153,43 +151,48 @@ public class TreemapPanel {
 	public void draw(TreemapState treemapState) {
 		boolean pregenerateMorphs = false;
 
-		if (treemapState.hasHierChanged()) {
+		boolean hierHasChanged = treemapState.hasHierChanged();
+		boolean orderHasChanged = treemapState.orderHasChanged();
+		boolean sizeHasChanged = treemapState.sizeHasChanged();
+		boolean colourHasChanged = treemapState.colourHasChanged();
+		boolean layoutHasChanged = treemapState.layoutHasChanged();
+		boolean appearanceHasChanged = treemapState.appearanceHasChanged();
+
+		Object[] filterValues = treemapState.filterValues;
+		DataField[] hierFields = treemapState.getHierFields();
+		HashMap<AppearanceType, Integer>[] appearanceValues = treemapState.appearanceValues;
+
+		if (hierHasChanged) {
 			flagToDoStructuralRebuild = true;
 			flagToDoNonStructuralRebuild = true;
 			flagToRedraw = true;
 		}
 
-		if (treemapState.sizeHasChanged() || treemapState.orderHasChanged()
-				|| treemapState.layoutHasChanged()) {
+		if (sizeHasChanged || orderHasChanged || layoutHasChanged) {
 			flagToDoNonStructuralRebuild = true;
 			flagToRedraw = true;
 		}
 
-		if (treemapState.colourHasChanged()
-				|| treemapState.appearanceHasChanged()) {
+		if (colourHasChanged || appearanceHasChanged) {
 			flagToRedraw = true;
 		}
 
 		if (flagToDoStructuralRebuild) {
 			AndFilter filter = new AndFilter();
-			for (int i = 0; i < treemapState.hierFields.length; i++) {
-				if (treemapState.filterValues[i] != null) {
-					filter.add(new EqualsFilter(
-							treemapState.getHierFields()[i],
-							treemapState.filterValues[i]));
+			for (int i = 0; i < hierFields.length; i++) {
+				if (filterValues[i] != null) {
+					filter.add(new EqualsFilter(hierFields[i], filterValues[i]));
 				}
-				if (treemapState.getAppearanceValue(
-						AppearanceType.INCLUDE_NULLS, i) == 0) {
-					filter.add(new NotFilter(new EqualsFilter(treemapState
-							.getHierFields()[i], null)));
+				if (appearanceValues[i].get(AppearanceType.INCLUDE_NULLS) == 0) {
+					filter.add(new NotFilter(new EqualsFilter(hierFields[i],
+							null)));
 				}
 			}
 
-			this.summaryNode = DataUtil.getSummary(records, columnValues,
-					treemapState.getHierFields(), summariseFields, filter);
+			this.summaryNode = DataUtil.getSummary(records, hierFields,
+					summariseFields, filter);
 			if (this.summaryNode != null)
 				addSpecifiedValues(this.summaryNode, treemapState);
-
 		}
 
 		if (flagToDoNonStructuralRebuild || flagToRedraw) {
@@ -200,11 +203,8 @@ public class TreemapPanel {
 					this.bounds.width, this.bounds.height, 0, 0,
 					this.bounds.width, this.bounds.height);
 
-			if ((treemapState.sizeHasChanged()
-					|| treemapState.orderHasChanged() || treemapState
-						.layoutHasChanged())
-					&& morphTransitionsOn
-					&& !oldTreemapNodes.isEmpty()) {
+			if ((sizeHasChanged || orderHasChanged || layoutHasChanged)
+					&& morphTransitionsOn && !oldTreemapNodes.isEmpty()) {
 				// make the transition a morp unless a structural change..
 				transitionMorph = true;
 			} else {
@@ -214,11 +214,9 @@ public class TreemapPanel {
 
 		// Build treemap
 		if (flagToDoNonStructuralRebuild && this.summaryNode != null) {
-			for (int i = 0; i < treemapState.getHierFields().length; i++) {
-				treeMapProperties.setParameter(
-						"border" + i,
-						treemapState.getAppearanceValue(AppearanceType.PADDING,
-								i) + "");
+			for (int i = 0; i < hierFields.length; i++) {
+				treeMapProperties.setParameter("border" + i,
+						appearanceValues[i].get(AppearanceType.PADDING) + "");
 			}
 			buildTreemap(treemapState);
 		}
@@ -373,105 +371,97 @@ public class TreemapPanel {
 		applet.textAlign(PApplet.CENTER, PApplet.CENTER);
 		while (it.hasNext()) {
 			TreemapSummaryNode node = (TreemapSummaryNode) it.next();
-			if (treemapState.getAppearanceValue(AppearanceType.SHOW_LABELS,
-					node.getLevel() - 1) == 1) {
-				Rectangle2D r = null;
-				// need to work out the shape again so we can place the text
-				// in the centre of it
-				if (lerp < 1 && transitionMorph) {
-					Rectangle2D r2 = node.getRectangle();
-					Rectangle2D r1 = null;
-					if (oldTreemapNodes
-							.containsKey(node.getPathId().hashCode())) {
-						r1 = oldTreemapNodes.get(node.getPathId().hashCode())
-								.getRectangle();
-					}
-					if (r1 == null && r2 != null) {
-						r1 = new Rectangle2D.Float((float) r2.getCenterX(),
-								(float) r2.getCenterY(), 0, 0);
-					} else if (r2 == null && r1 != null) {
-						r2 = new Rectangle2D.Float((float) r1.getCenterX(),
-								(float) r1.getCenterY(), 0, 0);
-					}
-					if (r1 != null && r2 != null) {
-						r = new Rectangle2D.Float(PApplet.lerp(
-								(float) r1.getX(), (float) r2.getX(), lerp),
-								PApplet.lerp((float) r1.getY(),
-										(float) r2.getY(), lerp), PApplet.lerp(
-										(float) r1.getWidth(),
-										(float) r2.getWidth(), lerp),
-								PApplet.lerp((float) r1.getHeight(),
-										(float) r2.getHeight(), lerp));
-					}
-				} else {
-					r = node.getRectangle();
+
+			HashMap<AppearanceType, Integer> appearances = treemapState
+					.getAppearance(node.getLevel() - 1);
+
+			if (appearances.get(AppearanceType.SHOW_LABELS) != 1)
+				continue;
+
+			Rectangle2D r = null;
+			// need to work out the shape again so we can place the text
+			// in the centre of it
+			if (lerp < 1 && transitionMorph) {
+				Rectangle2D r2 = node.getRectangle();
+				Rectangle2D r1 = null;
+				if (oldTreemapNodes.containsKey(node.getPathId().hashCode())) {
+					r1 = oldTreemapNodes.get(node.getPathId().hashCode())
+							.getRectangle();
 				}
-				String label = node.getLabel();
-				if (label == null) {
-					label = "<no value>";
-				} else {
-					label = label.replaceAll("\\_", " ");
+				if (r1 == null && r2 != null) {
+					r1 = new Rectangle2D.Float((float) r2.getCenterX(),
+							(float) r2.getCenterY(), 0, 0);
+				} else if (r2 == null && r1 != null) {
+					r2 = new Rectangle2D.Float((float) r1.getCenterX(),
+							(float) r1.getCenterY(), 0, 0);
+				}
+				if (r1 != null && r2 != null) {
+					r = new Rectangle2D.Float(PApplet.lerp((float) r1.getX(),
+							(float) r2.getX(), lerp), PApplet.lerp(
+							(float) r1.getY(), (float) r2.getY(), lerp),
+							PApplet.lerp((float) r1.getWidth(),
+									(float) r2.getWidth(), lerp), PApplet.lerp(
+									(float) r1.getHeight(),
+									(float) r2.getHeight(), lerp));
+				}
+			} else {
+				r = node.getRectangle();
+			}
+			String label = node.getLabel();
+			if (label == null) {
+				label = "<no value>";
+			} else {
+				label = label.replaceAll("\\_", " ");
+			}
+
+			// draw the text
+			if (r != null && r.getWidth() > 10 && r.getHeight() > 10) {
+				int textSize;
+				textSize = appearances.get(AppearanceType.LABEL_SIZE);
+
+				applet.textSize(textSize);
+				applet.fill(100);
+				applet.textAlign(PApplet.CENTER, PApplet.CENTER);
+
+				// adjust the opacity so that labels are lighter towards
+				// the 'root'
+				int opacity = appearances.get(AppearanceType.LABEL_OPACITY);
+				applet.fill(80, opacity);
+
+				applet.pushMatrix();
+				applet.translate((float) r.getCenterX(), (float) r.getCenterY());
+				// if it doesn't fit, rotate but only if it fits better
+				boolean rotated = false;
+				int textWidth = (int) applet.textWidth(label);
+				if (appearances.get(AppearanceType.ALLOW_VERTICAL_LABELS) == 1) {
+					if (r.getWidth() < textWidth
+							&& r.getHeight() - textWidth > r.getWidth()
+									- textWidth) {
+						applet.rotate(-PApplet.HALF_PI);
+						rotated = true;
+					}
+				}
+				// if autosize text, scale appropriately
+				if (appearances.get(AppearanceType.AUTOSIZE_LABELS) == 1) {
+					if (rotated) {
+						applet.scale(PApplet.min(
+								(float) r.getHeight() / (textWidth + 8),
+								(float) r.getWidth()
+										/ (applet.textAscent()
+												+ applet.textDescent() + 8)));
+
+					} else {
+						applet.scale(PApplet.min(
+								(float) r.getWidth() / (textWidth + 8),
+								(float) r.getHeight()
+										/ (applet.textAscent()
+												+ applet.textDescent() + 8)));
+					}
 				}
 
-				// draw the text
-				if (r != null && r.getWidth() > 10 && r.getHeight() > 10) {
-					int textSize;
-					textSize = treemapState.getAppearanceValue(
-							AppearanceType.LABEL_SIZE, node.getLevel() - 1);
-
-					applet.textSize(textSize);
-					applet.fill(100);
-					applet.textAlign(PApplet.CENTER, PApplet.CENTER);
-
-					// adjust the opacity so that labels are lighter towards
-					// the 'root'
-					int opacity = treemapState.getAppearanceValue(
-							AppearanceType.LABEL_OPACITY, node.getLevel() - 1);
-					applet.fill(80, opacity);
-
-					applet.pushMatrix();
-					applet.translate((float) r.getCenterX(),
-							(float) r.getCenterY());
-					// if it doesn't fit, rotate but only if it fits better
-					boolean rotated = false;
-					int textWidth = (int) applet.textWidth(label);
-					if (treemapState.getAppearanceValue(
-							AppearanceType.ALLOW_VERTICAL_LABELS,
-							node.getLevel() - 1) == 1) {
-						if (r.getWidth() < textWidth
-								&& r.getHeight() - textWidth > r.getWidth()
-										- textWidth) {
-							applet.rotate(-PApplet.HALF_PI);
-							rotated = true;
-						}
-					}
-					// if autosize text, scale appropriately
-					if (treemapState
-							.getAppearanceValue(AppearanceType.AUTOSIZE_LABELS,
-									node.getLevel() - 1) == 1) {
-						if (rotated) {
-							if (treemapState.getAppearanceValue(
-									AppearanceType.AUTOSIZE_LABELS,
-									node.getLevel() - 1) == 1) {
-								applet.scale(PApplet.min(
-										(float) r.getHeight() / (textWidth + 8),
-										(float) r.getWidth()
-												/ (applet.textAscent()
-														+ applet.textDescent() + 8)));
-							}
-						} else {
-							applet.scale(PApplet.min(
-									(float) r.getWidth() / (textWidth + 8),
-									(float) r.getHeight()
-											/ (applet.textAscent()
-													+ applet.textDescent() + 8)));
-						}
-					}
-
-					// draw label
-					applet.text(label, 0, 0);
-					applet.popMatrix();
-				}
+				// draw label
+				applet.text(label, 0, 0);
+				applet.popMatrix();
 			}
 		}
 	}
@@ -494,7 +484,7 @@ public class TreemapPanel {
 		int colourLevel = -1;
 		// find the colourField closest to the leaves
 		if (colourFields.length > 0) {
-			for (int i = treemapState.getColourFields()[0].length - 1; i >= 0; i--) {
+			for (int i = colourFields.length - 1; i >= 0; i--) {
 				if (colourFields[i] != null) {
 					colourLevel = i;
 					break;
@@ -558,7 +548,6 @@ public class TreemapPanel {
 					maxs[i] += 1;
 				}
 			}
-
 		}
 
 		// draw them
@@ -571,8 +560,8 @@ public class TreemapPanel {
 		while (it.hasNext()) {
 			TreemapSummaryNode node = (TreemapSummaryNode) it.next();
 			int level = node.getLevel();
-			int borderwidth = treemapState.getAppearanceValue(
-					AppearanceType.BORDER_WIDTH, level - 1);
+			int borderwidth = treemapState.getAppearance(level - 1).get(
+					AppearanceType.BORDER_WIDTH);
 			if (borderwidth == 0) {
 				applet.noStroke();
 			} else {

@@ -22,6 +22,7 @@ import javax.swing.tree.TreeNode;
 
 import org.gicentre.apps.hide.Layout;
 import org.gicentre.apps.hide.TreemapPanel;
+import org.gicentre.apps.hide.TreemapState;
 import org.gicentre.apps.hide.TreemapStateGui;
 import org.gicentre.data.SummariseNode;
 import org.gicentre.data.summary.SummariseField;
@@ -43,34 +44,27 @@ import processing.core.PImage;
 public class PTreemap extends PApplet {
 
 	PFont font; // font
-	TreemapStateGui treemapStateGui; // dual role of graphic state and GUI
-	TreemapPanel treemapPanel; // draws the graphic
+	TreemapStateGui treemapState;
+	TreemapPanel treemapPanel;
 	DecimalFormat df = new DecimalFormat("0.00");
 
 	String defaultHive = null;
 
+	private List<Layout> layouts;
 	List<DataField> hierFields;
 	List<SummariseField> summariseFields;
-	List<Layout> layouts;
 	List<Object[]> records;
-	List<Object[]> columnValues;
 
 	public PTreemap() {
-		layouts = new ArrayList<Layout>();
-		layouts.add(Layout.ONE_DIM_STRIP);
-		layouts.add(Layout.ONE_DIM_LEFT_RIGHT);
-		layouts.add(Layout.ONE_DIM_TOP_BOTTOM);
-		layouts.add(Layout.TWO_DIMENSIONAL);
-		layouts.add(Layout.ABS_POSITION);
 	}
 
 	public void setData(List<DataField> hierFields,
 			List<SummariseField> summariseFields, List<Object[]> records,
-			List<Object[]> columnValues, String defaultHive) {
+			String defaultHive) {
+		// this.treemapState = treemapState;
 		this.hierFields = hierFields;
 		this.summariseFields = summariseFields;
 		this.records = records;
-		this.columnValues = columnValues;
 
 		this.defaultHive = defaultHive;
 	}
@@ -88,7 +82,6 @@ public class PTreemap extends PApplet {
 	 * Initialises the application
 	 */
 	public void setup() {
-
 		if (frame != null) {
 			frame.setResizable(true);
 		}
@@ -102,19 +95,12 @@ public class PTreemap extends PApplet {
 		// font = createFont("Tahoma", 12);
 		font = createFont("FFScala", 12);
 
-		// create a new treemap state
-		// treemapStateGui = new TreemapStateGui(this, 0, 0, font, 2, 1, 1,
-		// dataLoader.getAllowedHierVars(),
-		// dataLoader.getAllowedOrderVars(),
-		// dataLoader.getAllowedSizeVars(),
-		// dataLoader.getAllowedColourVars(), dataLoader.getLayouts());
-
-		treemapStateGui = new TreemapStateGui(this, 0, 0, font, 2, 1, 1,
+		treemapState = new TreemapStateGui(this, 0, 0, font, 2, 1, 1,
 				hierFields, summariseFields, layouts);
 
 		// create new treemap panel
 		treemapPanel = new TreemapPanel(this, font, new Rectangle(0, 0, width,
-				height), records, columnValues, summariseFields);
+				height), records, summariseFields);
 
 		if (defaultHive != null)
 			restoreState(defaultHive);
@@ -147,13 +133,13 @@ public class PTreemap extends PApplet {
 		background(255);
 
 		// otherwise draw the graphic
-		treemapPanel.draw(treemapStateGui);
+		treemapPanel.draw(treemapState);
 
 		if (showGui) {
-			treemapStateGui.draw();
+			treemapState.draw();
 		}
 
-		if (treemapStateGui.getHierFields().length == 0) {
+		if (treemapState.getHierFields().length == 0) {
 			fill(150);
 			textFont(font);
 			textSize(20);
@@ -203,9 +189,9 @@ public class PTreemap extends PApplet {
 			textAlign(CENTER, BOTTOM);
 			textSize(20);
 			fill(50);
-			if (!treemapStateGui.isEmpty()) {
-				text(Expression.formatExpression(treemapStateGui.getState()),
-						0, 0, width, height);
+			if (!treemapState.isEmpty()) {
+				text(Expression.formatExpression(treemapState.getState()), 0,
+						0, width, height);
 			} else {
 				text("", 0, 0, width, height);
 			}
@@ -220,7 +206,7 @@ public class PTreemap extends PApplet {
 
 	private void restoreState(String hive) {
 		Collection<Expression> expressions = Expression.parseExpressions(hive);
-		treemapStateGui.applyExpressions(expressions);
+		treemapState.applyExpressions(expressions);
 
 		treemapPanel.flagToDoStructuralRebuild();
 		// System.out.println("Restored state to " + hive);
@@ -298,7 +284,8 @@ public class PTreemap extends PApplet {
 		loop();
 		tooltipLabel = null;
 		tooltipData = null;
-		if (!showGui || (showGui && !treemapStateGui.contains(mouseX, mouseY))) {
+		if (!showGui) {// || (showGui && !treemapStateGui.contains(mouseX,
+						// mouseY))) {
 			// identify the node (rectangle) that the mouse is over
 			TreemapSummaryNode node = treemapPanel.getNodeFromMouse();
 			treemapPanel.setActiveNode(node);
@@ -326,21 +313,21 @@ public class PTreemap extends PApplet {
 				// state
 				HashSet<SummariseField> summaryFieldsToDisplay = new HashSet<SummariseField>();
 				// sizes
-				for (int i = 0; i < treemapStateGui.getSizeFields().length; i++) {
+				for (int i = 0; i < treemapState.getSizeFields().length; i++) {
 					summaryFieldsToDisplay
-							.add(treemapStateGui.getSizeFields()[i][treemapStateGui
+							.add(treemapState.getSizeFields()[i][treemapState
 									.getSizeFields()[i].length - 1]);
 				}
 				// orders
-				for (int i = 0; i < treemapStateGui.getOrderFields().length; i++) {
+				for (int i = 0; i < treemapState.getOrderFields().length; i++) {
 					summaryFieldsToDisplay
-							.add(treemapStateGui.getOrderFields()[i][treemapStateGui
+							.add(treemapState.getOrderFields()[i][treemapState
 									.getOrderFields()[i].length - 1]);
 				}
 				// colours
-				for (int i = 0; i < treemapStateGui.getColourFields().length; i++) {
-					SummariseField summariseField = treemapStateGui
-							.getColourFields()[i][treemapStateGui
+				for (int i = 0; i < treemapState.getColourFields().length; i++) {
+					SummariseField summariseField = treemapState
+							.getColourFields()[i][treemapState
 							.getColourFields()[i].length - 1];
 					if (summariseField != null
 							&& summariseField instanceof SummariseNull == false) {
@@ -397,8 +384,8 @@ public class PTreemap extends PApplet {
 	 */
 	public void mouseClicked() {
 		// check that the mouse click is relevant to the GUI
-		if (treemapStateGui != null && showGui) {
-			treemapStateGui.mouseClicked();
+		if (treemapState != null && showGui) {
+			treemapState.mouseClicked();
 		}
 		// redraw
 		loop();

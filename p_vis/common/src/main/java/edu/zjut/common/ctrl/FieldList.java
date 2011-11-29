@@ -9,8 +9,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.ListModel;
 
-public class FieldList<DataField> extends JList<DataField> implements
-		KeyListener {
+public class FieldList<E> extends JList<E> implements KeyListener {
 
 	public static final int VERTICAL = 0;
 	public static final int HORIZONTAL = 3;
@@ -20,7 +19,7 @@ public class FieldList<DataField> extends JList<DataField> implements
 
 	private int fieldType = MEASURE;
 
-	private FieldListCell<DataField> cellRenderer;
+	private FieldListCell<E> cellRenderer;
 	private boolean isHorizontal = false;
 	private int listHeight;
 
@@ -32,12 +31,12 @@ public class FieldList<DataField> extends JList<DataField> implements
 		init(fieldType);
 	}
 
-	public FieldList(int fieldType, ListModel<DataField> dataModel) {
+	public FieldList(int fieldType, ListModel<E> dataModel) {
 		super(dataModel);
 		init(fieldType);
 	}
 
-	public FieldList(final DataField[] listData) {
+	public FieldList(final E[] listData) {
 		super(listData);
 		init(fieldType);
 	}
@@ -49,9 +48,12 @@ public class FieldList<DataField> extends JList<DataField> implements
 
 		this.setTransferHandler(new FieldTransferHandler(fieldType));
 
-		this.cellRenderer = new FieldListCell<DataField>();
+		this.cellRenderer = new FieldListCell<E>();
 		this.setCellRenderer(cellRenderer);
-		this.setPreferredSize(new Dimension(100, 25));
+	}
+
+	public Dimension getPreferredSize() {
+		return new Dimension(80, 25);
 	}
 
 	public int getFieldType() {
@@ -61,7 +63,7 @@ public class FieldList<DataField> extends JList<DataField> implements
 	public void setLayoutOrientation(int layoutOrientation) {
 		if (layoutOrientation == HORIZONTAL) {
 			this.setVisibleRowCount(1);
-			this.setFixedCellWidth(120);
+			this.setFixedCellWidth(50);
 			this.setFixedCellHeight(listHeight);
 			isHorizontal = true;
 
@@ -104,7 +106,7 @@ public class FieldList<DataField> extends JList<DataField> implements
 	public void keyPressed(KeyEvent e) {
 		int index = this.getSelectedIndex();
 		if (index != -1 && e.getKeyCode() == KeyEvent.VK_DELETE) {
-			DefaultListModel<DataField> model = (DefaultListModel<DataField>) getModel();
+			DefaultListModel<E> model = (DefaultListModel<E>) getModel();
 			model.remove(index);
 		}
 	}

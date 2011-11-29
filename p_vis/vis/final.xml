@@ -1,11 +1,11 @@
 <VizState>
 	<beanSet>
 		<entry>
-			<string>VariablePicker</string>
+			<string>DataWindow</string>
 			<ToolkitBean>
-				<objectClass>edu.zjut.common.ui.VariablePicker</objectClass>
+				<objectClass>edu.zjut.common.ctrl.DataWindow</objectClass>
 				<originalBean />
-				<uniqueName>VariablePicker</uniqueName>
+				<uniqueName>DataWindow</uniqueName>
 				<internalFrame>
 					<location>
 						<x>0</x>
@@ -39,11 +39,11 @@
 			</ToolkitBean>
 		</entry>
 		<entry>
-			<string>TreemapViewer</string>
+			<string>Treemap</string>
 			<ToolkitBean>
-				<objectClass>edu.zjut.vis.treemap.TreemapViewer</objectClass>
+				<objectClass>edu.zjut.vis.treemap.Treemap</objectClass>
 				<originalBean />
-				<uniqueName>TreemapViewer</uniqueName>
+				<uniqueName>Treemap</uniqueName>
 				<internalFrame>
 					<location>
 						<x>720</x>

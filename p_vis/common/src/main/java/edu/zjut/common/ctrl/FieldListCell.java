@@ -15,8 +15,7 @@ import javax.swing.ListCellRenderer;
 import edu.zjut.common.data.attr.DimensionField;
 import edu.zjut.common.data.attr.MeasureField;
 
-public class FieldListCell<DataField> extends JComponent implements
-		ListCellRenderer<DataField> {
+public class FieldListCell<E> extends JComponent implements ListCellRenderer<E> {
 
 	Color green = new Color(140, 200, 175, 200);
 	Color darkGreen = new Color(135, 170, 135, 200);
@@ -30,8 +29,6 @@ public class FieldListCell<DataField> extends JComponent implements
 	boolean isSelected = false;
 
 	String text = "hello";
-	int w = 120;
-	int h = 20;
 
 	public FieldListCell() {
 		this.setOpaque(false);
@@ -43,10 +40,15 @@ public class FieldListCell<DataField> extends JComponent implements
 		int width = this.getWidth();
 		int height = this.getHeight();
 
-		w = width - 3;
-		int x = 0, y = height / 2 - h / 2;
+		int w;
+		int h = 20;
+		int gap = 2;
+		w = width - 2 * gap;
+		int x = gap, y = height / 2 - h / 2;
 
-		// System.out.println(x + " " + y);
+		int textGap = 20;
+		if (width < 100)
+			textGap = (int) (width * 0.2);
 
 		Graphics2D g2 = (Graphics2D) g;
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
@@ -62,24 +64,28 @@ public class FieldListCell<DataField> extends JComponent implements
 
 		g2.fillRoundRect(x, y, w, h, 20, 20);
 		g2.setColor(Color.BLACK);
-		g2.drawString(text, 20, y + 15);
+		g2.drawString(text, textGap, y + 15);
 	}
 
 	@Override
-	public Component getListCellRendererComponent(
-			JList<? extends DataField> list, DataField value, int index,
-			boolean isSelected, boolean cellHasFocus) {
-		if (value instanceof DimensionField) {
+	public Component getListCellRendererComponent(JList<? extends E> list,
+			E value, int index, boolean isSelected, boolean cellHasFocus) {
+
+		FieldList<E> fieldList = (FieldList<E>) list;
+		int type = fieldList.getFieldType();
+
+		if (type == FieldList.DIMENSION) {
 			color = green;
 			selectedColor = darkGreen;
 		}
 
-		if (value instanceof MeasureField) {
+		if (type == FieldList.MEASURE) {
 			color = blue;
 			selectedColor = darkBlue;
 		}
 
 		this.text = value.toString();
+		this.setToolTipText(text);
 		this.isSelected = isSelected;
 		return this;
 	}

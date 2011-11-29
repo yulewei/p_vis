@@ -96,4 +96,8 @@ public abstract class SummariseField {
 		}
 		return new SummariseSum(field);
 	}
+
+	public String toString() {
+		return dataField.getName();
+	}
 }

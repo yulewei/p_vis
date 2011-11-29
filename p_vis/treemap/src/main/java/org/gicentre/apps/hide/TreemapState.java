@@ -16,6 +16,9 @@ import org.gicentre.hive.Preset;
 import org.gicentre.hive.Type;
 import org.gicentre.hive.Variable;
 
+import processing.core.PApplet;
+import processing.core.PFont;
+
 import edu.zjut.common.data.attr.DataField;
 import edu.zjut.common.data.attr.FieldType;
 
@@ -63,11 +66,19 @@ public class TreemapState implements Hive {
 	// Hashmap of the appearance states for each appearance type (see below)
 	protected HashMap<AppearanceType, Integer>[] appearanceValues;
 
-	public TreemapState(List<DataField> allowedHierarchyFields,
+	public TreemapState(List<DataField> hierFields,
+			List<SummariseField> sumFields) {
+		this(hierFields, new ArrayList<SummariseField>(sumFields),
+				new ArrayList<SummariseField>(sumFields),
+				new ArrayList<SummariseField>(sumFields), null);
+	}
+
+	public TreemapState(List<DataField> allowedHierFields,
 			List<SummariseField> allowedOrderFields,
 			List<SummariseField> allowedSizeFields,
 			List<SummariseField> allowedColourFields,
 			List<Layout> allowedLayouts) {
+
 		this.orderFields = new SummariseField[2][0];
 		this.sizeFields = new SummariseField[1][0];
 		this.colourFields = new SummariseField[1][0];
@@ -75,51 +86,45 @@ public class TreemapState implements Hive {
 		this.filterValues = new Object[0];
 		this.appearanceValues = new HashMap[0];
 
-		this.summariseNull = new SummariseNull("summariseNull");
+		if (allowedLayouts == null) {
+			allowedLayouts = new ArrayList<Layout>();
+			allowedLayouts.add(Layout.ONE_DIM_STRIP);
+			allowedLayouts.add(Layout.ONE_DIM_LEFT_RIGHT);
+			allowedLayouts.add(Layout.ONE_DIM_TOP_BOTTOM);
+			allowedLayouts.add(Layout.TWO_DIMENSIONAL);
+			allowedLayouts.add(Layout.ABS_POSITION);
+		}
 
-		this.allowedHierFields = allowedHierarchyFields;
-
+		this.summariseNull = new SummariseNull("Null");
+		this.allowedHierFields = allowedHierFields;
 		this.allowedOrderFields = allowedOrderFields;
-		this.allowedOrderFields.remove(null);// cannot have any nulls
-		this.allowedOrderFields.add(0, summariseNull);// This adds NATURAL
-
+		this.allowedOrderFields.remove(null);
+		this.allowedOrderFields.add(0, summariseNull);
 		this.allowedSizeFields = allowedSizeFields;
-		this.allowedSizeFields.remove(null);// cannot have any nulls
-		this.allowedSizeFields.add(0, summariseNull);// This adds FIXED
-
+		this.allowedSizeFields.remove(null);
+		this.allowedSizeFields.add(0, summariseNull);
 		this.allowedColourFields = allowedColourFields;
-		this.allowedColourFields.remove(null);// cannot have any nulls
-		this.allowedColourFields.add(0, summariseNull);// This adds HIER
-		// if (!allowedColourFields.contains(null)) {
-		// allowedColourFields.add(null);// no colour
-		// }
-
+		this.allowedColourFields.remove(null);
+		this.allowedColourFields.add(0, summariseNull);
 		this.allowedLayouts = allowedLayouts;
 
 		hierFieldsLookup = new HashMap<String, DataField>();
-		for (DataField dataField : allowedHierarchyFields) {
-			if (dataField != null) {
-				hierFieldsLookup.put(dataField.getName(), dataField);
-			}
+		for (DataField dataField : allowedHierFields) {
+			hierFieldsLookup.put(dataField.getName(), dataField);
+
 		}
 		orderFieldsLookup = new HashMap<String, SummariseField>();
 		for (SummariseField summariseField : allowedOrderFields) {
-			if (summariseField != null) {
-				orderFieldsLookup.put(summariseField.getName(), summariseField);
-			}
+			orderFieldsLookup.put(summariseField.getName(), summariseField);
+
 		}
 		sizeFieldsLookup = new HashMap<String, SummariseField>();
 		for (SummariseField summariseField : allowedSizeFields) {
-			if (summariseField != null) {
-				sizeFieldsLookup.put(summariseField.getName(), summariseField);
-			}
+			sizeFieldsLookup.put(summariseField.getName(), summariseField);
 		}
 		colourFieldsLookup = new HashMap<String, SummariseField>();
 		for (SummariseField summariseField : allowedColourFields) {
-			if (summariseField != null) {
-				colourFieldsLookup
-						.put(summariseField.getName(), summariseField);
-			}
+			colourFieldsLookup.put(summariseField.getName(), summariseField);
 		}
 	}
 
@@ -158,53 +163,8 @@ public class TreemapState implements Hive {
 	 * 
 	 * @return array of appearance values (for each level)
 	 */
-	public int getAppearanceValue(AppearanceType appearanceType, int level) {
-		return (Integer) appearanceValues[level].get(appearanceType);
-	}
-
-	/**
-	 * Gets the variables that are allowed to be in the hierarchy
-	 * 
-	 * @return
-	 */
-	public List<DataField> getAllowedHierarchyFields() {
-		return allowedHierFields;
-	}
-
-	/**
-	 * Gets the variables that are allowed to be used for size
-	 * 
-	 * @return
-	 */
-	public List<SummariseField> getAllowedSizeFields() {
-		return allowedSizeFields;
-	}
-
-	/**
-	 * Gets the variables that are allowed to be used for order
-	 * 
-	 * @return
-	 */
-	public List<SummariseField> getAllowedOrderFields() {
-		return allowedOrderFields;
-	}
-
-	/**
-	 * Gets the variables that are allowed to be used for colour
-	 * 
-	 * @return
-	 */
-	public List<SummariseField> getAllowedColourFields() {
-		return allowedColourFields;
-	}
-
-	/**
-	 * Gets the layouts that are offered
-	 * 
-	 * @return
-	 */
-	public List<Layout> getAllowedLayouts() {
-		return allowedLayouts;
+	public HashMap<AppearanceType, Integer> getAppearance(int level) {
+		return appearanceValues[level];
 	}
 
 	/**

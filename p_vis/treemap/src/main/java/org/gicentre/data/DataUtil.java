@@ -30,8 +30,8 @@ public class DataUtil {
 	 * @return The root node of a tree that summarises the data
 	 */
 	public static SummariseNode getSummary(List<Object[]> records,
-			List<Object[]> columnValues, final DataField[] hierFields,
-			List<SummariseField> sumFields, DataFilter dataFilter) {
+			final DataField[] hierFields, List<SummariseField> sumFields,
+			DataFilter dataFilter) {
 
 		int numLevels = hierFields.length;
 

@@ -8,12 +8,12 @@
         <uniqueName>Treemap</uniqueName>
         <internalFrame>
           <location>
-            <x>279</x>
-            <y>60</y>
+            <x>240</x>
+            <y>30</y>
           </location>
           <size>
-            <width>505</width>
-            <height>510</height>
+            <width>800</width>
+            <height>800</height>
           </size>
         </internalFrame>
         <zOrder>0</zOrder>

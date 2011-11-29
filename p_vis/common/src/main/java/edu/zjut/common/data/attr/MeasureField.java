@@ -35,6 +35,9 @@ public class MeasureField extends DataField {
 	}
 
 	private void buildData() {
+		if (dataType == null)
+			return;
+
 		switch (dataType) {
 		case INT:
 			Integer[] intValues = (Integer[]) columnValues;
