@@ -59,21 +59,21 @@ public class TreemapBuilder {
 			double order = node.getNaturalOrder();
 			double orderX = node.getNaturalOrder();
 			double orderY = node.getNaturalOrder();
-			if (!layouts[relativeLevel].equals(Layout.TWO_DIMENSIONAL)
-					&& !layouts[relativeLevel].equals(Layout.ABS_POSITION)) {
+			if (!layouts[relativeLevel].equals(Layout.SP)
+					&& !layouts[relativeLevel].equals(Layout.SA)) {
 				try {
 					order = node
 							.getSummaryAsDouble(orderVars[0][relativeLevel]);
 				} catch (Exception e) {
 					// do nothing - uses the natural order (above)
 				}
-				if (layouts[relativeLevel].equals(Layout.ONE_DIM_STRIP)) {
+				if (layouts[relativeLevel].equals(Layout.ST)) {
 					treeMapProperties.setParameter("layout"
 							+ (relativeLevel + startLevel), "strip");
 					treeMapProperties.setParameter("align"
 							+ (relativeLevel + startLevel), "free");
 				} else if (layouts[relativeLevel]
-						.equals(Layout.ONE_DIM_ORDERED_SQUARIFIED)) {
+						.equals(Layout.OS)) {
 					treeMapProperties
 							.setParameter("layout"
 									+ (relativeLevel + startLevel),
@@ -81,13 +81,13 @@ public class TreemapBuilder {
 					treeMapProperties.setParameter("align"
 							+ (relativeLevel + startLevel), "free");
 				} else if (layouts[relativeLevel]
-						.equals(Layout.ONE_DIM_LEFT_RIGHT)) {
+						.equals(Layout.HZ)) {
 					treeMapProperties.setParameter("layout"
 							+ (relativeLevel + startLevel), "sliceAndDice");
 					treeMapProperties.setParameter("align"
 							+ (relativeLevel + startLevel), "horizontal");
 				} else if (layouts[relativeLevel]
-						.equals(Layout.ONE_DIM_TOP_BOTTOM)) {
+						.equals(Layout.VT)) {
 					treeMapProperties.setParameter("layout"
 							+ (relativeLevel + startLevel), "sliceAndDice");
 					treeMapProperties.setParameter("align"
@@ -156,7 +156,7 @@ public class TreemapBuilder {
 		while (it1.hasNext()) {
 			TreemapSummaryNode node = (TreemapSummaryNode) it1.next();
 			int level = node.getLevel();
-			if (layouts[level - 1].equals(Layout.ABS_POSITION)) {
+			if (layouts[level - 1].equals(Layout.SA)) {
 
 				// find size for each node
 				float halfWHs = (float) Math.sqrt((node.getRectangle()
@@ -219,7 +219,7 @@ public class TreemapBuilder {
 			int level = node.getLevel();
 
 			if (maxXs[level - 1] != null && maxYs[level - 1] != null) {
-				if (layouts[level - 1].equals(Layout.ABS_POSITION)) {
+				if (layouts[level - 1].equals(Layout.SA)) {
 
 					Rectangle2D parentR = ((TreemapSummaryNode) node
 							.getParent()).getRectangle();

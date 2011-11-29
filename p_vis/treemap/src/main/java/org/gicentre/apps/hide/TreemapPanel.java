@@ -502,7 +502,7 @@ public class TreemapPanel {
 				if (node.getChildren().isEmpty()
 						|| level == colourLevel + 1
 						|| (level - 1 + 1 < treemapState.layouts.length && treemapState.layouts[level - 1 + 1]
-								.equals(Layout.ABS_POSITION))) {
+								.equals(Layout.SA))) {
 					Float value = null;
 					if (colourFields[level - 1] instanceof SummariseNull
 							&& node.getSummariseNode().getConditioningField()
@@ -574,7 +574,7 @@ public class TreemapPanel {
 			if (node.getChildren().isEmpty()
 					|| level == colourLevel + 1
 					|| (level - 1 + 1 < treemapState.layouts.length && treemapState.layouts[level - 1 + 1]
-							.equals(Layout.ABS_POSITION))) {
+							.equals(Layout.SA))) {
 				// work out the colour
 				Integer colour = null;
 				if (colourFields[level - 1] != null

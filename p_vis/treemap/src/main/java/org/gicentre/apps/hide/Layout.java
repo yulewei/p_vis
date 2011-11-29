@@ -2,21 +2,49 @@ package org.gicentre.apps.hide;
 
 // Layouts
 public enum Layout {
-	ONE_DIM_LEFT_RIGHT, ONE_DIM_TOP_BOTTOM, ONE_DIM_ORDERED_SQUARIFIED, ONE_DIM_STRIP, TWO_DIMENSIONAL, ABS_POSITION;
+	/**
+	 * sliceAndDice, horizontal
+	 */
+	HZ,
+
+	/**
+	 * sliceAndDice, vertical
+	 */
+	VT,
+
+	/**
+	 * orderedSquarified
+	 */
+	OS,
+
+	/**
+	 * strip
+	 */
+	ST,
+
+	/**
+	 * spatial
+	 */
+	SP,
+
+	/**
+	 * 
+	 */
+	SA;
 
 	public String toString() {
-		if (this.equals(ONE_DIM_LEFT_RIGHT)) {
-			return "LeftToRight";
-		} else if (this.equals(ONE_DIM_TOP_BOTTOM)) {
-			return "TopToBottom";
-		} else if (this.equals(ONE_DIM_ORDERED_SQUARIFIED)) {
-			return "OrderedSq";
-		} else if (this.equals(ONE_DIM_STRIP)) {
-			return "RowByRow";
-		} else if (this.equals(TWO_DIMENSIONAL)) {
-			return "2dFill";
-		} else if (this.equals(ABS_POSITION)) {
-			return "2dPlot";
+		if (this.equals(HZ)) {
+			return "HZ";
+		} else if (this.equals(VT)) {
+			return "VT";
+		} else if (this.equals(OS)) {
+			return "OS";
+		} else if (this.equals(ST)) {
+			return "ST";
+		} else if (this.equals(SP)) {
+			return "SP";
+		} else if (this.equals(SA)) {
+			return "SA";
 		} else
 			return null;
 	}

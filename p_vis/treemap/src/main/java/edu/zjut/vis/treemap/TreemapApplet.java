@@ -26,11 +26,11 @@ public class TreemapApplet extends PApplet {
 
 	public TreemapApplet() {
 		layouts = new ArrayList<Layout>();
-		layouts.add(Layout.ONE_DIM_STRIP);
-		layouts.add(Layout.ONE_DIM_LEFT_RIGHT);
-		layouts.add(Layout.ONE_DIM_TOP_BOTTOM);
-		layouts.add(Layout.TWO_DIMENSIONAL);
-		layouts.add(Layout.ABS_POSITION);
+		layouts.add(Layout.ST);
+		layouts.add(Layout.HZ);
+		layouts.add(Layout.VT);
+		layouts.add(Layout.SP);
+		layouts.add(Layout.SA);
 	}
 
 	public void setData(TreemapState treemapState,

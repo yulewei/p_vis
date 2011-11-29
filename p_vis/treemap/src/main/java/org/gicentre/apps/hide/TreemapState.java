@@ -88,11 +88,11 @@ public class TreemapState implements Hive {
 
 		if (allowedLayouts == null) {
 			allowedLayouts = new ArrayList<Layout>();
-			allowedLayouts.add(Layout.ONE_DIM_STRIP);
-			allowedLayouts.add(Layout.ONE_DIM_LEFT_RIGHT);
-			allowedLayouts.add(Layout.ONE_DIM_TOP_BOTTOM);
-			allowedLayouts.add(Layout.TWO_DIMENSIONAL);
-			allowedLayouts.add(Layout.ABS_POSITION);
+			allowedLayouts.add(Layout.ST);
+			allowedLayouts.add(Layout.HZ);
+			allowedLayouts.add(Layout.VT);
+			allowedLayouts.add(Layout.SP);
+			allowedLayouts.add(Layout.SA);
 		}
 
 		this.summariseNull = new SummariseNull("Null");
@@ -779,7 +779,7 @@ public class TreemapState implements Hive {
 							}
 							newFields[0][i] = summariseField;
 							newFields[1][i] = summariseNull;
-							this.layouts[i] = Layout.ONE_DIM_STRIP;
+							this.layouts[i] = Layout.ST;
 						} else if (varGroup.length == 2
 								&& varGroup[0].getName().equals(
 										Preset.NULL.toString())
@@ -798,7 +798,7 @@ public class TreemapState implements Hive {
 							}
 							newFields[0][i] = summariseField;
 							newFields[1][i] = summariseNull;
-							this.layouts[i] = Layout.ONE_DIM_TOP_BOTTOM;
+							this.layouts[i] = Layout.VT;
 						} else if (varGroup.length == 2
 								&& !varGroup[0].getName().equals(
 										Preset.NULL.toString())
@@ -817,7 +817,7 @@ public class TreemapState implements Hive {
 							}
 							newFields[0][i] = summariseField;
 							newFields[1][i] = summariseNull;
-							this.layouts[i] = Layout.ONE_DIM_LEFT_RIGHT;
+							this.layouts[i] = Layout.HZ;
 						} else {
 							SummariseField summariseField = fieldsLookups
 									.get(varGroup[0].getName());
@@ -847,8 +847,8 @@ public class TreemapState implements Hive {
 
 							// if layout is already set to ABS_POSITION, retain
 							// this... otherwise use TWO_DIMENSIONAL
-							if (!this.layouts[i].equals(Layout.ABS_POSITION)) {
-								this.layouts[i] = Layout.TWO_DIMENSIONAL;
+							if (!this.layouts[i].equals(Layout.SA)) {
+								this.layouts[i] = Layout.SP;
 							}
 						}
 
@@ -926,7 +926,7 @@ public class TreemapState implements Hive {
 					// if we are changing the size/colour values...
 					if (varGroup[0].getName().equals(
 							Preset.CARTESIAN.toString())) {
-						newLayouts[i] = Layout.ABS_POSITION;
+						newLayouts[i] = Layout.SA;
 					} else if (varGroup[0].getName().equals(
 							Preset.SPACE_FILLING.toString())) {
 						// unfortunately, this cannot distinguish between
@@ -939,12 +939,12 @@ public class TreemapState implements Hive {
 							orderFields[j] = this.getOrderFields()[j][i];
 						}
 						if (orderFields[0] == null && orderFields[1] != null) {
-							newLayouts[i] = Layout.ONE_DIM_TOP_BOTTOM;
+							newLayouts[i] = Layout.VT;
 						} else if (orderFields[0] != null
 								&& orderFields[1] == null) {
-							newLayouts[i] = Layout.ONE_DIM_LEFT_RIGHT;
+							newLayouts[i] = Layout.HZ;
 						} else {
-							newLayouts[i] = Layout.TWO_DIMENSIONAL;
+							newLayouts[i] = Layout.SP;
 						}
 					} else {
 						System.err.println("Not a valid layout");
@@ -1009,8 +1009,8 @@ public class TreemapState implements Hive {
 		for (int i = 0; i < orderFields[0].length; i++) {
 			String[] varStrings = null;
 
-			if (layouts[i] == Layout.ONE_DIM_STRIP
-					|| layouts[i] == Layout.ONE_DIM_ORDERED_SQUARIFIED) {
+			if (layouts[i] == Layout.ST
+					|| layouts[i] == Layout.OS) {
 				// One dimensional ordering
 				if (orderFields[0][i] == null
 						|| orderFields[0][i] instanceof SummariseNull) {
@@ -1019,8 +1019,8 @@ public class TreemapState implements Hive {
 					varStrings = new String[] { "$"
 							+ orderFields[0][i].getName() };
 				}
-			} else if (layouts[i] == Layout.ONE_DIM_LEFT_RIGHT
-					|| layouts[i] == Layout.ONE_DIM_TOP_BOTTOM) {
+			} else if (layouts[i] == Layout.HZ
+					|| layouts[i] == Layout.VT) {
 				// One dimensional ordering vertically or horizontally
 				String varName;
 				if (orderFields[0][i] == null
@@ -1029,7 +1029,7 @@ public class TreemapState implements Hive {
 				} else {
 					varName = "$" + orderFields[0][i].getName();
 				}
-				if (layouts[i] == Layout.ONE_DIM_LEFT_RIGHT) {
+				if (layouts[i] == Layout.HZ) {
 					varStrings = new String[] { varName, Preset.NULL.toString() };
 				} else {
 					varStrings = new String[] { Preset.NULL.toString(), varName };
@@ -1123,7 +1123,7 @@ public class TreemapState implements Hive {
 		// Layouts
 		expression = new Expression(Type.S_LAYOUT);
 		for (int i = 0; i < layouts.length; i++) {
-			if (layouts[i].equals(Layout.ABS_POSITION)) {
+			if (layouts[i].equals(Layout.SA)) {
 				expression.addVar(Preset.CARTESIAN.toString());// currently, all
 																// the layouts
 																// are space

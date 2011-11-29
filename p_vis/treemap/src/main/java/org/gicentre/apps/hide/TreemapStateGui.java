@@ -37,7 +37,7 @@ public class TreemapStateGui extends TreemapState {
 
 	Tooltip clickHereToStartTooltip;
 
-	protected Layout defaultLayout = Layout.ONE_DIM_STRIP;
+	protected Layout defaultLayout = Layout.ST;
 
 	// Rectangles for all the clickable words, so mouse detection is easier
 	// These are laid out by layout()
@@ -398,8 +398,8 @@ public class TreemapStateGui extends TreemapState {
 					r = orderRectangles[j][col];
 					if (r.contains(mouseX, mouseY)) {
 						applet.fill(150, 0, 0);
-					} else if (!layouts[col - 1].equals(Layout.TWO_DIMENSIONAL)
-							&& !layouts[col - 1].equals(Layout.ABS_POSITION)
+					} else if (!layouts[col - 1].equals(Layout.SP)
+							&& !layouts[col - 1].equals(Layout.SA)
 							&& j > 0) {
 						applet.fill(180);// faint if one one layout used
 					} else {
