@@ -1,11 +1,11 @@
 <VizState>
 	<beanSet>
 		<entry>
-			<string>VariablePicker</string>
+			<string>DataWindow</string>
 			<ToolkitBean>
-				<objectClass>edu.zjut.common.ui.VariablePicker</objectClass>
+				<objectClass>edu.zjut.common.ctrl.DataWindow</objectClass>
 				<originalBean />
-				<uniqueName>VariablePicker</uniqueName>
+				<uniqueName>DataWindow</uniqueName>
 				<internalFrame>
 					<location>
 						<x>0</x>

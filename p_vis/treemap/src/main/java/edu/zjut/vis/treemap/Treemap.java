@@ -12,7 +12,6 @@ import org.gicentre.apps.hide.TreemapState;
 import org.gicentre.data.summary.SummariseField;
 import org.gicentre.hive.Expression;
 
-import edu.zjut.common.ctrl.FieldList;
 import edu.zjut.common.data.DataSetForApps;
 import edu.zjut.common.data.attr.AttributeData;
 import edu.zjut.common.data.attr.DataField;
@@ -39,14 +38,13 @@ public class Treemap extends JPanel implements DataSetListener {
 	public Treemap() {
 		this.setLayout(new BorderLayout());
 
-		statePanel = new ControlPanel();
-		this.add(statePanel, BorderLayout.WEST);
-		statePanel.setPreferredSize(new Dimension(200, 500));
-
 		// pTreemap = new PTreemap();
 		pTreemap = new TreemapApplet();
-
 		this.add(pTreemap, BorderLayout.CENTER);
+
+		statePanel = new ControlPanel(pTreemap);
+		this.add(statePanel, BorderLayout.WEST);
+		statePanel.setPreferredSize(new Dimension(200, 500));
 
 		this.setPreferredSize(new Dimension(500, 500));
 
@@ -68,7 +66,7 @@ public class Treemap extends JPanel implements DataSetListener {
 				.parseExpressions(defaultHive);
 		treemapState.applyExpressions(expressions);
 
-		statePanel.setState(treemapState, pTreemap);
+		statePanel.setState(treemapState, hierFields, summariseFields);
 		pTreemap.setData(treemapState, summariseFields, records);
 
 		repaint();

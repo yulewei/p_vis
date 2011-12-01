@@ -45,6 +45,8 @@ public class TreemapApplet extends PApplet {
 
 		treemapPanel = new TreemapPanel(this, font, new Rectangle(0, 0, width,
 				height), records, summariseFields);
+		
+		frameRate(30);
 	}
 
 	public void draw() {

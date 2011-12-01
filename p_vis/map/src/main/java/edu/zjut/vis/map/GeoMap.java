@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.event.MouseEvent;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -14,10 +13,8 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 
 import edu.zjut.common.ctrl.FieldDnD;
-import edu.zjut.common.ctrl.FieldList;
 import edu.zjut.common.data.DataSetForApps;
 import edu.zjut.common.data.attr.AttributeData;
-import edu.zjut.common.data.attr.DataField;
 import edu.zjut.common.data.attr.MeasureField;
 import edu.zjut.common.data.geo.EsriFeatureObj;
 import edu.zjut.common.data.geo.GeometryData;
@@ -47,7 +44,7 @@ public class GeoMap extends JMapPanel implements DataSetListener,
 
 	public GeoMap() {
 		this.loadMapConfig("config/map_config.xml");
-		this.setTransferHandler(new MapTransferHandler(FieldList.MEASURE));
+		this.setTransferHandler(new MapTransferHandler());
 
 		this.setPreferredSize(new Dimension(500, 500));
 	}
@@ -169,48 +166,53 @@ public class GeoMap extends JMapPanel implements DataSetListener,
 			marker.setBorder(false);
 			marker.setFillColor(new Color(colorField.findColor(index)));
 		}
-		
+
 		repaint();
 	}
 
 	class MapTransferHandler extends TransferHandler {
-		private int fieldType = FieldList.MEASURE;
 
-		public MapTransferHandler(int fieldType) {
-			this.fieldType = fieldType;
+		public MapTransferHandler() {
 		}
 
+		@SuppressWarnings("unchecked")
 		public boolean canImport(TransferHandler.TransferSupport support) {
 			if (!support.isDrop()) {
 				return false;
 			}
 
-			FieldDnD data;
+			FieldDnD<MeasureField> data;
 			try {
-				data = (FieldDnD) support.getTransferable().getTransferData(
-						new DataFlavor(FieldDnD.class,
-								DataFlavor.javaSerializedObjectMimeType));
+				data = (FieldDnD<MeasureField>) support
+						.getTransferable()
+						.getTransferData(
+								new DataFlavor(FieldDnD.class,
+										DataFlavor.javaSerializedObjectMimeType));
 			} catch (Exception e) {
+				System.out.println(e);
 				return false;
 			}
 
-			return data.getFieldType() == fieldType;
+			return data.getType() == MeasureField.class;
 		}
 
+		@SuppressWarnings("unchecked")
 		public boolean importData(TransferHandler.TransferSupport support) {
-			FieldDnD data;
+			FieldDnD<MeasureField> data;
 			try {
-				data = (FieldDnD) support.getTransferable().getTransferData(
-						new DataFlavor(FieldDnD.class,
-								DataFlavor.javaSerializedObjectMimeType));
+				data = (FieldDnD<MeasureField>) support
+						.getTransferable()
+						.getTransferData(
+								new DataFlavor(FieldDnD.class,
+										DataFlavor.javaSerializedObjectMimeType));
 			} catch (Exception e) {
 				return false;
 			}
 
-			List<DataField> values = data.getValues();
+			List<MeasureField> values = data.getValues();
 			MeasureField[] measureFeilds = new MeasureField[values.size()];
 			for (int i = 0; i < values.size(); i++)
-				measureFeilds[i] = (MeasureField) values.get(i);
+				measureFeilds[i] = values.get(i);
 
 			buildMarkerAppearance(measureFeilds);
 

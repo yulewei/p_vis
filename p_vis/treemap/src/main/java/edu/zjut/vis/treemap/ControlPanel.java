@@ -2,28 +2,34 @@ package edu.zjut.vis.treemap;
 
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.DropMode;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.ListModel;
 import javax.swing.SpringLayout;
-import javax.swing.SwingConstants;
+import javax.swing.TransferHandler;
 
 import org.gicentre.apps.hide.Layout;
 import org.gicentre.apps.hide.TreemapState;
 import org.gicentre.data.summary.SummariseField;
+import org.gicentre.data.summary.SummariseNull;
 
+import edu.zjut.common.ctrl.FieldDnD;
 import edu.zjut.common.ctrl.FieldList;
 import edu.zjut.common.data.attr.DataField;
+import edu.zjut.common.data.attr.DimensionField;
+import edu.zjut.common.data.attr.MeasureField;
 
-public class ControlPanel extends JPanel implements MouseMotionListener,
-		MouseListener {
+public class ControlPanel extends JPanel {
 
 	private JLabel hierLabel;
 	private JLabel sizeLabel;
@@ -31,223 +37,516 @@ public class ControlPanel extends JPanel implements MouseMotionListener,
 	private JLabel colorLabel;
 	private JLabel layoutLabel;
 
-	private FieldList<DataField> hierFiledList;
-	private FieldList<SummariseField> sizeFieldList;
-	private FieldList<SummariseField> orderFieldList;
-	private FieldList<SummariseField> colorFieldList;
+	private FieldList<DataField> hierList;
+	private FieldList<SummariseField> sizeList;
+	private FieldList<SummariseField> orderList;
+	private FieldList<SummariseField> colorList;
 	private FieldList<Layout> layoutList;
 
-	ListModel<DataField> hierListModel;
-	ListModel<SummariseField> sizeListModel;
-	ListModel<SummariseField> orderListModel;
-	ListModel<SummariseField> colorListModel;
+	DefaultListModel<DataField> hierModel;
+	DefaultListModel<SummariseField> sizeModel;
+	DefaultListModel<SummariseField> orderModel;
+	DefaultListModel<SummariseField> colorModel;
+	DefaultListModel<Layout> layoutModel;
 
-	private TreemapApplet pTreemap;
+	TreemapApplet pTreemap;
 	TreemapState treemapState;
 
-	public ControlPanel() {
-		this.addMouseMotionListener(this);
-		this.addMouseListener(this);
+	List<DataField> allowedHierFields;
+	List<SummariseField> allowedSummariseFields;
 
-		// this.setBackground(Color.RED);
+	protected DataField[] hierFields;
+	protected SummariseField[][] sizeFields;
+	protected SummariseField[][] orderFields;
+	protected SummariseField[][] colorFields;
+	protected Layout[] layouts;
+
+	public ControlPanel(TreemapApplet pTreemap) {
+		this.pTreemap = pTreemap;
+
+		MouseDragListener mouseDrag = new MouseDragListener();
+		this.addMouseMotionListener(mouseDrag);
+		this.addMouseListener(mouseDrag);
 
 		this.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
-		SpringLayout sl_panel = new SpringLayout();
-		this.setLayout(sl_panel);
+		SpringLayout layout = new SpringLayout();
+		this.setLayout(layout);
 
-		hierLabel = new JLabel("Hier");
-		hierLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		this.add(hierLabel);
+		hierModel = new DefaultListModel<DataField>();
+		sizeModel = new DefaultListModel<SummariseField>();
+		orderModel = new DefaultListModel<SummariseField>();
+		colorModel = new DefaultListModel<SummariseField>();
+		layoutModel = new DefaultListModel<Layout>();
 
-		hierFiledList = new FieldList<DataField>(FieldList.DIMENSION);
-		hierFiledList.setDropMode(DropMode.ON_OR_INSERT);
-		hierFiledList.setDragEnabled(true);
-		hierListModel = new DefaultListModel<DataField>();
-		hierFiledList.setModel(hierListModel);
-		this.add(hierFiledList);
+		hierList = new FieldList<DataField>();
+		hierList.setDropMode(DropMode.ON_OR_INSERT);
+		hierList.setDragEnabled(true);
+		hierList.setModel(hierModel);
+		hierList.addKeyListener(new HierKeyDelete());
+		hierList.setTransferHandler(new HierFieldImporter());
+		this.add(hierList);
 
-		sizeLabel = new JLabel("Size");
-		sizeLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		this.add(sizeLabel);
-		sizeFieldList = new FieldList<SummariseField>(FieldList.MEASURE);
-		sizeFieldList.setDropMode(DropMode.ON_OR_INSERT);
-		sizeFieldList.setDragEnabled(true);
-		sizeListModel = new DefaultListModel<SummariseField>();
-		sizeFieldList.setModel(sizeListModel);
-		this.add(sizeFieldList);
+		sizeList = new FieldList<SummariseField>();
+		sizeList.setDropMode(DropMode.ON);
+		sizeList.setDragEnabled(true);
+		sizeList.setModel(sizeModel);
+		sizeList.addKeyListener(new NoStructKeyDelete(NoStructType.SIZE));
+		sizeList.setTransferHandler(new RepalceFieldImporter(NoStructType.SIZE));
+		this.add(sizeList);
 
-		orderLabel = new JLabel("Order");
-		orderLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		this.add(orderLabel);
-		orderFieldList = new FieldList<SummariseField>(FieldList.MEASURE);
-		orderFieldList.setDropMode(DropMode.ON_OR_INSERT);
-		orderFieldList.setDragEnabled(true);
-		orderListModel = new DefaultListModel<SummariseField>();
-		orderFieldList.setModel(orderListModel);
-		this.add(orderFieldList);
+		orderList = new FieldList<SummariseField>();
+		orderList.setDropMode(DropMode.ON);
+		orderList.setDragEnabled(true);
+		orderList.setModel(orderModel);
+		orderList.addKeyListener(new NoStructKeyDelete(NoStructType.ORDER));
+		orderList.setTransferHandler(new RepalceFieldImporter(
+				NoStructType.ORDER));
+		this.add(orderList);
 
-		colorLabel = new JLabel("Color");
-		colorLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		this.add(colorLabel);
-		colorFieldList = new FieldList<SummariseField>(FieldList.MEASURE);
-		colorFieldList.setDropMode(DropMode.ON_OR_INSERT);
-		colorFieldList.setDragEnabled(true);
-		colorListModel = new DefaultListModel<SummariseField>();
-		colorFieldList.setModel(colorListModel);
-		this.add(colorFieldList);
+		colorList = new FieldList<SummariseField>();
+		colorList.setDropMode(DropMode.ON);
+		colorList.setDragEnabled(true);
+		colorList.setModel(colorModel);
+		colorList.addKeyListener(new NoStructKeyDelete(NoStructType.COLOR));
+		colorList.setTransferHandler(new RepalceFieldImporter(
+				NoStructType.COLOR));
+		this.add(colorList);
 
-		layoutLabel = new JLabel("Layout");
-		layoutLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		this.add(layoutLabel);
 		layoutList = new FieldList<Layout>();
+		layoutList.setDropMode(DropMode.ON);
+		layoutList.setDragEnabled(true);
+		layoutList.setModel(layoutModel);
 		this.add(layoutList);
 
-		initLayout(sl_panel);
+		// labels
+		hierLabel = new JLabel("Hier");
+		this.add(hierLabel);
+		sizeLabel = new JLabel("Size");
+		this.add(sizeLabel);
+		orderLabel = new JLabel("Order");
+		this.add(orderLabel);
+		colorLabel = new JLabel("Color");
+		this.add(colorLabel);
+		layoutLabel = new JLabel("Layout");
+		this.add(layoutLabel);
+
+		initSpringLayout(layout);
 	}
 
-	public void initLayout(SpringLayout sl_panel) {
-
+	public void initSpringLayout(SpringLayout layout) {
 		// hier
-		sl_panel.putConstraint(SpringLayout.WEST, hierLabel, 12,
+		layout.putConstraint(SpringLayout.WEST, hierLabel, 12,
 				SpringLayout.WEST, this);
-		sl_panel.putConstraint(SpringLayout.NORTH, hierLabel, 5,
-				SpringLayout.NORTH, hierFiledList);
-		sl_panel.putConstraint(SpringLayout.WEST, hierFiledList, 5,
-				SpringLayout.EAST, hierLabel);
-		sl_panel.putConstraint(SpringLayout.EAST, hierFiledList, -5,
+		layout.putConstraint(SpringLayout.NORTH, hierLabel, 3,
+				SpringLayout.NORTH, hierList);
+		layout.putConstraint(SpringLayout.WEST, hierList, 3, SpringLayout.EAST,
+				hierLabel);
+		layout.putConstraint(SpringLayout.EAST, hierList, -3,
 				SpringLayout.EAST, this);
-		sl_panel.putConstraint(SpringLayout.NORTH, hierFiledList, 10,
+		layout.putConstraint(SpringLayout.NORTH, hierList, 10,
 				SpringLayout.NORTH, this);
 
 		// size
-		sl_panel.putConstraint(SpringLayout.EAST, sizeLabel, 0,
+		layout.putConstraint(SpringLayout.EAST, sizeLabel, 0,
 				SpringLayout.EAST, hierLabel);
-		sl_panel.putConstraint(SpringLayout.NORTH, sizeLabel, 5,
-				SpringLayout.NORTH, sizeFieldList);
-		sl_panel.putConstraint(SpringLayout.NORTH, sizeFieldList, 6,
-				SpringLayout.SOUTH, hierFiledList);
-		sl_panel.putConstraint(SpringLayout.WEST, sizeFieldList, 0,
-				SpringLayout.WEST, hierFiledList);
-		sl_panel.putConstraint(SpringLayout.EAST, sizeFieldList, 0,
-				SpringLayout.EAST, hierFiledList);
+		layout.putConstraint(SpringLayout.NORTH, sizeLabel, 5,
+				SpringLayout.NORTH, sizeList);
+		layout.putConstraint(SpringLayout.NORTH, sizeList, 6,
+				SpringLayout.SOUTH, hierList);
+		layout.putConstraint(SpringLayout.WEST, sizeList, 0, SpringLayout.WEST,
+				hierList);
+		layout.putConstraint(SpringLayout.EAST, sizeList, 0, SpringLayout.EAST,
+				hierList);
 
 		// order
-		sl_panel.putConstraint(SpringLayout.EAST, orderLabel, 0,
+		layout.putConstraint(SpringLayout.EAST, orderLabel, 0,
 				SpringLayout.EAST, hierLabel);
-		sl_panel.putConstraint(SpringLayout.NORTH, orderLabel, 5,
-				SpringLayout.NORTH, orderFieldList);
-		sl_panel.putConstraint(SpringLayout.NORTH, orderFieldList, 6,
-				SpringLayout.SOUTH, sizeFieldList);
-		sl_panel.putConstraint(SpringLayout.WEST, orderFieldList, 0,
-				SpringLayout.WEST, hierFiledList);
-		sl_panel.putConstraint(SpringLayout.EAST, orderFieldList, 0,
-				SpringLayout.EAST, hierFiledList);
+		layout.putConstraint(SpringLayout.NORTH, orderLabel, 5,
+				SpringLayout.NORTH, orderList);
+		layout.putConstraint(SpringLayout.NORTH, orderList, 6,
+				SpringLayout.SOUTH, sizeList);
+		layout.putConstraint(SpringLayout.WEST, orderList, 0,
+				SpringLayout.WEST, hierList);
+		layout.putConstraint(SpringLayout.EAST, orderList, 0,
+				SpringLayout.EAST, hierList);
 
 		// color
-		sl_panel.putConstraint(SpringLayout.EAST, colorLabel, 0,
+		layout.putConstraint(SpringLayout.EAST, colorLabel, 0,
 				SpringLayout.EAST, hierLabel);
-		sl_panel.putConstraint(SpringLayout.NORTH, colorLabel, 5,
-				SpringLayout.NORTH, colorFieldList);
-		sl_panel.putConstraint(SpringLayout.NORTH, colorFieldList, 6,
-				SpringLayout.SOUTH, orderFieldList);
-		sl_panel.putConstraint(SpringLayout.WEST, colorFieldList, 0,
-				SpringLayout.WEST, hierFiledList);
-		sl_panel.putConstraint(SpringLayout.EAST, colorFieldList, 0,
-				SpringLayout.EAST, hierFiledList);
+		layout.putConstraint(SpringLayout.NORTH, colorLabel, 5,
+				SpringLayout.NORTH, colorList);
+		layout.putConstraint(SpringLayout.NORTH, colorList, 6,
+				SpringLayout.SOUTH, orderList);
+		layout.putConstraint(SpringLayout.WEST, colorList, 0,
+				SpringLayout.WEST, hierList);
+		layout.putConstraint(SpringLayout.EAST, colorList, 0,
+				SpringLayout.EAST, hierList);
 
 		// layout
-		sl_panel.putConstraint(SpringLayout.EAST, layoutLabel, 0,
+		layout.putConstraint(SpringLayout.EAST, layoutLabel, 0,
 				SpringLayout.EAST, hierLabel);
-		sl_panel.putConstraint(SpringLayout.NORTH, layoutLabel, 5,
+		layout.putConstraint(SpringLayout.NORTH, layoutLabel, 5,
 				SpringLayout.NORTH, layoutList);
-		sl_panel.putConstraint(SpringLayout.NORTH, layoutList, 6,
-				SpringLayout.SOUTH, colorFieldList);
-		sl_panel.putConstraint(SpringLayout.WEST, layoutList, 0,
-				SpringLayout.WEST, hierFiledList);
-		sl_panel.putConstraint(SpringLayout.EAST, layoutList, 0,
-				SpringLayout.EAST, hierFiledList);
+		layout.putConstraint(SpringLayout.NORTH, layoutList, 6,
+				SpringLayout.SOUTH, colorList);
+		layout.putConstraint(SpringLayout.WEST, layoutList, 0,
+				SpringLayout.WEST, hierList);
+		layout.putConstraint(SpringLayout.EAST, layoutList, 0,
+				SpringLayout.EAST, hierList);
 	}
 
-	public void setState(TreemapState treemapState, TreemapApplet pTreemap) {
+	public void setState(TreemapState treemapState,
+			List<DataField> allowedHierFields,
+			List<SummariseField> allowedSummariseFields) {
 		this.treemapState = treemapState;
-		this.pTreemap = pTreemap;
+		this.allowedHierFields = allowedHierFields;
+		this.allowedSummariseFields = allowedSummariseFields;
 
-		DataField[] hierFields = treemapState.getHierFields();
-		hierFiledList.setListData(hierFields);
+		hierFields = treemapState.getHierFields();
+		sizeFields = treemapState.getSizeFields();
+		orderFields = treemapState.getOrderFields();
+		colorFields = treemapState.getColourFields();
+		layouts = treemapState.getLayouts();
 
-		SummariseField[] sizeFields = treemapState.getSizeFields()[0];
-		sizeFieldList.setListData(sizeFields);
+		hierModel.clear();
+		sizeModel.clear();
+		orderModel.clear();
+		colorModel.clear();
+		layoutModel.clear();
 
-		SummariseField[] orderFields = treemapState.getOrderFields()[0];
-		orderFieldList.setListData(orderFields);
+		for (DataField field : hierFields) {
+			hierModel.addElement(field);
+		}
 
-		SummariseField[] colorFields = treemapState.getColourFields()[0];
-		colorFieldList.setListData(colorFields);
-		
-		Layout[] layouts = treemapState.getLayouts();
-		layoutList.setListData(layouts);
-	}
+		for (SummariseField field : sizeFields[0]) {
+			sizeModel.addElement(field);
+		}
 
-	boolean isDrag = false;
-	int w = 200;
+		for (SummariseField field : orderFields[0]) {
+			orderModel.addElement(field);
+		}
 
-	@Override
-	public void mouseDragged(MouseEvent e) {
-		if (isDrag) {
-			int h = this.getHeight();
-			w = e.getX();
-			if (w < 10)
-				w = 10;
-			if (w > getParent().getWidth() - 20)
-				w = getParent().getWidth() - 20;
+		for (SummariseField field : colorFields[0]) {
+			colorModel.addElement(field);
+		}
 
-			this.setPreferredSize(new Dimension(w, h));
-			pTreemap.setPreferredSize(new Dimension(getParent().getWidth() - w,
-					h));
-
-			doLayout();
-			getParent().doLayout();
-			getParent().repaint();
-			repaint();
+		for (Layout layout : layouts) {
+			layoutModel.addElement(layout);
 		}
 	}
 
-	@Override
-	public void mouseMoved(MouseEvent e) {
-		if (isDrag || Math.abs(w - e.getX() - 3) < 2) {
-			getParent().setCursor(new Cursor(Cursor.E_RESIZE_CURSOR));
+	/**
+	 * 鼠标拖动, 对面板大小控制
+	 */
+	class MouseDragListener extends MouseAdapter {
+		private boolean isDrag = false;
+
+		@Override
+		public void mouseDragged(MouseEvent e) {
+			if (isDrag) {
+				int h = getHeight();
+				int w = e.getX();
+				if (w < 10)
+					w = 10;
+				if (w > getParent().getWidth() - 20)
+					w = getParent().getWidth() - 20;
+
+				setPreferredSize(new Dimension(w, h));
+
+				doLayout();
+				getParent().doLayout();
+				getParent().repaint();
+				repaint();
+			}
+		}
+
+		@Override
+		public void mouseMoved(MouseEvent e) {
+			if (isDrag || Math.abs(getWidth() - e.getX() - 3) < 2) {
+				getParent().setCursor(new Cursor(Cursor.E_RESIZE_CURSOR));
+			} else {
+				getParent().setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+			}
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			if (Math.abs(getWidth() - e.getX() - 3) < 2) {
+				isDrag = true;
+			}
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			isDrag = false;
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+			if (!isDrag) {
+				getParent().setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+			}
+		}
+	}
+
+	public void swap(int level1, int level2) {
+
+	}
+
+	public void cut(int index) {
+		hierModel.remove(index);
+		sizeModel.remove(index);
+		orderModel.remove(index);
+		colorModel.remove(index);
+		layoutModel.remove(index);
+
+		treemapState.cut(index);
+		treemapState.setHierChanged(true);
+		pTreemap.treemapPanel.flagToRedraw();
+		pTreemap.repaint();
+	}
+
+	public void insert(int index, DimensionField hierField) {
+		SummariseField[] defaultOrderField = new SummariseField[orderFields.length];
+		SummariseField[] defaultSizeField = new SummariseField[sizeFields.length];
+		SummariseField[] defaultColourField = new SummariseField[colorFields.length];
+		Layout defaultLayout = null;
+		// if the first, use the top of the allowed lists
+		if (index == 0) {
+			SummariseField summariseNull = new SummariseNull("Null");
+			for (int j = 0; j < orderFields.length; j++) {
+				defaultOrderField[j] = summariseNull;
+			}
+			for (int j = 0; j < sizeFields.length; j++) {
+				defaultSizeField[j] = summariseNull;
+			}
+			for (int j = 0; j < colorFields.length; j++) {
+				defaultColourField[j] = summariseNull;
+			}
+			defaultLayout = Layout.ST;
 		} else {
-			getParent().setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+			// use the value to the left
+			for (int j = 0; j < orderFields.length; j++) {
+				defaultOrderField[j] = orderFields[j][index - 1];
+			}
+			for (int j = 0; j < sizeFields.length; j++) {
+				defaultSizeField[j] = sizeFields[j][index - 1];
+			}
+			for (int j = 0; j < colorFields.length; j++) {
+				defaultColourField[j] = colorFields[j][index - 1];
+			}
+			defaultLayout = layouts[index - 1];
+		}
+
+		hierModel.insertElementAt(hierField, index);
+		sizeModel.insertElementAt(defaultSizeField[0], index);
+		orderModel.insertElementAt(defaultOrderField[0], index);
+		colorModel.insertElementAt(defaultColourField[0], index);
+		layoutModel.insertElementAt(defaultLayout, index);
+
+		treemapState.insert(index, hierField, defaultOrderField,
+				defaultSizeField, defaultColourField, defaultLayout);
+		treemapState.setHierChanged(true);
+		pTreemap.repaint();
+	}
+
+	public void replaceHier(int index, DimensionField hierField) {
+		hierModel.setElementAt(hierField, index);
+		hierFields[index] = hierField;
+		treemapState.setHierChanged(true);
+		pTreemap.repaint();
+	}
+
+	static enum NoStructType {
+		SIZE, ORDER, COLOR;
+	}
+
+	public void replace(int index, MeasureField measureField, NoStructType type) {
+		SummariseField sumFiled = null;
+		for (SummariseField filed : allowedSummariseFields) {
+			if (filed.getName().equals(measureField.getName())) {
+				sumFiled = filed;
+				break;
+			}
+		}
+
+		switch (type) {
+		case SIZE:
+			sizeModel.setElementAt(sumFiled, index);
+			sizeFields[0][index] = sumFiled;
+			break;
+		case ORDER:
+			orderModel.setElementAt(sumFiled, index);
+			orderFields[0][index] = sumFiled;
+			break;
+		case COLOR:
+			colorModel.setElementAt(sumFiled, index);
+			colorFields[0][index] = sumFiled;
+			break;
+		}
+
+		pTreemap.treemapPanel.flagToDoNonStructuralRebuild();
+		pTreemap.repaint();
+	}
+
+	/**
+	 * 键盘delete键, 删除整个层次hier
+	 */
+	class HierKeyDelete extends KeyAdapter {
+		@Override
+		public void keyPressed(KeyEvent e) {
+			int index = hierList.getSelectedIndex();
+			if (index != -1 && e.getKeyCode() == KeyEvent.VK_DELETE) {
+				cut(index);
+			}
 		}
 	}
 
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
-	}
+	class NoStructKeyDelete extends KeyAdapter {
+		NoStructType type;
 
-	@Override
-	public void mousePressed(MouseEvent e) {
-		if (Math.abs(w - e.getX() - 3) < 2) {
-			isDrag = true;
+		NoStructKeyDelete(NoStructType type) {
+			this.type = type;
+		}
+
+		@Override
+		public void keyPressed(KeyEvent e) {
+			FieldList<SummariseField> list = null;
+			DefaultListModel<SummariseField> model = null;
+			SummariseField[][] fields = null;
+
+			switch (type) {
+			case SIZE:
+				list = sizeList;
+				model = sizeModel;
+				fields = sizeFields;
+				break;
+			case ORDER:
+				list = orderList;
+				model = orderModel;
+				fields = orderFields;
+				break;
+			case COLOR:
+				list = colorList;
+				model = colorModel;
+				fields = colorFields;
+				break;
+			}
+
+			int index = list.getSelectedIndex();
+			if (index != -1 && e.getKeyCode() == KeyEvent.VK_DELETE) {
+				SummariseField summariseNull = new SummariseNull("Null");
+				model.setElementAt(summariseNull, index);
+				fields[0][index] = summariseNull;
+				pTreemap.treemapPanel.flagToDoNonStructuralRebuild();
+				pTreemap.repaint();
+			}
 		}
 	}
 
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		isDrag = false;
-	}
+	class HierFieldImporter extends TransferHandler {
 
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-	}
+		private FieldDnD<DimensionField> data;
 
-	@Override
-	public void mouseExited(MouseEvent e) {
-		if (!isDrag) {
-			getParent().setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+		@SuppressWarnings("unchecked")
+		private boolean getTransferData(TransferHandler.TransferSupport support) {
+			try {
+				data = (FieldDnD<DimensionField>) support
+						.getTransferable()
+						.getTransferData(
+								new DataFlavor(FieldDnD.class,
+										DataFlavor.javaSerializedObjectMimeType));
+			} catch (Exception e) {
+				return false;
+			}
+
+			return true;
+		}
+
+		public boolean canImport(TransferHandler.TransferSupport support) {
+			if (!support.isDrop())
+				return false;
+
+			if (!getTransferData(support))
+				return false;
+
+			return data.getType() == DimensionField.class;
+		}
+
+		@SuppressWarnings("unchecked")
+		public boolean importData(TransferHandler.TransferSupport support) {
+			JList.DropLocation dl = (JList.DropLocation) support
+					.getDropLocation();
+
+			int index = dl.getIndex();
+			boolean insert = dl.isInsert();
+
+			getTransferData(support);
+
+			List<DimensionField> values = data.getValues();
+			for (int i = 0; i < values.size(); i++, index++) {
+				if (insert) {
+					insert(index, values.get(i));
+				} else {
+					replaceHier(index, values.get(i));
+				}
+			}
+
+			return true;
 		}
 	}
 
+	class RepalceFieldImporter extends TransferHandler {
+		private FieldDnD<MeasureField> data;
+
+		NoStructType type;
+
+		public RepalceFieldImporter(NoStructType type) {
+			this.type = type;
+		}
+
+		@SuppressWarnings("unchecked")
+		private boolean getTransferData(TransferHandler.TransferSupport support) {
+			try {
+				data = (FieldDnD<MeasureField>) support
+						.getTransferable()
+						.getTransferData(
+								new DataFlavor(FieldDnD.class,
+										DataFlavor.javaSerializedObjectMimeType));
+			} catch (Exception e) {
+				return false;
+			}
+
+			return true;
+		}
+
+		@SuppressWarnings("unchecked")
+		public boolean canImport(TransferHandler.TransferSupport support) {
+			if (!support.isDrop())
+				return false;
+
+			if (!getTransferData(support))
+				return false;
+
+			return data.getType() == MeasureField.class;
+		}
+
+		@SuppressWarnings("unchecked")
+		public boolean importData(TransferHandler.TransferSupport support) {
+			JList.DropLocation dl = (JList.DropLocation) support
+					.getDropLocation();
+
+			int index = dl.getIndex();
+
+			getTransferData(support);
+
+			List<MeasureField> values = data.getValues();
+			for (int i = 0; i < values.size(); i++, index++) {
+				replace(index, values.get(i), type);
+			}
+
+			return true;
+		}
+
+	}
 }

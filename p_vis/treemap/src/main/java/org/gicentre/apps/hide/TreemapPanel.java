@@ -151,12 +151,12 @@ public class TreemapPanel {
 	public void draw(TreemapState treemapState) {
 		boolean pregenerateMorphs = false;
 
-		boolean hierHasChanged = treemapState.hasHierChanged();
-		boolean orderHasChanged = treemapState.orderHasChanged();
-		boolean sizeHasChanged = treemapState.sizeHasChanged();
-		boolean colourHasChanged = treemapState.colourHasChanged();
-		boolean layoutHasChanged = treemapState.layoutHasChanged();
-		boolean appearanceHasChanged = treemapState.appearanceHasChanged();
+		boolean hierHasChanged = treemapState.isHierChanged();
+		boolean orderHasChanged = treemapState.orderChanged();
+		boolean sizeHasChanged = treemapState.isSizeChanged();
+		boolean colourHasChanged = treemapState.isColorChanged();
+		boolean layoutHasChanged = treemapState.layoutChanged();
+		boolean appearanceHasChanged = treemapState.isAppearanceChanged();
 
 		Object[] filterValues = treemapState.filterValues;
 		DataField[] hierFields = treemapState.getHierFields();

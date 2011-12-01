@@ -399,8 +399,7 @@ public class TreemapStateGui extends TreemapState {
 					if (r.contains(mouseX, mouseY)) {
 						applet.fill(150, 0, 0);
 					} else if (!layouts[col - 1].equals(Layout.SP)
-							&& !layouts[col - 1].equals(Layout.SA)
-							&& j > 0) {
+							&& !layouts[col - 1].equals(Layout.SA) && j > 0) {
 						applet.fill(180);// faint if one one layout used
 					} else {
 						applet.fill(80);
@@ -588,7 +587,7 @@ public class TreemapStateGui extends TreemapState {
 						filterValues[i - 1] = null;
 					}
 
-					hierHasChanged = true;
+					hierChanged = true;
 					flagToRelayoutGui = true;
 				}
 			}
@@ -596,12 +595,7 @@ public class TreemapStateGui extends TreemapState {
 			// Change the value of any order variables clicked (forward/back
 			// with left/right mouse button)
 			for (int j = 0; j < orderFields.length; j++) {
-				for (int i = 1; i < hierFields.length + 1; i++) { // use
-																	// hierarchyFields.length,
-																	// because
-																	// it's
-																	// per
-																	// level
+				for (int i = 1; i < hierFields.length + 1; i++) {
 					if (orderRectangles[j][i].contains(mouseX, mouseY)) {
 						int idx = allowedOrderFields
 								.indexOf(orderFields[j][i - 1]);
@@ -620,7 +614,7 @@ public class TreemapStateGui extends TreemapState {
 							}
 						}
 						orderFields[j][i - 1] = allowedOrderFields.get(idx);
-						orderHasChanged = true;
+						orderChanged = true;
 						flagToRelayoutGui = true;
 					}
 				}
@@ -629,12 +623,7 @@ public class TreemapStateGui extends TreemapState {
 			// Change the value of any size variables clicked (forward/back with
 			// left/right mouse button)
 			for (int j = 0; j < sizeFields.length; j++) {
-				for (int i = 1; i < hierFields.length + 1; i++) { // use
-																	// hierarchyFields.length,
-																	// because
-																	// it's
-																	// per
-																	// level
+				for (int i = 1; i < hierFields.length + 1; i++) {
 					if (sizeRectangles[j][i].contains(mouseX, mouseY)) {
 						int idx = allowedSizeFields
 								.indexOf(sizeFields[j][i - 1]);
@@ -653,7 +642,7 @@ public class TreemapStateGui extends TreemapState {
 							}
 						}
 						sizeFields[j][i - 1] = allowedSizeFields.get(idx);
-						sizeHasChanged = true;
+						sizeChanged = true;
 						flagToRelayoutGui = true;
 					}
 				}
@@ -662,12 +651,7 @@ public class TreemapStateGui extends TreemapState {
 			// Change the value of any colour variables clicked (forward/back
 			// with left/right mouse button)
 			for (int j = 0; j < colourFields.length; j++) {
-				for (int i = 1; i < hierFields.length + 1; i++) { // use
-																	// hierarchyFields.length,
-																	// because
-																	// it's
-																	// per
-																	// level
+				for (int i = 1; i < hierFields.length + 1; i++) {
 					if (colourRectangles[j][i].contains(mouseX, mouseY)) {
 						int idx = allowedColourFields
 								.indexOf(colourFields[j][i - 1]);
@@ -686,7 +670,7 @@ public class TreemapStateGui extends TreemapState {
 							}
 						}
 						colourFields[j][i - 1] = allowedColourFields.get(idx);
-						colourHasChanged = true;
+						colorChanged = true;
 						flagToRelayoutGui = true;
 					}
 				}
@@ -712,7 +696,7 @@ public class TreemapStateGui extends TreemapState {
 						}
 					}
 					layouts[i - 1] = allowedLayouts.get(idx);
-					layoutHasChanged = true;
+					layoutChanged = true;
 					flagToRelayoutGui = true;
 				}
 			}
@@ -757,14 +741,14 @@ public class TreemapStateGui extends TreemapState {
 							}
 							// flag to build if user allows/disallows nulls
 							if (appearanceType == AppearanceType.INCLUDE_NULLS) {
-								hierHasChanged = true;
+								hierChanged = true;
 							}
 							// show labels if user changes autosize text
 							if (appearanceType == AppearanceType.AUTOSIZE_LABELS) {
 								appearanceValues[i - 1].put(
 										AppearanceType.SHOW_LABELS, 1);
 							}
-							appearanceHasChanged = true;
+							appearanceChanged = true;
 						}
 					} else {
 						// if clicked on up button
@@ -793,15 +777,15 @@ public class TreemapStateGui extends TreemapState {
 							}
 							// rebuild if padding is changed
 							if (appearanceType == AppearanceType.PADDING) {
-								hierHasChanged = true;
+								hierChanged = true;
 							}
 							// rebuild if border width is changed
 							// (unfortunately, this is only to force a treemap
 							// redraw rather then just the labels
 							if (appearanceType == AppearanceType.BORDER_WIDTH) {
-								hierHasChanged = true;
+								hierChanged = true;
 							}
-							appearanceHasChanged = true;
+							appearanceChanged = true;
 						}
 						// if clicked on down button
 						if (appearanceRectangles[i].contains(mouseX, mouseY)
@@ -833,16 +817,16 @@ public class TreemapStateGui extends TreemapState {
 								}
 								// rebuild if padding is changed
 								if (appearanceType == AppearanceType.PADDING) {
-									hierHasChanged = true;
+									hierChanged = true;
 								}
 								// rebuild if border width is changed
 								// (unfortunately, this is only to force a
 								// treemap redraw rather then just the labels
 								if (appearanceType == AppearanceType.BORDER_WIDTH) {
-									hierHasChanged = true;
+									hierChanged = true;
 								}
 							}
-							appearanceHasChanged = true;
+							appearanceChanged = true;
 						}
 					}
 				}
@@ -888,7 +872,7 @@ public class TreemapStateGui extends TreemapState {
 						// clicked on the x
 						filterValues[i - 1] = null;
 					}
-					hierHasChanged = true;
+					hierChanged = true;
 					flagToRelayoutGui = true;
 				}
 			}
@@ -898,7 +882,7 @@ public class TreemapStateGui extends TreemapState {
 				for (int i = 1; i < minusRectangles.length; i++) {
 					if (minusRectangles[i].contains(mouseX, mouseY)) {
 						cut(i - 1);
-						hierHasChanged = true;
+						hierChanged = true;
 						flagToRelayoutGui = true;
 					}
 				}
@@ -958,7 +942,7 @@ public class TreemapStateGui extends TreemapState {
 						insert(i, defaultHierField, defaultOrderField,
 								defaultSizeField, defaultColourField,
 								defaultLayout);
-						hierHasChanged = true;
+						hierChanged = true;
 						flagToRelayoutGui = true;
 					}
 				}
@@ -969,7 +953,7 @@ public class TreemapStateGui extends TreemapState {
 				for (int i = 0; i < swapRectangles.length - 1; i++) {
 					if (swapRectangles[i].contains(mouseX, mouseY)) {
 						swap(i, i + 1);
-						hierHasChanged = true;
+						hierChanged = true;
 						flagToRelayoutGui = true;
 					}
 				}

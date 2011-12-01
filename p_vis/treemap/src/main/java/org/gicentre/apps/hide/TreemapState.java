@@ -32,7 +32,6 @@ import edu.zjut.common.data.attr.FieldType;
  * 
  */
 public class TreemapState implements Hive {
-
 	protected DataField[] hierFields = new DataField[0];
 	protected SummariseField[][] sizeFields;
 	protected SummariseField[][] orderFields;
@@ -53,12 +52,12 @@ public class TreemapState implements Hive {
 
 	// These are used by other classes to assess whether the treemap has changed
 	// state
-	protected boolean hierHasChanged = false;
-	protected boolean orderHasChanged = false;
-	protected boolean sizeHasChanged = false;
-	protected boolean colourHasChanged = false;
-	protected boolean layoutHasChanged = false;
-	protected boolean appearanceHasChanged = false;
+	protected boolean hierChanged = false;
+	protected boolean orderChanged = false;
+	protected boolean sizeChanged = false;
+	protected boolean colorChanged = false;
+	protected boolean layoutChanged = false;
+	protected boolean appearanceChanged = false;
 
 	// Marker variable that means use default
 	protected SummariseNull summariseNull = null;
@@ -128,98 +127,62 @@ public class TreemapState implements Hive {
 		}
 	}
 
-	/**
-	 * Get the number of levels
-	 * 
-	 * @return Number of levels
-	 */
+	public List<DataField> getAllowedHierFields() {
+		return allowedHierFields;
+	}
+
+	public List<SummariseField> getAllowedSizeFields() {
+		return allowedSizeFields;
+	}
+
+	public List<SummariseField> getAllowedOrderFields() {
+		return allowedOrderFields;
+	}
+
+	public List<SummariseField> getAllowedColourFields() {
+		return allowedColourFields;
+	}
+
+	public List<Layout> getAllowedLayouts() {
+		return allowedLayouts;
+	}
+
 	public int getNumLevels() {
 		return hierFields.length;
 	}
 
-	/**
-	 * Gets the size variables
-	 * 
-	 * @return 2D array of the sizes (number of size dimension x number in
-	 *         hierarchy)
-	 */
 	public SummariseField[][] getSizeFields() {
 		return sizeFields;
 	}
 
-	/**
-	 * Sets the size variables
-	 * 
-	 * @param sizeFields
-	 *            2D array of the sizes (number of size dimension x number in
-	 *            hierarchy)
-	 */
 	public void setSizeFields(SummariseField[][] sizeFields) {
 		this.sizeFields = sizeFields;
 	}
 
-	/**
-	 * Gets the appearance values
-	 * 
-	 * @return array of appearance values (for each level)
-	 */
 	public HashMap<AppearanceType, Integer> getAppearance(int level) {
 		return appearanceValues[level];
 	}
 
-	/**
-	 * Get the variables in the hierarchy
-	 * 
-	 * @return Array of data variables, for each level
-	 */
 	public DataField[] getHierFields() {
 		return hierFields;
 	}
 
-	/**
-	 * Get the filter values
-	 * 
-	 * @return Array of data variables, for each level
-	 */
 	public Object[] getFilterValues() {
 		return filterValues;
 	}
 
-	/**
-	 * Get the order variables in the hierarchy
-	 * 
-	 * @return Array of variables (number of order dimensions X number in
-	 *         hierarchy)
-	 */
 	public SummariseField[][] getOrderFields() {
 		return orderFields;
 	}
 
-	/**
-	 * Get the colour variables in the hierarchy
-	 * 
-	 * @return Array of variables (number of colour dimensions X number in
-	 *         hierarchy)
-	 */
 	public SummariseField[][] getColourFields() {
 		return colourFields;
 	}
 
-	/**
-	 * Get the layouts in the hierarchy
-	 * 
-	 * @return Array of variables (number of order dimensions X number in
-	 *         hierarchy)
-	 */
 	public Layout[] getLayouts() {
 		return layouts;
 	}
 
-	/**
-	 * Test is the hierarchy is empty
-	 * 
-	 * @return
-	 */
 	public boolean isEmpty() {
 		return hierFields.length == 0;
 	}
@@ -488,79 +451,68 @@ public class TreemapState implements Hive {
 
 	/**
 	 * Reset change flag. Call whether you've read these
-	 * 
 	 */
 	public void resetChangeFlags() {
-		hierHasChanged = false;
-		orderHasChanged = false;
-		sizeHasChanged = false;
-		colourHasChanged = false;
-		layoutHasChanged = false;
-		appearanceHasChanged = false;
+		hierChanged = false;
+		orderChanged = false;
+		sizeChanged = false;
+		colorChanged = false;
+		layoutChanged = false;
+		appearanceChanged = false;
 	}
 
-	/**
-	 * Reports whether the state has changed since last reset
-	 * 
-	 * @return
-	 */
-	public boolean hasChanged() {
-		return hierHasChanged || orderHasChanged || sizeHasChanged
-				|| colourHasChanged || layoutHasChanged || appearanceHasChanged;
+	public boolean isChanged() {
+		return hierChanged || orderChanged || sizeChanged || colorChanged
+				|| layoutChanged || appearanceChanged;
 	}
 
-	/**
-	 * Reports whether the hierarchy has changed since last reset
-	 * 
-	 * @return
-	 */
-	public boolean hasHierChanged() {
-		return hierHasChanged;
+	public boolean isHierChanged() {
+		return hierChanged;
 	}
 
-	/**
-	 * Reports whether the order has changed since last reset
-	 * 
-	 * @return
-	 */
-	public boolean orderHasChanged() {
-		return orderHasChanged;
+	public void setHierChanged(boolean hierChanged) {
+		this.hierChanged = hierChanged;
+		System.out.println(hierChanged);
 	}
 
-	/**
-	 * Reports whether the size has changed since last reset
-	 * 
-	 * @return
-	 */
-	public boolean sizeHasChanged() {
-		return sizeHasChanged;
+	public boolean orderChanged() {
+		return orderChanged;
 	}
 
-	/**
-	 * Reports whether the colour has changed since last reset
-	 * 
-	 * @return
-	 */
-	public boolean colourHasChanged() {
-		return colourHasChanged;
+	public boolean isSizeChanged() {
+		return sizeChanged;
 	}
 
-	/**
-	 * Reports whether the layout has changed since last reset
-	 * 
-	 * @return
-	 */
-	public boolean layoutHasChanged() {
-		return layoutHasChanged;
+	public void setSizeChanged(boolean sizeChanged) {
+		this.sizeChanged = sizeChanged;
 	}
 
-	/**
-	 * Reports whether the appearance has changed since last reset
-	 * 
-	 * @return
-	 */
-	public boolean appearanceHasChanged() {
-		return appearanceHasChanged;
+	public boolean isColorChanged() {
+		return colorChanged;
+	}
+
+	public void setColorChanged(boolean colorChanged) {
+		this.colorChanged = colorChanged;
+	}
+
+	public boolean layoutChanged() {
+		return layoutChanged;
+	}
+
+	public boolean isLayoutChanged() {
+		return layoutChanged;
+	}
+
+	public void setLayoutChanged(boolean layoutChanged) {
+		this.layoutChanged = layoutChanged;
+	}
+
+	public boolean isAppearanceChanged() {
+		return appearanceChanged;
+	}
+
+	public void setAppearanceChanged(boolean appearanceChanged) {
+		this.appearanceChanged = appearanceChanged;
 	}
 
 	public boolean applyExpressions(Collection<Expression> expressions) {
@@ -713,7 +665,7 @@ public class TreemapState implements Hive {
 					this.hierFields[level] = hierarchyField;
 				}
 			}
-			hierHasChanged = true;
+			hierChanged = true;
 			return true;
 		}
 
@@ -885,15 +837,15 @@ public class TreemapState implements Hive {
 			if (expression.getType() == Type.S_ORDER
 					|| expression.getType() == Type.O_ORDER) {
 				orderFields = newFields;
-				orderHasChanged = true;
+				orderChanged = true;
 			} else if (expression.getType() == Type.S_SIZE
 					|| expression.getType() == Type.O_SIZE) {
 				sizeFields = newFields;
-				sizeHasChanged = true;
+				sizeChanged = true;
 			} else if (expression.getType() == Type.S_COLOR
 					|| expression.getType() == Type.O_COLOR) {
 				colourFields = newFields;
-				colourHasChanged = true;
+				colorChanged = true;
 			}
 
 			return true;
@@ -955,7 +907,7 @@ public class TreemapState implements Hive {
 			}
 			this.layouts = newLayouts;
 
-			this.layoutHasChanged = true;
+			this.layoutChanged = true;
 			return true;
 		}
 
@@ -979,7 +931,7 @@ public class TreemapState implements Hive {
 					}
 				}
 			}
-			hierHasChanged = true;
+			hierChanged = true;
 			return true;
 		}
 
@@ -1009,8 +961,7 @@ public class TreemapState implements Hive {
 		for (int i = 0; i < orderFields[0].length; i++) {
 			String[] varStrings = null;
 
-			if (layouts[i] == Layout.ST
-					|| layouts[i] == Layout.OS) {
+			if (layouts[i] == Layout.ST || layouts[i] == Layout.OS) {
 				// One dimensional ordering
 				if (orderFields[0][i] == null
 						|| orderFields[0][i] instanceof SummariseNull) {
@@ -1019,8 +970,7 @@ public class TreemapState implements Hive {
 					varStrings = new String[] { "$"
 							+ orderFields[0][i].getName() };
 				}
-			} else if (layouts[i] == Layout.HZ
-					|| layouts[i] == Layout.VT) {
+			} else if (layouts[i] == Layout.HZ || layouts[i] == Layout.VT) {
 				// One dimensional ordering vertically or horizontally
 				String varName;
 				if (orderFields[0][i] == null

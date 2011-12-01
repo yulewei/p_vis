@@ -20,18 +20,18 @@
       </ToolkitBean>
     </entry>
     <entry>
-      <string>VariablePicker</string>
+      <string>DataWindow</string>
       <ToolkitBean>
-        <objectClass>geovista.common.ui.VariablePicker</objectClass>
+        <objectClass>edu.zjut.common.ctrl.DataWindow</objectClass>
         <originalBean/>
-        <uniqueName>VariablePicker</uniqueName>
+        <uniqueName>DataWindow</uniqueName>
         <internalFrame>
           <location>
             <x>0</x>
             <y>0</y>
           </location>
           <size>
-            <width>160</width>
+            <width>180</width>
             <height>450</height>
           </size>
         </internalFrame>

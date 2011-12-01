@@ -75,15 +75,10 @@ public class FieldListCell<E> extends JComponent implements ListCellRenderer<E> 
 	public Component getListCellRendererComponent(JList<? extends E> list,
 			E value, int index, boolean isSelected, boolean cellHasFocus) {
 
-		FieldList<E> fieldList = (FieldList<E>) list;
-		int type = fieldList.getFieldType();
-
-		if (type == FieldList.DIMENSION) {
+		if (value instanceof DimensionField) {
 			color = green;
 			selectedColor = darkGreen;
-		}
-
-		if (type == FieldList.MEASURE) {
+		} else {
 			color = blue;
 			selectedColor = darkBlue;
 		}

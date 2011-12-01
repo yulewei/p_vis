@@ -42,7 +42,7 @@ public class ParallelPlot extends ParvisPlot implements DataSetListener,
 		parallelDisplay.addIndicationListener(this);
 		parallelDisplay.addSelectionListener(this);
 
-		parallelDisplay.setTransferHandler(new PCPTransferHandler(FieldList.MEASURE));
+		parallelDisplay.setTransferHandler(new PCPTransferHandler());
 	}
 
 	@Override
@@ -146,10 +146,8 @@ public class ParallelPlot extends ParvisPlot implements DataSetListener,
 	}
 
 	class PCPTransferHandler extends TransferHandler {
-		private int fieldType = FieldList.MEASURE;
 
-		public PCPTransferHandler(int fieldType) {
-			this.fieldType = fieldType;
+		public PCPTransferHandler() {
 		}
 
 		public boolean canImport(TransferHandler.TransferSupport support) {
@@ -166,7 +164,7 @@ public class ParallelPlot extends ParvisPlot implements DataSetListener,
 				return false;
 			}
 
-			return data.getFieldType() == fieldType;
+			return data.getType() == MeasureField.class;
 		}
 
 		public boolean importData(TransferHandler.TransferSupport support) {
@@ -179,7 +177,7 @@ public class ParallelPlot extends ParvisPlot implements DataSetListener,
 				return false;
 			}
 
-			List<DataField> values = data.getValues();
+			List<MeasureField> values = data.getValues();
 			int[] varsIndex = new int[values.size()];
 
 			MeasureField[] measureFeilds = attrData.getMeasureFields();

@@ -35,7 +35,7 @@ public class MeasureField extends DataField {
 	}
 
 	private void buildData() {
-		if (dataType == null)
+		if (dataType == null || columnValues == null)
 			return;
 
 		switch (dataType) {
@@ -68,6 +68,12 @@ public class MeasureField extends DataField {
 			f = v.floatValue();
 		}
 		return colorTable.findColour(f);
+	}
+
+	public void setColumnValues(Object[] columnValues) {
+		this.columnValues = columnValues;
+
+		buildData();
 	}
 
 	public SummaryType getSummaryType() {

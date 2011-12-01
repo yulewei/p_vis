@@ -2,62 +2,44 @@ package edu.zjut.common.ctrl;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 
-import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.ListModel;
 
-public class FieldList<E> extends JList<E> implements KeyListener {
+public class FieldList<E> extends JList<E> {
 
 	public static final int VERTICAL = 0;
 	public static final int HORIZONTAL = 3;
-
-	public static final int DIMENSION = 0;
-	public static final int MEASURE = 1;
-
-	private int fieldType = MEASURE;
 
 	private FieldListCell<E> cellRenderer;
 	private boolean isHorizontal = false;
 	private int listHeight;
 
 	public FieldList() {
-		init(MEASURE);
+		init();
 	}
 
 	public FieldList(int fieldType) {
-		init(fieldType);
+		init();
 	}
 
-	public FieldList(int fieldType, ListModel<E> dataModel) {
+	public FieldList(ListModel<E> dataModel) {
 		super(dataModel);
-		init(fieldType);
+		init();
 	}
 
 	public FieldList(final E[] listData) {
 		super(listData);
-		init(fieldType);
+		init();
 	}
 
-	private void init(int fieldType) {
-		this.fieldType = fieldType;
-
-		this.addKeyListener(this);
-
-		this.setTransferHandler(new FieldTransferHandler(fieldType));
-
+	private void init() {
 		this.cellRenderer = new FieldListCell<E>();
 		this.setCellRenderer(cellRenderer);
 	}
 
 	public Dimension getPreferredSize() {
 		return new Dimension(80, 25);
-	}
-
-	public int getFieldType() {
-		return fieldType;
 	}
 
 	public void setLayoutOrientation(int layoutOrientation) {
@@ -91,28 +73,5 @@ public class FieldList<E> extends JList<E> implements KeyListener {
 		}
 
 		super.paintComponent(g);
-	}
-
-	@Override
-	public void keyTyped(KeyEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	/**
-	 * ¼üÅÌdelete¼ü, É¾³ýÑ¡ÖÐÔªËØ
-	 */
-	@Override
-	public void keyPressed(KeyEvent e) {
-		int index = this.getSelectedIndex();
-		if (index != -1 && e.getKeyCode() == KeyEvent.VK_DELETE) {
-			DefaultListModel<E> model = (DefaultListModel<E>) getModel();
-			model.remove(index);
-		}
-	}
-
-	@Override
-	public void keyReleased(KeyEvent e) {
-
 	}
 }

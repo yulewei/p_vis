@@ -6,23 +6,22 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 import java.util.List;
 
-import edu.zjut.common.data.attr.DataField;
+public class FieldDnD<E> implements Transferable {
 
-public class FieldDnD implements Transferable {
+	private final Class<E> type;
 
-	private int fieldType = FieldList.MEASURE;
-	private List<DataField> values;
+	private List<E> values;
 
-	public FieldDnD(int fieldType, List<DataField> values) {
-		this.fieldType = fieldType;
+	public FieldDnD(Class<E> type, List<E> values) {
+		this.type = type;
 		this.values = values;
 	}
 
-	public int getFieldType() {
-		return fieldType;
+	public Class<E> getType() {
+		return type;
 	}
 
-	public List<DataField> getValues() {
+	public List<E> getValues() {
 		return values;
 	}
 

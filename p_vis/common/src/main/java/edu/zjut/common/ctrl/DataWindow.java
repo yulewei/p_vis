@@ -1,22 +1,25 @@
 package edu.zjut.common.ctrl;
 
 import java.awt.BorderLayout;
+import java.awt.datatransfer.Transferable;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.DropMode;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 import javax.swing.SwingConstants;
+import javax.swing.TransferHandler;
 
 import edu.zjut.common.data.DataSetBroadcaster;
 import edu.zjut.common.data.DataSetForApps;
 import edu.zjut.common.data.attr.AttributeData;
-import edu.zjut.common.data.attr.DataField;
 import edu.zjut.common.data.attr.DimensionField;
 import edu.zjut.common.data.attr.MeasureField;
 import edu.zjut.common.event.DataSetEvent;
@@ -34,31 +37,29 @@ public class DataWindow extends JPanel implements DataSetListener {
 	DimensionField[] dimensionFields;
 	MeasureField[] measureFields;
 
-	private JPanel jPanel1;
-	private JPanel jPanel2;
+	FieldList<DimensionField> dimensionList;
+	FieldList<MeasureField> measureList;
+	DefaultListModel<DimensionField> dimensionModel;
+	DefaultListModel<MeasureField> measureModel;
 
-	JLabel dimensionLabel;
-	JLabel measureLabel;
-	FieldList<DataField> dimensionList;
-	FieldList<DataField> measureList;
-
-	// Creates Variable Picker
 	public DataWindow() {
 		super();
 
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-		jPanel1 = new JPanel();
+		JPanel jPanel1 = new JPanel();
 		jPanel1.setLayout(new BorderLayout());
 		add(jPanel1);
 
-		dimensionLabel = new JLabel("Dimensions");
+		JLabel dimensionLabel = new JLabel("Dimensions");
 		dimensionLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		jPanel1.add(dimensionLabel, BorderLayout.NORTH);
 
-		dimensionList = new FieldList<DataField>(FieldList.DIMENSION);
+		dimensionList = new FieldList<DimensionField>();
 		dimensionList.setVisibleRowCount(10);
 		dimensionList.setDragEnabled(true);
+		dimensionList.setTransferHandler(new FieldExporter<DimensionField>(
+				DimensionField.class));
 
 		JScrollPane scrollPane1 = new JScrollPane();
 		JViewport scrollView1 = new JViewport();
@@ -66,18 +67,20 @@ public class DataWindow extends JPanel implements DataSetListener {
 		scrollPane1.setViewport(scrollView1);
 		jPanel1.add(scrollPane1, BorderLayout.CENTER);
 
-		jPanel2 = new JPanel();
+		JPanel jPanel2 = new JPanel();
 		jPanel2.setLayout(new BorderLayout());
 		add(jPanel2);
 
-		measureLabel = new JLabel("Measures");
+		JLabel measureLabel = new JLabel("Measures");
 		measureLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		jPanel2.add(measureLabel, BorderLayout.NORTH);
 
-		measureList = new FieldList<DataField>(FieldList.MEASURE);
+		measureList = new FieldList<MeasureField>();
 		measureList.setVisibleRowCount(10);
 		measureList.setDropMode(DropMode.ON_OR_INSERT);
 		measureList.setDragEnabled(true);
+		measureList.setTransferHandler(new FieldExporter<MeasureField>(
+				MeasureField.class));
 
 		JScrollPane scrollPane2 = new JScrollPane();
 		JViewport scrollView2 = new JViewport();
@@ -88,26 +91,44 @@ public class DataWindow extends JPanel implements DataSetListener {
 
 	public void dataSetChanged(DataSetEvent e) {
 		dataSet = e.getDataSetForApps();
-
 		attrData = dataSet.getAttrData();
 
 		dimensionFields = attrData.getDimensionFields();
 		measureFields = attrData.getMeasureFields();
 
-		DefaultListModel<DataField> listModel1 = new DefaultListModel<DataField>();
-		for (int i = measureFields.length - 1; i >= 0; i--) {
-			listModel1.add(0, measureFields[i]);
+		dimensionModel = new DefaultListModel<DimensionField>();
+		for (DimensionField field : dimensionFields) {
+			dimensionModel.addElement(field);
 		}
 
-		DefaultListModel<DataField> listModel2 = new DefaultListModel<DataField>();
-		for (int i = dimensionFields.length - 1; i >= 0; i--) {
-			listModel2.add(0, dimensionFields[i]);
+		measureModel = new DefaultListModel<MeasureField>();
+		for (MeasureField field : measureFields) {
+			measureModel.addElement(field);
 		}
 
-		measureList.setModel(listModel1);
-		dimensionList.setModel(listModel2);
+		dimensionList.setModel(dimensionModel);
+		measureList.setModel(measureModel);
 
 		repaint();
+	}
+
+	class FieldExporter<E> extends TransferHandler {
+
+		private final Class<E> type;
+
+		public FieldExporter(Class<E> type) {
+			this.type = type;
+		}
+
+		public int getSourceActions(JComponent comp) {
+			return COPY_OR_MOVE;
+		}
+
+		public Transferable createTransferable(JComponent comp) {
+			FieldList<E> list = (FieldList<E>) comp;
+			List<E> values = list.getSelectedValuesList();
+			return new FieldDnD<E>(type, values);
+		}
 	}
 
 	public static void main(String[] args) {
