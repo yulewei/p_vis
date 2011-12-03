@@ -21,7 +21,7 @@ public enum AppearanceType {
 		case AUTOSIZE_LABELS:
 			return "Autosize text";
 		case BORDER_WIDTH:
-			return "Outlines";
+			return "Border width";
 		}
 		return null;
 	}
@@ -98,9 +98,9 @@ public enum AppearanceType {
 	public int maxValue() {
 		switch (this) {
 		case PADDING:
-			return 9999;
+			return 10;
 		case LABEL_SIZE:
-			return 9999;
+			return 10;
 		case SHOW_LABELS:
 			return 1;
 		case ALLOW_VERTICAL_LABELS:

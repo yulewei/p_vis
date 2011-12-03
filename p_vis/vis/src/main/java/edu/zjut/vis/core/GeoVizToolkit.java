@@ -1,27 +1,5 @@
 package edu.zjut.vis.core;
 
-import edu.zjut.common.ctrl.DataWindow;
-import edu.zjut.common.data.DataSetBroadcaster;
-import edu.zjut.common.data.DataSetForApps;
-import edu.zjut.common.event.DataSetEvent;
-import edu.zjut.common.event.DataSetListener;
-import edu.zjut.common.event.IndicationEvent;
-import edu.zjut.common.event.IndicationListener;
-import edu.zjut.common.event.SelectionEvent;
-import edu.zjut.common.event.SelectionListener;
-import edu.zjut.common.event.SubspaceEvent;
-import edu.zjut.common.event.SubspaceListener;
-import edu.zjut.common.io.DataSetLoader;
-import edu.zjut.common.ui.ShapeReporter;
-import edu.zjut.coordination.CoordinationManager;
-import edu.zjut.coordination.FiringBean;
-import edu.zjut.vis.map.GeoMap;
-import edu.zjut.vis.marshal.Marshaler;
-import edu.zjut.vis.pcp.ParallelPlot;
-import edu.zjut.vis.time.TimeSeries;
-import edu.zjut.vis.treemap.Treemap;
-import edu.zjut.vis.util.IconUtils;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -56,7 +34,27 @@ import javax.swing.UIManager;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 
-import org.jdesktop.jxlayer.JXLayer;
+import edu.zjut.common.ctrl.DataWindow;
+import edu.zjut.common.data.DataSetBroadcaster;
+import edu.zjut.common.data.DataSetForApps;
+import edu.zjut.common.event.DataSetEvent;
+import edu.zjut.common.event.DataSetListener;
+import edu.zjut.common.event.IndicationEvent;
+import edu.zjut.common.event.IndicationListener;
+import edu.zjut.common.event.SelectionEvent;
+import edu.zjut.common.event.SelectionListener;
+import edu.zjut.common.event.SubspaceEvent;
+import edu.zjut.common.event.SubspaceListener;
+import edu.zjut.common.io.DataSetLoader;
+import edu.zjut.common.ui.ShapeReporter;
+import edu.zjut.coordination.CoordinationManager;
+import edu.zjut.coordination.FiringBean;
+import edu.zjut.vis.map.GeoMap;
+import edu.zjut.vis.marshal.Marshaler;
+import edu.zjut.vis.pcp.ParallelPlot;
+import edu.zjut.vis.time.TimeSeries;
+import edu.zjut.vis.treemap.Treemap;
+import edu.zjut.vis.util.IconUtils;
 
 /**
  * 

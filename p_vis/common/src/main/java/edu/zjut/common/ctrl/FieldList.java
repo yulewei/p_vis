@@ -36,6 +36,7 @@ public class FieldList<E> extends JList<E> {
 	private void init() {
 		this.cellRenderer = new FieldListCell<E>();
 		this.setCellRenderer(cellRenderer);
+		this.setFixedCellWidth(50);
 	}
 
 	public Dimension getPreferredSize() {
@@ -45,7 +46,7 @@ public class FieldList<E> extends JList<E> {
 	public void setLayoutOrientation(int layoutOrientation) {
 		if (layoutOrientation == HORIZONTAL) {
 			this.setVisibleRowCount(1);
-			this.setFixedCellWidth(50);
+//			this.setFixedCellWidth(50);
 			this.setFixedCellHeight(listHeight);
 			isHorizontal = true;
 

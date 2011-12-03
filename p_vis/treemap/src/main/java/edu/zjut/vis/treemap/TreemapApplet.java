@@ -31,6 +31,9 @@ public class TreemapApplet extends PApplet {
 		layouts.add(Layout.VT);
 		layouts.add(Layout.SP);
 		layouts.add(Layout.SA);
+
+		font = createFont("FFScala", 12);
+		frameRate(30);
 	}
 
 	public void setData(TreemapState treemapState,
@@ -38,18 +41,18 @@ public class TreemapApplet extends PApplet {
 		this.treemapState = treemapState;
 		this.summariseFields = summariseFields;
 		this.records = records;
-	}
-
-	public void setup() {
-		font = createFont("FFScala", 12);
 
 		treemapPanel = new TreemapPanel(this, font, new Rectangle(0, 0, width,
 				height), records, summariseFields);
-		
-		frameRate(30);
+	}
+
+	public void setup() {
 	}
 
 	public void draw() {
+		if (treemapPanel == null)
+			return;
+
 		if ((oldW != width || oldH != height)) {
 			oldW = width;
 			oldH = height;

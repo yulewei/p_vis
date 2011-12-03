@@ -16,9 +16,6 @@ import org.gicentre.hive.Preset;
 import org.gicentre.hive.Type;
 import org.gicentre.hive.Variable;
 
-import processing.core.PApplet;
-import processing.core.PFont;
-
 import edu.zjut.common.data.attr.DataField;
 import edu.zjut.common.data.attr.FieldType;
 
@@ -362,14 +359,14 @@ public class TreemapState implements Hive {
 			System.err.println("Cannot cut level " + level);
 			return;
 		}
-
+	
 		DataField[] newHierarchyFields = new DataField[length + 1];
 		SummariseField[][] newSizeFields = new SummariseField[sizeFields.length][length + 1];
 		SummariseField[][] newOrderFields = new SummariseField[orderFields.length][length + 1];
 		SummariseField[][] newColourFields = new SummariseField[colourFields.length][length + 1];
 		Layout[] newLayouts = new Layout[length + 1];
 		Object[] newFilterValues = new Object[length + 1];
-
+	
 		HashMap<AppearanceType, Integer>[] newAppearanceValues = new HashMap[length + 1];
 		if (length == 0) {
 			newHierarchyFields[0] = hierarchyField;
@@ -423,7 +420,7 @@ public class TreemapState implements Hive {
 					newAppearanceValues[i].put(appearanceType,
 							appearanceType.defaultValue());
 				}
-
+	
 			} else {
 				newHierarchyFields[i] = hierFields[i - 1];
 				for (int j = 0; j < newSizeFields.length; j++) {
@@ -472,7 +469,6 @@ public class TreemapState implements Hive {
 
 	public void setHierChanged(boolean hierChanged) {
 		this.hierChanged = hierChanged;
-		System.out.println(hierChanged);
 	}
 
 	public boolean orderChanged() {

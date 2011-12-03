@@ -112,24 +112,6 @@ public class DataWindow extends JPanel implements DataSetListener {
 		repaint();
 	}
 
-	class FieldExporter<E> extends TransferHandler {
-
-		private final Class<E> type;
-
-		public FieldExporter(Class<E> type) {
-			this.type = type;
-		}
-
-		public int getSourceActions(JComponent comp) {
-			return COPY_OR_MOVE;
-		}
-
-		public Transferable createTransferable(JComponent comp) {
-			FieldList<E> list = (FieldList<E>) comp;
-			List<E> values = list.getSelectedValuesList();
-			return new FieldDnD<E>(type, values);
-		}
-	}
 
 	public static void main(String[] args) {
 		String fileName = "hz_data/hz_house.xml";
