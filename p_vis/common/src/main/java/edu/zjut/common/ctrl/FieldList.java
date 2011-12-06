@@ -39,21 +39,23 @@ public class FieldList<E> extends JList<E> {
 		this.setFixedCellWidth(50);
 	}
 
-	public Dimension getPreferredSize() {
-		return new Dimension(80, 25);
-	}
+//	public Dimension getPreferredSize() {
+//		return new Dimension(80, 25);
+//	}
 
 	public void setLayoutOrientation(int layoutOrientation) {
 		if (layoutOrientation == HORIZONTAL) {
 			this.setVisibleRowCount(1);
 //			this.setFixedCellWidth(50);
 			this.setFixedCellHeight(listHeight);
+			this.setPreferredSize(new Dimension(80, 25));
 			isHorizontal = true;
 
 			super.setLayoutOrientation(HORIZONTAL_WRAP);
 		} else {
 			this.setVisibleRowCount(10);
 			this.setFixedCellHeight(25);
+//			this.setPreferredSize(new Dimension(80, 500));
 			isHorizontal = false;
 			super.setLayoutOrientation(layoutOrientation);
 		}

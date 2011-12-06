@@ -2,11 +2,17 @@ package edu.zjut.vis.treemap;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+import javax.swing.JToggleButton;
+import javax.swing.JToolBar;
 
 import org.gicentre.apps.hide.TreemapState;
 import org.gicentre.data.summary.SummariseField;
@@ -25,7 +31,10 @@ public class Treemap extends JPanel implements DataSetListener {
 	private DataSetForApps dataSet;
 	private AttributeData attrData;
 
-	ControlPanel statePanel;
+	private JToolBar jToolBar;
+	private JToggleButton sideBarTglbtn;
+	private JSplitPane jSplitPane;
+	private TreemapCtrlPanel ctrlPanel;
 	// private PTreemap pTreemap;
 	private TreemapApplet pTreemap;
 
@@ -38,20 +47,55 @@ public class Treemap extends JPanel implements DataSetListener {
 	public Treemap() {
 		this.setLayout(new BorderLayout());
 
+		initToolbar();
+		this.add(jToolBar, BorderLayout.NORTH);
+
+		jSplitPane = new JSplitPane();
+		jSplitPane.setOneTouchExpandable(true);
+		this.add(jSplitPane, BorderLayout.CENTER);
+
 		// pTreemap = new PTreemap();
 		pTreemap = new TreemapApplet();
-		this.add(pTreemap, BorderLayout.CENTER);
+		jSplitPane.add(pTreemap, JSplitPane.RIGHT);
 
-		statePanel = new ControlPanel(pTreemap);
-		this.add(statePanel, BorderLayout.WEST);
-		statePanel.setPreferredSize(new Dimension(200, 500));
+		ctrlPanel = new TreemapCtrlPanel(pTreemap);
+		jSplitPane.add(ctrlPanel, JSplitPane.LEFT);
 
+		jSplitPane.setDividerLocation(200);
 		this.setPreferredSize(new Dimension(500, 500));
 
 		pTreemap.init();
 
 		defaultHive = "sHier(/,$城区,$楼盘); sOrder(/,HIER,HIER); sSize(/,FX,FX); sColor(/,HIER,$毛坯均价); sLayout(/,SF,SF);";
+	}
 
+	private void initToolbar() {
+		jToolBar = new JToolBar();
+
+		sideBarTglbtn = new JToggleButton();
+		sideBarTglbtn.setIcon(new ImageIcon(getClass().getResource(
+				"sidebar.png")));
+		sideBarTglbtn.setSelected(true);
+		sideBarTglbtn.addActionListener(new ActionListener() {
+			private int dividerSize = -1;
+
+			public void actionPerformed(ActionEvent evt) {
+				if (dividerSize == -1) {
+					dividerSize = jSplitPane.getDividerSize();
+				}
+				if (!sideBarTglbtn.isSelected()) {
+					jSplitPane.setDividerLocation(0);
+					jSplitPane.setDividerSize(0);
+					ctrlPanel.setVisible(false);
+				} else {
+					jSplitPane.setDividerLocation(200);
+					jSplitPane.setDividerSize(dividerSize);
+					ctrlPanel.setVisible(true);
+				}
+			}
+		});
+
+		jToolBar.add(sideBarTglbtn);
 	}
 
 	@Override
@@ -66,7 +110,7 @@ public class Treemap extends JPanel implements DataSetListener {
 				.parseExpressions(defaultHive);
 		treemapState.applyExpressions(expressions);
 
-		statePanel.setState(treemapState, hierFields, summariseFields);
+		ctrlPanel.setState(treemapState, hierFields, summariseFields);
 		pTreemap.setData(treemapState, summariseFields, records);
 
 		repaint();

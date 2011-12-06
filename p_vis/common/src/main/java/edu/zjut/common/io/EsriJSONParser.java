@@ -18,15 +18,20 @@ import com.vividsolutions.jts.geom.Polygon;
 import edu.zjut.common.data.geo.EsriFeatureObj;
 
 /**
- * ArcGIS Server REST API的JSON返回结果参考:
- * http://help.arcgis.com/en/arcgisserver/10.0/apis/rest/index.html?query.html
- * JSON Response Syntax.
+ * <p>
+ * ArcGIS Server下对某个Layer进行Query操作, 解析JSON返回结果．
+ * </p>
+ * 
+ * <p>
+ * 参考: <a href=
+ * "http://help.arcgis.com/en/arcgisserver/10.0/apis/rest/index.html?query.html"
+ * > ArcGIS Server REST API: Query (Operation)</a>, 见JSON Response Syntax部分
+ * </p>
  * 
  * @author yulewei
  * 
  */
-public class EsriJSONParser
-{
+public class EsriJSONParser {
 	public static final String GEOMETRY_POINT = "esriGeometryPoint";
 
 	public static final String GEOMETRY_POLYLINE = "esriGeometryPolyline";
@@ -35,7 +40,6 @@ public class EsriJSONParser
 
 	private String geometryType;
 
-	
 	/**
 	 * 原始返回结果为"wkid: 2431"(EPSG:2431), 已经全部投影转换为EPSG:4326 (WGS84 经纬度)
 	 */
@@ -45,24 +49,17 @@ public class EsriJSONParser
 
 	private EsriFeatureObj[] features;
 
-	public EsriJSONParser(String fileName)
-	{
-		try
-		{
+	public EsriJSONParser(String fileName) {
+		try {
 			parse(fileName);
-		}
-		catch (IOException e)
-		{
+		} catch (IOException e) {
 			e.printStackTrace();
-		}
-		catch (JSONException e)
-		{
+		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 	}
 
-	private void parse(String fileName) throws IOException, JSONException
-	{
+	private void parse(String fileName) throws IOException, JSONException {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(
 				new FileInputStream(fileName), "UTF-8"));
 
@@ -75,8 +72,7 @@ public class EsriJSONParser
 
 		int len = jsonfeatures.length();
 		features = new EsriFeatureObj[len];
-		for (int i = 0; i < len; i++)
-		{
+		for (int i = 0; i < len; i++) {
 			JSONObject object = (JSONObject) jsonfeatures.get(i);
 			JSONObject jsonattributes = (JSONObject) object.get("attributes");
 
@@ -93,31 +89,25 @@ public class EsriJSONParser
 	}
 
 	private Geometry parseGeometry(JSONObject jsongeometry)
-			throws JSONException
-	{
+			throws JSONException {
 		GeometryFactory geometryFactory = new GeometryFactory();
 
 		Geometry geometry = null;
 
-		if (geometryType.equals(GEOMETRY_POINT))
-		{
+		if (geometryType.equals(GEOMETRY_POINT)) {
 			double x = (Double) jsongeometry.get("x");
 			double y = (Double) jsongeometry.get("y");
 
 			Coordinate coord = new Coordinate(y, x);
 
 			geometry = geometryFactory.createPoint(coord);
-		}
-		else if (geometryType.equals(GEOMETRY_POLYLINE))
-		{
+		} else if (geometryType.equals(GEOMETRY_POLYLINE)) {
 			JSONArray jsonpaths = (JSONArray) jsongeometry.get("paths");
 			LineString[] lineStrings = new LineString[jsonpaths.length()];
-			for (int i = 0; i < jsonpaths.length(); i++)
-			{
+			for (int i = 0; i < jsonpaths.length(); i++) {
 				JSONArray jsonpath = (JSONArray) jsonpaths.get(i);
 				Coordinate[] path = new Coordinate[jsonpath.length()];
-				for (int j = 0; j < jsonpath.length(); j++)
-				{
+				for (int j = 0; j < jsonpath.length(); j++) {
 					JSONArray jsonpoint = (JSONArray) jsonpath.get(j);
 					double x = (Double) jsonpoint.get(0);
 					double y = (Double) jsonpoint.get(1);
@@ -126,17 +116,13 @@ public class EsriJSONParser
 				lineStrings[i] = geometryFactory.createLineString(path);
 			}
 			geometry = geometryFactory.createMultiLineString(lineStrings);
-		}
-		else if (geometryType.equals(GEOMETRY_POLYGON))
-		{
+		} else if (geometryType.equals(GEOMETRY_POLYGON)) {
 			JSONArray jsonrings = (JSONArray) jsongeometry.get("rings");
 			Polygon[] polygons = new Polygon[jsonrings.length()];
-			for (int i = 0; i < jsonrings.length(); i++)
-			{
+			for (int i = 0; i < jsonrings.length(); i++) {
 				JSONArray jsonring = (JSONArray) jsonrings.get(i);
 				Coordinate[] ring = new Coordinate[jsonring.length()];
-				for (int j = 0; j < jsonring.length(); j++)
-				{
+				for (int j = 0; j < jsonring.length(); j++) {
 					JSONArray jsonpoint = (JSONArray) jsonring.get(j);
 					double x = (Double) jsonpoint.get(0);
 					double y = (Double) jsonpoint.get(1);
@@ -151,13 +137,11 @@ public class EsriJSONParser
 		return geometry;
 	}
 
-	public EsriFeatureObj[] getFeatures()
-	{
+	public EsriFeatureObj[] getFeatures() {
 		return features;
 	}
 
-	public String getGeometryType()
-	{
+	public String getGeometryType() {
 		return geometryType;
 	}
 
@@ -166,8 +150,7 @@ public class EsriJSONParser
 	 * @throws JSONException
 	 * @throws IOException
 	 */
-	public static void main(String[] args) throws JSONException, IOException
-	{
+	public static void main(String[] args) throws JSONException, IOException {
 		String fileName = "map/44.json";
 		EsriJSONParser parser = new EsriJSONParser(fileName);
 		EsriFeatureObj[] features = parser.getFeatures();

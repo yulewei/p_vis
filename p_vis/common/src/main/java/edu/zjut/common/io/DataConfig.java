@@ -78,6 +78,7 @@ public class DataConfig {
 			String name;
 			String geoType;
 			String fileName;
+			String subDir;
 			String fileType;
 			Col col;
 		}

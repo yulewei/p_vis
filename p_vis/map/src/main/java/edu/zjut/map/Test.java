@@ -44,13 +44,13 @@ public class Test {
 		JMapPanel viewer = new JMapPanel();
 		viewer.loadMapConfig("map_config.xml");
 
-		// loadTestMarker(viewer);
+		loadTestMarker(viewer);
 		// loadTestPolygon(viewer);
 		// loadTestPolyline(viewer);
 
 		// loadHangzhouLayer2(viewer);
-		loadHangzhouLayer(viewer);
-		loadHouseData(viewer);
+//		loadHangzhouLayer(viewer);
+//		loadHouseData(viewer);
 
 		JFrame jframe = new JFrame();
 		jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

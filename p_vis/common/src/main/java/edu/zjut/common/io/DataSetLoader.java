@@ -1,6 +1,6 @@
 package edu.zjut.common.io;
 
-import java.awt.Color;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,16 +14,17 @@ import au.com.bytecode.opencsv.CSVReader;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
 
-import edu.zjut.common.color.ColorScaling;
 import edu.zjut.common.data.DataSetForApps;
-import edu.zjut.common.data.attr.FieldType;
 import edu.zjut.common.data.attr.AttributeData;
 import edu.zjut.common.data.attr.DataField;
 import edu.zjut.common.data.attr.DimensionField;
+import edu.zjut.common.data.attr.FieldType;
 import edu.zjut.common.data.attr.MeasureField;
 import edu.zjut.common.data.attr.SummaryType;
 import edu.zjut.common.data.geo.EsriFeatureObj;
+import edu.zjut.common.data.geo.GeoLayer;
 import edu.zjut.common.data.geo.GeometryData;
 import edu.zjut.common.data.time.TimeData;
 import edu.zjut.common.io.DataConfig.Attr;
@@ -85,17 +86,6 @@ public class DataSetLoader {
 		ColourTable[] colorTables = new ColourTable[len];
 		for (int i = 0; i < len; i++) {
 			Attribute attr = attrList.get(i);
-			// if (attr.dataType.equalsIgnoreCase("id")) {
-			// dataTypes[i] = FieldType.ID;
-			// }
-			// if (attr.dataType.equalsIgnoreCase("int")) {
-			// dataTypes[i] = FieldType.INT;
-			// } else if (attr.dataType.equalsIgnoreCase("double")) {
-			// dataTypes[i] = FieldType.DOUBLE;
-			// } else if (attr.dataType.equalsIgnoreCase("string")) {
-			// dataTypes[i] = FieldType.STRING;
-			// }
-
 			dataTypes[i] = FieldType.valueOf(attr.dataType.toUpperCase());
 			attributeNames[i] = attr.name;
 			summaryTypes[i] = attr.summaryType == null ? null : SummaryType
@@ -105,7 +95,6 @@ public class DataSetLoader {
 
 			if (attr.name.equals(attrConfig.name))
 				nameCol = i;
-
 		}
 
 		Object[][] columnArrays = readFileContent(dataTypes, attrList,
@@ -131,8 +120,8 @@ public class DataSetLoader {
 	 * @param config
 	 */
 	public void readGeometryData(Geo geoConfig) {
-		HashMap<String, Geometry> nameGeometrys = new HashMap<String, Geometry>();
-		List<EsriFeatureObj[]> layers = new ArrayList<EsriFeatureObj[]>();
+		HashMap<String, Point> nameGeometrys = new HashMap<String, Point>();
+		List<GeoLayer> layers = new ArrayList<GeoLayer>();
 
 		ArrayList<Feature> featureList = geoConfig.featureList;
 
@@ -144,8 +133,33 @@ public class DataSetLoader {
 					e.printStackTrace();
 				}
 			}
+
 			if (feature.fileType.equalsIgnoreCase("geojson")) {
-				loadGeoJSON(layers, feature);
+				if (feature.geoType.equals("layers")) {
+					EsriLayersParser parser = new EsriLayersParser(
+							feature.fileName);
+					List<String> layerIdLists = parser.getLayerIdLists();
+					List<String> layerNameLists = parser.getLayerNameLists();
+					for (int i = 0; i < layerIdLists.size(); i++) {
+						String id = layerIdLists.get(i);
+						String layerName = layerNameLists.get(i);
+						String fileName = feature.subDir + "/" + id + ".json";
+
+						File file = new File(fileName);
+						if (file.exists()) {
+							EsriJSONParser layerParser = new EsriJSONParser(
+									fileName);
+							EsriFeatureObj[] features = layerParser
+									.getFeatures();
+							layers.add(new GeoLayer(layerName, features));
+						}
+					}
+				} else {
+					EsriJSONParser layerParser = new EsriJSONParser(
+							feature.fileName);
+					EsriFeatureObj[] features = layerParser.getFeatures();
+					layers.add(new GeoLayer(feature.name, features));
+				}
 			}
 		}
 
@@ -251,9 +265,8 @@ public class DataSetLoader {
 		return colourTable;
 	}
 
-	private void loadGeoCSV(HashMap<String, Geometry> nameGeometrys,
+	private void loadGeoCSV(HashMap<String, Point> nameGeometrys,
 			Feature feature) throws IOException {
-
 		GeometryFactory geometryFactory = new GeometryFactory();
 
 		CSVReader reader = new CSVReader(new FileReader(feature.fileName));
@@ -267,15 +280,9 @@ public class DataSetLoader {
 			double x = Double.parseDouble(xs);
 			double y = Double.parseDouble(ys);
 			Coordinate coord = new Coordinate(y, x);
-			Geometry geometry = geometryFactory.createPoint(coord);
+			Point geometry = geometryFactory.createPoint(coord);
 			nameGeometrys.put(name, geometry);
 		}
-	}
-
-	private void loadGeoJSON(List<EsriFeatureObj[]> layers, Feature feature) {
-		EsriJSONParser parser = new EsriJSONParser(feature.fileName);
-		EsriFeatureObj[] features = parser.getFeatures();
-		layers.add(features);
 	}
 
 	public void setDataForApps(DataSetForApps dataForApps) {

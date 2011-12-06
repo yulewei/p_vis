@@ -135,9 +135,9 @@ public class GeoVizToolkit extends JFrame implements IndicationListener {
 
 		// VizState state = ToolkitIO.openDefaultLayout();
 		// VizState state = ToolkitIO.getVizStateFromFile("vis_state.xml");
-		VizState state = ToolkitIO.getVizStateFromFile("treemap.xml");
+//		VizState state = ToolkitIO.getVizStateFromFile("treemap.xml");
 		// VizState state = ToolkitIO.getVizStateFromFile("pcp.xml");
-		// VizState state = ToolkitIO.getVizStateFromFile("map.xml");
+		 VizState state = ToolkitIO.getVizStateFromFile("map.xml");
 		// VizState state = ToolkitIO.getVizStateFromFile("final.xml");
 
 		setVizState(state);

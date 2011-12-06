@@ -38,10 +38,12 @@ public class JMapPanel extends JXMapViewerX implements MouseListener,
 
 	protected ArrayList<Overlay> markerList;
 	protected ArrayList<EsriLayer> layerList;
+	protected int activeLayer = 0;
 
 	protected boolean isCoordValid;
 
 	public final int STATUS_BAR_HEIGHT = 25;
+	protected boolean isDrawTileBorders = true;
 	protected boolean isShowStatusBar = true;
 	protected boolean isShowCenterCross = false;
 	protected boolean isShowScaleRule = false;
@@ -51,7 +53,6 @@ public class JMapPanel extends JXMapViewerX implements MouseListener,
 	protected Painter<JXMapViewer> centerCrossOverlay;
 	protected Painter<JXMapViewer> scaleRuleOverlay;
 	private boolean needUpdate;
-	private int y_min;
 
 	public JMapPanel() {
 		this.addMouseListener(this);
@@ -153,6 +154,10 @@ public class JMapPanel extends JXMapViewerX implements MouseListener,
 	public void addLayer(EsriLayer layer) {
 		layerList.add(layer);
 		needUpdate = true;
+	}
+
+	public void clearOverlays() {
+		markerList.clear();
 	}
 
 	@Override
@@ -292,6 +297,16 @@ public class JMapPanel extends JXMapViewerX implements MouseListener,
 		}
 	}
 
+	public boolean isShowCenterCross() {
+		return isShowCenterCross;
+	}
+
+	public void setShowCenterCross(boolean isShowCenterCross) {
+		this.isShowCenterCross = isShowCenterCross;
+
+		updateOverlayPainterList();
+	}
+
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		// TODO Auto-generated method stub
@@ -326,7 +341,7 @@ public class JMapPanel extends JXMapViewerX implements MouseListener,
 			Overlay overlay = layer.containOverlay(this, mouseX, mouseY);
 			if (overlay != null)
 				overlay.setHighlighted(true);
-		}		
+		}
 
 		repaint();
 	}
@@ -340,14 +355,12 @@ public class JMapPanel extends JXMapViewerX implements MouseListener,
 			}
 		}
 
-		if (e.getClickCount() == 2) {
-			for (int i = 0; i < 1; i++) {
-				EsriLayer layer = layerList.get(i);
-				Overlay overlay = layer.containOverlay(this, mouseX, mouseY);
-				if (overlay != null && overlay instanceof MapPolygon) {
-					MapPolygon ploygon = (MapPolygon) overlay;
-					setDisplayToFitMapRectangle(ploygon.getBoundingBox());
-				}
+		if (e.getClickCount() == 2 && !layerList.isEmpty()) {
+			EsriLayer layer = layerList.get(activeLayer);
+			Overlay overlay = layer.containOverlay(this, mouseX, mouseY);
+			if (overlay != null && overlay instanceof MapPolygon) {
+				MapPolygon ploygon = (MapPolygon) overlay;
+				setDisplayToFitMapRectangle(ploygon.getBoundingBox());
 			}
 		}
 		repaint();
@@ -361,7 +374,7 @@ public class JMapPanel extends JXMapViewerX implements MouseListener,
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		if (e.getButton() == MouseEvent.BUTTON3) {
+		if (e.getButton() == MouseEvent.BUTTON3&& !layerList.isEmpty()) {
 			setDisplayToFitMapRectangle(layerList.get(0).getBoundingBox());
 		}
 	}
