@@ -190,8 +190,8 @@ public class Test {
 		MapMarker marker = new MapMarker(new GeoPosition(30.30190008,
 				120.1212215), "你好");
 
-		DefaultMapMarker marker2 = new DefaultMapMarker(new GeoPosition(
-				30.40190008, 120.1212215), "世界");
+		IconMarker marker2 = new IconMarker(new GeoPosition(
+				30.40190008, 120.1212215), "世界你好");
 
 		viewer.addOverlay(marker);
 		viewer.addOverlay(marker2);

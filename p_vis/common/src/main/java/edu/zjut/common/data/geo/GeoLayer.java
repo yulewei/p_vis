@@ -25,4 +25,8 @@ public class GeoLayer {
 	public void setFeatures(EsriFeatureObj[] features) {
 		this.features = features;
 	}
+
+	public String toString() {
+		return layerName;
+	}
 }

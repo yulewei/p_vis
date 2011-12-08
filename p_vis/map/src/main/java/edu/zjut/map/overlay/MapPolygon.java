@@ -94,6 +94,11 @@ public class MapPolygon extends Overlay {
 				pt.getX(), pt.getY()));
 	}
 
+	/**
+	 * 包围矩形, 经纬坐标
+	 * 
+	 * @return
+	 */
 	public GeoPosition[] getBoundingBox() {
 		Envelope envelope = polygon.getEnvelopeInternal();
 

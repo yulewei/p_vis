@@ -3,7 +3,6 @@ package edu.zjut.map.overlay;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -13,6 +12,8 @@ import javax.imageio.ImageIO;
 
 import org.jdesktop.swingx.JXMapViewer;
 import org.jdesktop.swingx.mapviewer.GeoPosition;
+
+import com.vividsolutions.jts.geom.Point;
 
 /**
  * 图标参考自搜房网
@@ -27,22 +28,13 @@ public class IconMarker extends DefaultMapMarker {
 	public static final int GREEN = 3; // n, 绿色
 	public static final int YELLOW = 4; // h, 黄色
 	public static final int BROWN = 5; // y, 棕色
-	private String[] colors = { "z", "f", "l", "n", "h", "y" };
+	private static String[] colors = { "z", "f", "l", "n", "h", "y" };
+	private static BufferedImage[] left;
+	private static BufferedImage[] middle;
+	private static BufferedImage[] right;
+	private static BufferedImage[] jt;
 
-	private int iconColor = BLUE;
-
-	private BufferedImage[] left;
-	private BufferedImage[] middle;
-	private BufferedImage[] right;
-	private BufferedImage[] jt;
-
-	public IconMarker(GeoPosition coord, String title) {
-		super(coord, title);
-
-		loadAllImages(colors);
-	}
-
-	private void loadAllImages(String[] colors) {
+	static {
 		try {
 			left = new BufferedImage[colors.length];
 			middle = new BufferedImage[colors.length];
@@ -50,14 +42,14 @@ public class IconMarker extends DefaultMapMarker {
 			jt = new BufferedImage[colors.length];
 
 			for (int i = 0; i < colors.length; i++) {
-				left[i] = ImageIO.read(getClass().getResource(
-						String.format("resources/%s_left.png", colors[i])));
-				middle[i] = ImageIO.read(getClass().getResource(
-						String.format("resources/%s_middle.png", colors[i])));
-				right[i] = ImageIO.read(getClass().getResource(
-						String.format("resources/%s_right.png", colors[i])));
-				jt[i] = ImageIO.read(getClass().getResource(
-						String.format("resources/%s_jt.png", colors[i])));
+				left[i] = ImageIO.read(IconMarker.class.getResource(String
+						.format("resources/%s_left.png", colors[i])));
+				middle[i] = ImageIO.read(IconMarker.class.getResource(String
+						.format("resources/%s_middle.png", colors[i])));
+				right[i] = ImageIO.read(IconMarker.class.getResource(String
+						.format("resources/%s_right.png", colors[i])));
+				jt[i] = ImageIO.read(IconMarker.class.getResource(String
+						.format("resources/%s_jt.png", colors[i])));
 			}
 
 		} catch (IOException e) {
@@ -65,12 +57,37 @@ public class IconMarker extends DefaultMapMarker {
 		}
 	}
 
+	private int iconColor = BLUE;
+
+	public IconMarker(Point coord, String title) {
+		super(coord, title);
+	}
+
+	public IconMarker(GeoPosition coord, String title) {
+		super(coord, title);
+	}
+
 	public void paintOverlay(Graphics2D g, JXMapViewer map) {
-		Point pt = GeoUtils.getScreenCoord(map, this.getPosition());
+		if (isHighlighted)
+			return;
 
+		java.awt.Point pt = GeoUtils.getScreenCoord(map, this.getPosition());
+
+		drawIcon(g, pt, iconColor);
+	}
+
+	@Override
+	public void paintHighlightOverlay(Graphics2D g, JXMapViewer map) {
+		if (!isHighlighted)
+			return;
+
+		java.awt.Point pt = GeoUtils.getScreenCoord(map, this.getPosition());
+
+		drawIcon(g, pt, YELLOW);
+	}
+
+	protected void drawIcon(Graphics2D g, java.awt.Point pt, int iconColor) {
 		g.translate(pt.x, pt.y);
-
-		// drawIcon(BLUE, 28);
 		Font f = g.getFont();
 		FontRenderContext frc = g.getFontRenderContext();
 		Rectangle2D rec = f.getStringBounds(title, frc);
@@ -96,4 +113,13 @@ public class IconMarker extends DefaultMapMarker {
 		g.drawString(title, w + gap, -jt[iconColor].getHeight() - 5);
 	}
 
+	@Override
+	public boolean contains(JXMapViewer map, int x, int y) {
+		// TODO 判断范围
+
+		java.awt.Point pt = GeoUtils.getScreenCoord(map, this.getPosition());
+
+		return (x - pt.x) > 0 && (x - pt.x) < 50 && (pt.y - y) > 10
+				&& (pt.y - y) < 34;
+	}
 }

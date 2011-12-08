@@ -1,6 +1,7 @@
 package edu.zjut.common.ctrl;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -43,13 +44,14 @@ public class DataWindow extends JPanel implements DataSetListener {
 
 	FieldList<DimensionField> dimensionList;
 	FieldList<MeasureField> measureList;
-	FieldList<String> layerList;
+	FieldList<GeoLayer> layerList;
 	FieldList<String> timeList;
 
 	public DataWindow() {
 		super();
 
-		setLayout(new BorderLayout());
+		this.setLayout(new BorderLayout());
+		this.setPreferredSize(new Dimension(180, 450));
 
 		JTabbedPane jTabbedPane1 = new JTabbedPane();
 		add(jTabbedPane1);
@@ -116,17 +118,19 @@ public class DataWindow extends JPanel implements DataSetListener {
 		layerLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		jPanel1.add(layerLabel, BorderLayout.NORTH);
 
-		layerList = new FieldList<String>();
+		layerList = new FieldList<GeoLayer>();
 		layerList.setVisibleRowCount(10);
 		layerList.setDropMode(DropMode.ON_OR_INSERT);
 		layerList.setDragEnabled(true);
-		
+		layerList.setTransferHandler(new FieldExporter<GeoLayer>(
+				GeoLayer.class));
+
 		jPanel1.add(new JScrollPane(layerList), BorderLayout.CENTER);
 	}
 
 	private void initTimePanel() {
 		timePanel = new JPanel();
-		
+
 		timePanel.setLayout(new BoxLayout(timePanel, BoxLayout.Y_AXIS));
 
 		JPanel jPanel1 = new JPanel();
@@ -164,9 +168,9 @@ public class DataWindow extends JPanel implements DataSetListener {
 		measureList.setModel(measureModel);
 
 		List<GeoLayer> layers = geoData.getLayers();
-		DefaultListModel<String> layerModel = new DefaultListModel<String>();
+		DefaultListModel<GeoLayer> layerModel = new DefaultListModel<GeoLayer>();
 		for (GeoLayer layer : layers) {
-			layerModel.addElement(layer.getLayerName());
+			layerModel.addElement(layer);
 		}
 
 		layerList.setModel(layerModel);

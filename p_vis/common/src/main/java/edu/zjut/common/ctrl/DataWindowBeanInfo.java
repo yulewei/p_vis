@@ -9,8 +9,8 @@ import java.beans.SimpleBeanInfo;
 
 public class DataWindowBeanInfo extends SimpleBeanInfo {
 	static Class beanClass = DataWindow.class;
-	static String iconColor16x16Filename = "resources/variable16.gif";
-	static String iconColor32x32Filename = "resources/variable32.gif";
+	static String iconColor16x16Filename = "variable16.gif";
+	static String iconColor32x32Filename = "variable32.gif";
 	static String iconMono16x16Filename;
 	static String iconMono32x32Filename;
 

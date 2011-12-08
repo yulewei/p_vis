@@ -55,19 +55,35 @@ public class MeasureField extends DataField {
 		}
 	}
 
-	public int findColor(int index) {
+	public Number getMin() {
+		return min;
+	}
+
+	public Number getMax() {
+		return max;
+	}
+
+	/**
+	 * °Ù·Ö±È
+	 */
+	public float findPercent(int index) {
 		float f = 0.0f;
 		if (dataType == FieldType.INT) {
-			Integer v = (Integer) columnValues[index];
+			Integer v = (Integer) columnValues[index] - (Integer) min;
 			v = v / ((Integer) max - (Integer) min);
 			f = v.floatValue();
 		}
 		if (dataType == FieldType.DOUBLE) {
-			Double v = (Double) columnValues[index];
+			Double v = (Double) columnValues[index] - (Double) min;
 			v = v / ((Double) max - (Double) min);
 			f = v.floatValue();
 		}
-		return colorTable.findColour(f);
+
+		return f;
+	}
+
+	public int findColor(int index) {
+		return colorTable.findColour(findPercent(index));
 	}
 
 	public void setColumnValues(Object[] columnValues) {

@@ -11,6 +11,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import org.jdesktop.swingx.JXMapViewer;
@@ -36,8 +37,9 @@ public class JMapPanel extends JXMapViewerX implements MouseListener,
 	protected Overlay curPolygon;
 	protected int curOverlayIndex = -1;
 
-	protected ArrayList<Overlay> markerList;
-	protected ArrayList<EsriLayer> layerList;
+	protected List<Overlay> markerList;
+	protected List<EsriLayer> layerList;
+
 	protected int activeLayer = 0;
 
 	protected boolean isCoordValid;
@@ -156,6 +158,24 @@ public class JMapPanel extends JXMapViewerX implements MouseListener,
 		needUpdate = true;
 	}
 
+	public List<Overlay> getMarkerList() {
+		return markerList;
+	}
+
+	public void setMarkerList(List<Overlay> markerList) {
+		this.markerList = markerList;
+		needUpdate = true;
+	}
+
+	public List<EsriLayer> getLayerList() {
+		return layerList;
+	}
+
+	public void setLayerList(List<EsriLayer> layerList) {
+		this.layerList = layerList;
+		needUpdate = true;
+	}
+
 	public void clearOverlays() {
 		markerList.clear();
 	}
@@ -164,8 +184,8 @@ public class JMapPanel extends JXMapViewerX implements MouseListener,
 	public void paint(Graphics g) {
 		if (needUpdate) {
 			updateOverlayPainterList();
-			if (layerList != null && layerList.size() >= 1)
-				setDisplayToFitMapRectangle(layerList.get(0).getBoundingBox());
+			// if (layerList != null && layerList.size() >= 1)
+			// fitMapRectangle(layerList.get(0).getBoundingBox());
 			needUpdate = false;
 		}
 
@@ -173,7 +193,6 @@ public class JMapPanel extends JXMapViewerX implements MouseListener,
 	}
 
 	private void updateOverlayPainterList() {
-
 		ArrayList<Painter<JXMapViewer>> list = new ArrayList<Painter<JXMapViewer>>();
 
 		for (EsriLayer layer : layerList) {
@@ -208,11 +227,14 @@ public class JMapPanel extends JXMapViewerX implements MouseListener,
 		this.setOverlayPainter(comp);
 	}
 
-	public void setDisplayToFitMapMarkers() {
+	/**
+	 * 调整最佳zoom level, 以显示全部markers
+	 */
+	public void fitMapMarkers() {
 		// TODO ???
 	}
 
-	public void setDisplayToFitMapRectangle(GeoPosition[] boundingBox) {
+	public void fitMapRectangle(GeoPosition[] boundingBox) {
 		GeoPosition minPos = boundingBox[0];
 		GeoPosition maxPos = boundingBox[1];
 
@@ -360,7 +382,7 @@ public class JMapPanel extends JXMapViewerX implements MouseListener,
 			Overlay overlay = layer.containOverlay(this, mouseX, mouseY);
 			if (overlay != null && overlay instanceof MapPolygon) {
 				MapPolygon ploygon = (MapPolygon) overlay;
-				setDisplayToFitMapRectangle(ploygon.getBoundingBox());
+				fitMapRectangle(ploygon.getBoundingBox());
 			}
 		}
 		repaint();
@@ -374,8 +396,8 @@ public class JMapPanel extends JXMapViewerX implements MouseListener,
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		if (e.getButton() == MouseEvent.BUTTON3&& !layerList.isEmpty()) {
-			setDisplayToFitMapRectangle(layerList.get(0).getBoundingBox());
+		if (e.getButton() == MouseEvent.BUTTON3 && !layerList.isEmpty()) {
+			fitMapRectangle(layerList.get(0).getBoundingBox());
 		}
 	}
 

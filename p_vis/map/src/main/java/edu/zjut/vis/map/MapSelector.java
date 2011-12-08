@@ -2,15 +2,12 @@ package edu.zjut.vis.map;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 
 import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.WindowConstants;
 import javax.swing.event.MouseInputListener;
 
 import edu.zjut.map.JMapPanel;
@@ -18,6 +15,12 @@ import edu.zjut.map.JMapPanel;
 public class MapSelector extends JComponent implements MouseInputListener {
 
 	private JMapPanel mapPanel;
+
+	public enum SelectType {
+		Rest, ellipse, lasso
+	}
+
+	private SelectType selectType = SelectType.Rest;
 
 	private boolean isDrag = false;
 	private int startX;
@@ -27,10 +30,15 @@ public class MapSelector extends JComponent implements MouseInputListener {
 
 	public MapSelector(JMapPanel mapPanel) {
 		this.mapPanel = mapPanel;
+
 		this.setBounds(mapPanel.getBounds());
 
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
+	}
+	
+	public void setSelectType(SelectType selectType) {
+		this.selectType = selectType;
 	}
 
 	@Override
@@ -51,8 +59,13 @@ public class MapSelector extends JComponent implements MouseInputListener {
 			int maxX = Math.max(mouseX, startX);
 			int maxY = Math.max(mouseY, startY);
 
-			g2.drawOval(minX, minY, maxX - minX, maxY - minY);
-			g2.drawRect(minX, minY, maxX - minX, maxY - minY);
+			switch (selectType) {
+			case Rest:
+				g2.drawRect(minX, minY, maxX - minX, maxY - minY);
+				break;
+			case ellipse:
+				g2.drawOval(minX, minY, maxX - minX, maxY - minY);
+			}
 		}
 	}
 

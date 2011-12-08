@@ -5,11 +5,14 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
@@ -25,6 +28,7 @@ import edu.zjut.common.ctrl.FieldImporter;
 import edu.zjut.common.data.DataSetForApps;
 import edu.zjut.common.data.attr.AttributeData;
 import edu.zjut.common.data.attr.MeasureField;
+import edu.zjut.common.data.geo.GeoLayer;
 import edu.zjut.common.data.geo.GeometryData;
 import edu.zjut.common.event.DataSetEvent;
 import edu.zjut.common.event.DataSetListener;
@@ -34,8 +38,11 @@ import edu.zjut.common.event.SelectionEvent;
 import edu.zjut.common.event.SelectionListener;
 import edu.zjut.map.JMapPanel;
 import edu.zjut.map.overlay.DefaultMapMarker;
+import edu.zjut.map.overlay.EsriLayer;
+import edu.zjut.map.overlay.IconMarker;
 import edu.zjut.map.overlay.MapMarker;
 import edu.zjut.map.overlay.Overlay;
+import edu.zjut.vis.map.MapSelector.SelectType;
 
 public class GeoMap extends JPanel implements DataSetListener,
 		IndicationListener, SelectionListener {
@@ -48,19 +55,21 @@ public class GeoMap extends JPanel implements DataSetListener,
 	private int[] selection;
 
 	private enum MarkerType {
-		circle, marker
+		CIRCLE, MARKER, ICON
 	};
 
-	MarkerType markerType = MarkerType.marker;
+	MarkerType markerType = MarkerType.MARKER;
 
 	private JToolBar jToolBar;
 	private JToggleButton sideBarTglbtn;
 	private JToggleButton circleTglbtn;
 	private JToggleButton markerTglbtn;
+	private JToggleButton iconTglbtn;
 
 	private JToggleButton moveTglbtn;
-	private JToggleButton zoomInTglbtn;
-	private JToggleButton zoomOutTglbtn;
+	private JButton zoomInTglbtn;
+	private JButton zoomFitTglbtn;
+	private JButton zoomOutTglbtn;
 	private JToggleButton selectTglbtn;
 	private JToggleButton selectRestTgbtn;
 	private JToggleButton selectEllpTgbtn;
@@ -68,9 +77,14 @@ public class GeoMap extends JPanel implements DataSetListener,
 	private JToggleButton gridTgbtn;
 	private JToggleButton crossTgbtn;
 
+	private MapSelector selector;
+
 	private JSplitPane jSplitPane;
 	private MapCtrlPanel ctrlPanel;
 	private JMapPanel mapPanel;
+
+	protected MeasureField colorField;
+	protected MeasureField sizeField;
 
 	private HashMap<Integer, Overlay> indexMarkerMap;
 	private HashMap<Overlay, Integer> markerIndexMap;
@@ -84,13 +98,20 @@ public class GeoMap extends JPanel implements DataSetListener,
 		jSplitPane = new JSplitPane();
 		jSplitPane.setOneTouchExpandable(true);
 		this.add(jSplitPane, BorderLayout.CENTER);
-		this.setTransferHandler(new MapFieldImporter());
 
 		mapPanel = new JMapPanel();
 		mapPanel.loadMapConfig("config/map_config.xml");
+		mapPanel.setTransferHandler(new MapFieldImporter());
+		mapPanel.setLayout(new BorderLayout());
+
 		jSplitPane.add(mapPanel, JSplitPane.RIGHT);
 
-		ctrlPanel = new MapCtrlPanel(mapPanel);
+		selector = new MapSelector(mapPanel);
+		selector.setVisible(false);
+
+		mapPanel.add(selector);
+
+		ctrlPanel = new MapCtrlPanel(this, mapPanel);
 		jSplitPane.add(ctrlPanel, JSplitPane.LEFT);
 
 		jSplitPane.setDividerLocation(150);
@@ -101,6 +122,7 @@ public class GeoMap extends JPanel implements DataSetListener,
 	private void initToolbar() {
 		jToolBar = new JToolBar();
 
+		// 侧边栏
 		sideBarTglbtn = new JToggleButton();
 		sideBarTglbtn.setIcon(new ImageIcon(getClass().getResource(
 				"sidebar.png")));
@@ -129,28 +151,43 @@ public class GeoMap extends JPanel implements DataSetListener,
 		JSeparator separator1 = new JSeparator(SwingConstants.VERTICAL);
 		jToolBar.add(separator1);
 
+		// 显示模式
 		circleTglbtn = new JToggleButton();
-		circleTglbtn.setSelected(markerType == MarkerType.circle);
+		circleTglbtn.setSelected(markerType == MarkerType.CIRCLE);
 		circleTglbtn
 				.setIcon(new ImageIcon(getClass().getResource("circle.png")));
 		circleTglbtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				if (circleTglbtn.isSelected()) {
-					markerType = MarkerType.circle;
+					markerType = MarkerType.CIRCLE;
 					updateMarkerList();
+
 					mapPanel.repaint();
 				}
 			}
 		});
 
 		markerTglbtn = new JToggleButton();
-		markerTglbtn.setSelected(markerType == MarkerType.marker);
+		markerTglbtn.setSelected(markerType == MarkerType.MARKER);
 		markerTglbtn
 				.setIcon(new ImageIcon(getClass().getResource("marker.png")));
 		markerTglbtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				if (markerTglbtn.isSelected()) {
-					markerType = MarkerType.marker;
+					markerType = MarkerType.MARKER;
+					updateMarkerList();
+					mapPanel.repaint();
+				}
+			}
+		});
+
+		iconTglbtn = new JToggleButton();
+		iconTglbtn.setSelected(markerType == MarkerType.MARKER);
+		iconTglbtn.setIcon(new ImageIcon(getClass().getResource("icon.png")));
+		iconTglbtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				if (iconTglbtn.isSelected()) {
+					markerType = MarkerType.ICON;
 					updateMarkerList();
 					mapPanel.repaint();
 				}
@@ -159,54 +196,105 @@ public class GeoMap extends JPanel implements DataSetListener,
 
 		jToolBar.add(circleTglbtn);
 		jToolBar.add(markerTglbtn);
+		jToolBar.add(iconTglbtn);
 
 		ButtonGroup btnGrupIcon = new ButtonGroup();
 		btnGrupIcon.add(circleTglbtn);
 		btnGrupIcon.add(markerTglbtn);
+		btnGrupIcon.add(iconTglbtn);
 
 		JSeparator separator2 = new JSeparator(SwingConstants.VERTICAL);
 		jToolBar.add(separator2);
 
+		// 平移与缩放, pan + zoom
 		moveTglbtn = new JToggleButton();
 		moveTglbtn.setIcon(new ImageIcon(getClass().getResource("move.png")));
 		moveTglbtn.setSelected(true);
 
-		zoomInTglbtn = new JToggleButton();
+		zoomInTglbtn = new JButton();
 		zoomInTglbtn.setIcon(new ImageIcon(getClass()
 				.getResource("zoom_in.png")));
+		zoomInTglbtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				mapPanel.setZoom(mapPanel.getZoom() + 1);
+				mapPanel.repaint();
+			}
+		});
 
-		zoomOutTglbtn = new JToggleButton();
+		zoomFitTglbtn = new JButton();
+		zoomFitTglbtn.setIcon(new ImageIcon(getClass().getResource(
+				"zoom_fit.png")));
+		zoomFitTglbtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				mapPanel.fitMapMarkers();
+				mapPanel.repaint();
+			}
+		});
+
+		zoomOutTglbtn = new JButton();
 		zoomOutTglbtn.setIcon(new ImageIcon(getClass().getResource(
 				"zoom_out.png")));
+		zoomOutTglbtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				mapPanel.setZoom(mapPanel.getZoom() - 1);
+				mapPanel.repaint();
+			}
+		});
 
 		jToolBar.add(moveTglbtn);
 		jToolBar.add(zoomInTglbtn);
+		jToolBar.add(zoomFitTglbtn);
 		jToolBar.add(zoomOutTglbtn);
 
 		ButtonGroup btnGrupZoom = new ButtonGroup();
 		btnGrupZoom.add(moveTglbtn);
 		btnGrupZoom.add(zoomInTglbtn);
+		btnGrupZoom.add(zoomFitTglbtn);
 		btnGrupZoom.add(zoomOutTglbtn);
 
 		JSeparator separator3 = new JSeparator(SwingConstants.VERTICAL);
 		jToolBar.add(separator3);
 
+		// 选择模式
 		selectTglbtn = new JToggleButton();
 		selectTglbtn
 				.setIcon(new ImageIcon(getClass().getResource("cursor.png")));
 		selectTglbtn.setSelected(true);
+		selectTglbtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				selector.setVisible(!selectTglbtn.isSelected());
+			}
+		});
 
 		selectRestTgbtn = new JToggleButton();
 		selectRestTgbtn.setIcon(new ImageIcon(getClass().getResource(
 				"select_restangular.png")));
+		selectRestTgbtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				selector.setVisible(true);
+				selector.setSelectType(SelectType.Rest);
+			}
+		});
 
 		selectEllpTgbtn = new JToggleButton();
 		selectEllpTgbtn.setIcon(new ImageIcon(getClass().getResource(
 				"select_ellipse.png")));
+		selectEllpTgbtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				selector.setVisible(true);
+				selector.setSelectType(SelectType.ellipse);
+			}
+		});
 
 		selectLassoTgbtn = new JToggleButton();
 		selectLassoTgbtn.setIcon(new ImageIcon(getClass().getResource(
 				"select_lasso.png")));
+		selectLassoTgbtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				selector.setVisible(true);
+				selector.setSelectType(SelectType.lasso);
+			}
+		});
 
 		jToolBar.add(selectTglbtn);
 		jToolBar.add(selectRestTgbtn);
@@ -222,6 +310,7 @@ public class GeoMap extends JPanel implements DataSetListener,
 		JSeparator separator4 = new JSeparator(SwingConstants.VERTICAL);
 		jToolBar.add(separator4);
 
+		// 地图辅助显示, 网格/中心点等
 		gridTgbtn = new JToggleButton();
 		gridTgbtn.setSelected(true);
 		gridTgbtn.setIcon(new ImageIcon(getClass().getResource("grid.png")));
@@ -252,17 +341,9 @@ public class GeoMap extends JPanel implements DataSetListener,
 		geoData = dataSet.getGeoData();
 
 		updateMarkerList();
-
-		// // 添加图层
-		// List<GeoLayer> layers = geoData.getLayers();
-		// for (GeoLayer geoLayer : layers) {
-		// EsriLayer layer = new EsriLayer(geoLayer.getFeatures());
-		// layer.setHighlightBorderWidth(3.0f);
-		// mapPanel.addLayer(layer);
-		// }
 	}
 
-	private void updateMarkerList() {
+	public void updateMarkerList() {
 		HashMap<String, Point> nameGeometrys = geoData.getNameGeometrys();
 
 		mapPanel.clearOverlays();
@@ -270,6 +351,7 @@ public class GeoMap extends JPanel implements DataSetListener,
 		indexMarkerMap = new HashMap<Integer, Overlay>();
 		markerIndexMap = new HashMap<Overlay, Integer>();
 
+		List<Overlay> markerList = new ArrayList<Overlay>();
 		String[] observationNames = dataSet.getObservationNames();
 		for (int i = 0; i < observationNames.length; i++) {
 			String obs = observationNames[i];
@@ -277,21 +359,57 @@ public class GeoMap extends JPanel implements DataSetListener,
 
 			Overlay marker = null;
 			switch (markerType) {
-			case circle:
-				MapMarker circleMarker = new MapMarker((Point) geo, obs);
+			case CIRCLE:
+				MapMarker circleMarker = new MapMarker(geo, obs);
 				circleMarker.setRadius(5);
 				marker = circleMarker;
 				break;
-			case marker:
-				marker = new DefaultMapMarker((Point) geo, obs);
+			case MARKER:
+				marker = new DefaultMapMarker(geo, obs);
+				break;
+			case ICON:
+				marker = new IconMarker(geo, obs);
 				break;
 			}
 
-			mapPanel.addOverlay(marker);
+			markerList.add(marker);
 
 			indexMarkerMap.put(i, marker);
 			markerIndexMap.put(marker, i);
 		}
+
+		mapPanel.setMarkerList(markerList);
+
+		updateMarkerAppearance();
+	}
+
+	public void updateMarkerAppearance() {
+		if (colorField != null) {
+			for (Integer index : indexMarkerMap.keySet()) {
+				MapMarker marker = (MapMarker) indexMarkerMap.get(index);
+				marker.setBorder(false);
+				marker.setFillColor(new Color(colorField.findColor(index)));
+			}
+		}
+
+		if (sizeField != null) {
+			int min = 5;
+			int max = 15;
+
+			for (Integer index : indexMarkerMap.keySet()) {
+				MapMarker marker = (MapMarker) indexMarkerMap.get(index);
+				int v = (int) (sizeField.findPercent(index) * (max - min) + min);
+				marker.setRadius(v);
+			}
+		}
+	}
+
+	protected void updataCtrlPanel() {
+		ctrlPanel.colorFieldComp.setValue(colorField);
+		ctrlPanel.colorFieldComp.setColor(ColorEnum.BLUE);
+
+		ctrlPanel.sizeFieldcomp.setValue(sizeField);
+		ctrlPanel.sizeFieldcomp.setColor(ColorEnum.BLUE);
 	}
 
 	@Override
@@ -369,21 +487,6 @@ public class GeoMap extends JPanel implements DataSetListener,
 		}// next i
 	}
 
-	public void buildMarkerAppearance(MeasureField[] measureFeilds) {
-		MeasureField colorField = measureFeilds[0];
-
-		for (Integer index : indexMarkerMap.keySet()) {
-			MapMarker marker = (MapMarker) indexMarkerMap.get(index);
-			marker.setBorder(false);
-			marker.setFillColor(new Color(colorField.findColor(index)));
-		}
-
-		ctrlPanel.colorFieldComp.setText(colorField.getName());
-		ctrlPanel.colorFieldComp.setColor(ColorEnum.BLUE);
-
-		repaint();
-	}
-
 	class MapFieldImporter extends FieldImporter<MeasureField> {
 
 		public MapFieldImporter() {
@@ -394,11 +497,23 @@ public class GeoMap extends JPanel implements DataSetListener,
 			getTransferData(support);
 
 			List<MeasureField> values = data.getValues();
-			MeasureField[] measureFeilds = new MeasureField[values.size()];
-			for (int i = 0; i < values.size(); i++)
-				measureFeilds[i] = values.get(i);
 
-			buildMarkerAppearance(measureFeilds);
+			if (values.size() == 1) {
+				if (colorField == null)
+					colorField = values.get(0);
+				else if (sizeField == null)
+					sizeField = values.get(0);
+				else
+					colorField = values.get(0);
+			}
+
+			if (values.size() > 1) {
+				colorField = values.get(0);
+				sizeField = values.get(1);
+			}
+
+			updateMarkerAppearance();
+			updataCtrlPanel();
 
 			return true;
 		}

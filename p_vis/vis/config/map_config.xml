@@ -1,6 +1,6 @@
 <config>
   <serverName>Google Map</serverName>
-  <templateUrl>http://mt.google.com/vt/lyrs=m@161000000&amp;hl=zh-CN&amp;x={x}&amp;y={y}&amp;z={zoom}&amp;s=Ga</templateUrl>
+  <templateUrl>http://mt1.google.com/vt/lyrs=m@164000000&amp;hl=zh-CN&amp;x={x}&amp;y={y}&amp;z={zoom}&amp;s=Gali</templateUrl>
   <cacheDir>C:/tiles/gmap_hz</cacheDir>
   <minzoom>1</minzoom>
   <maxzoom>16</maxzoom>

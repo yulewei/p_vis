@@ -1,6 +1,5 @@
 package edu.zjut.vis.treemap;
 
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -23,8 +22,6 @@ import javax.swing.SwingConstants;
 import javax.swing.TransferHandler;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 import org.gicentre.apps.hide.AppearanceType;
 import org.gicentre.apps.hide.Layout;
@@ -32,6 +29,8 @@ import org.gicentre.apps.hide.TreemapState;
 import org.gicentre.data.summary.SummariseField;
 import org.gicentre.data.summary.SummariseNull;
 
+import edu.zjut.common.ctrl.FieldComponent;
+import edu.zjut.common.ctrl.FieldComponent.ColorEnum;
 import edu.zjut.common.ctrl.FieldExporter;
 import edu.zjut.common.ctrl.FieldImporter;
 import edu.zjut.common.ctrl.FieldList;
@@ -97,6 +96,7 @@ public class TreemapCtrlPanel extends JPanel {
 		layoutModel = new DefaultListModel<Layout>();
 
 		hierList = new FieldList<DataField>();
+		hierList.setCellRenderer(new FieldComponent<DataField>(ColorEnum.GREEN));
 		hierList.setLayoutOrientation(FieldList.HORIZONTAL);
 		hierList.setDropMode(DropMode.ON_OR_INSERT);
 		hierList.setDragEnabled(true);
@@ -106,6 +106,8 @@ public class TreemapCtrlPanel extends JPanel {
 		this.add(hierList);
 
 		sizeList = new FieldList<SummariseField>();
+		sizeList.setCellRenderer(new FieldComponent<SummariseField>(
+				ColorEnum.BLUE));
 		sizeList.setLayoutOrientation(FieldList.HORIZONTAL);
 		sizeList.setDropMode(DropMode.ON);
 		sizeList.setDragEnabled(true);
@@ -115,6 +117,8 @@ public class TreemapCtrlPanel extends JPanel {
 		this.add(sizeList);
 
 		orderList = new FieldList<SummariseField>();
+		orderList.setCellRenderer(new FieldComponent<SummariseField>(
+				ColorEnum.BLUE));
 		orderList.setLayoutOrientation(FieldList.HORIZONTAL);
 		orderList.setDropMode(DropMode.ON);
 		orderList.setDragEnabled(true);
@@ -125,6 +129,8 @@ public class TreemapCtrlPanel extends JPanel {
 		this.add(orderList);
 
 		colorList = new FieldList<SummariseField>();
+		colorList.setCellRenderer(new FieldComponent<SummariseField>(
+				ColorEnum.BLUE));
 		colorList.setLayoutOrientation(FieldList.HORIZONTAL);
 		colorList.setDropMode(DropMode.ON);
 		colorList.setDragEnabled(true);
@@ -135,6 +141,7 @@ public class TreemapCtrlPanel extends JPanel {
 		this.add(colorList);
 
 		layoutList = new FieldList<Layout>();
+		layoutList.setCellRenderer(new FieldComponent<Layout>(ColorEnum.BLUE));
 		layoutList.setLayoutOrientation(FieldList.HORIZONTAL);
 		layoutList.setDropMode(DropMode.ON);
 		layoutList.setDragEnabled(true);
@@ -173,6 +180,8 @@ public class TreemapCtrlPanel extends JPanel {
 		this.add(paddingLabel);
 
 		allowedLayouts = new FieldList<Layout>();
+		allowedLayouts.setCellRenderer(new FieldComponent<Layout>(
+				ColorEnum.BLUE));
 		allowedLayouts.setLayoutOrientation(FieldList.HORIZONTAL);
 		allowedLayouts.setFixedCellWidth(30);
 		allowedLayouts.setDropMode(DropMode.ON);
@@ -559,7 +568,7 @@ public class TreemapCtrlPanel extends JPanel {
 
 	public void replaceHier(int index, DimensionField hierField) {
 		hierModel.setElementAt(hierField, index);
-		
+
 		hierFields[index] = hierField;
 		treemapState.setHierChanged(true);
 		pTreemap.redraw();
@@ -589,7 +598,7 @@ public class TreemapCtrlPanel extends JPanel {
 
 		switch (type) {
 		case SIZE:
-			sizeModel.setElementAt(sumFiled, index);			
+			sizeModel.setElementAt(sumFiled, index);
 			sizeFields[0][index] = sumFiled;
 			break;
 		case ORDER:
