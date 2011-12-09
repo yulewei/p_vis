@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.font.FontRenderContext;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -22,6 +23,7 @@ import com.vividsolutions.jts.geom.Point;
  * 
  */
 public class IconMarker extends DefaultMapMarker {
+
 	public static final int PURPLE = 0; // z, ×ÏÉ«
 	public static final int PINK = 1; // f, ·ÛÉ«
 	public static final int BLUE = 2;// l, À¶É«
@@ -58,6 +60,7 @@ public class IconMarker extends DefaultMapMarker {
 	}
 
 	private int iconColor = BLUE;
+	private int textWidth;
 
 	public IconMarker(Point coord, String title) {
 		super(coord, title);
@@ -71,8 +74,7 @@ public class IconMarker extends DefaultMapMarker {
 		if (isHighlighted)
 			return;
 
-		java.awt.Point pt = GeoUtils.getScreenCoord(map, this.getPosition());
-
+		Point2D pt = GeoUtils.getScreenCoord(map, point);
 		drawIcon(g, pt, iconColor);
 	}
 
@@ -81,19 +83,19 @@ public class IconMarker extends DefaultMapMarker {
 		if (!isHighlighted)
 			return;
 
-		java.awt.Point pt = GeoUtils.getScreenCoord(map, this.getPosition());
-
+		Point2D pt = GeoUtils.getScreenCoord(map, point);
 		drawIcon(g, pt, YELLOW);
 	}
 
-	protected void drawIcon(Graphics2D g, java.awt.Point pt, int iconColor) {
-		g.translate(pt.x, pt.y);
+	protected void drawIcon(Graphics2D g, Point2D pt, int iconColor) {
+		g.translate(pt.getX(), pt.getY());
+
 		Font f = g.getFont();
 		FontRenderContext frc = g.getFontRenderContext();
 		Rectangle2D rec = f.getStringBounds(title, frc);
 
 		int gap = 8;
-		int textWidth = (int) rec.getWidth() + gap * 2;
+		textWidth = (int) rec.getWidth() + gap * 2;
 
 		int h = left[iconColor].getHeight() + jt[iconColor].getHeight() - 5;
 		int w = left[iconColor].getWidth();
@@ -115,11 +117,9 @@ public class IconMarker extends DefaultMapMarker {
 
 	@Override
 	public boolean contains(JXMapViewer map, int x, int y) {
-		// TODO ÅÐ¶Ï·¶Î§
+		Point2D pt = GeoUtils.getScreenCoord(map, point);
 
-		java.awt.Point pt = GeoUtils.getScreenCoord(map, this.getPosition());
-
-		return (x - pt.x) > 0 && (x - pt.x) < 50 && (pt.y - y) > 10
-				&& (pt.y - y) < 34;
+		return (x - pt.getX()) > 10 && (x - pt.getX()) < 10 + textWidth
+				&& (pt.getX() - y) > 15 && (pt.getY() - y) < 40;
 	}
 }

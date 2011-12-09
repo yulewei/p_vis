@@ -2,13 +2,11 @@ package edu.zjut.map.overlay;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.geom.Point2D;
 
 import org.jdesktop.swingx.JXMapViewer;
-import org.jdesktop.swingx.mapviewer.GeoPosition;
 import org.jdesktop.swingx.painter.Painter;
+
+import com.vividsolutions.jts.geom.Geometry;
 
 public abstract class Overlay {
 
@@ -29,7 +27,6 @@ public abstract class Overlay {
 		this.isBorder = isBorder;
 	}
 
-
 	public boolean isFill() {
 		return isFill;
 	}
@@ -39,8 +36,7 @@ public abstract class Overlay {
 	}
 
 	public boolean isHighlighted = false;
-	
-	
+
 	public boolean isHighlighted() {
 		return isHighlighted;
 	}
@@ -139,5 +135,7 @@ public abstract class Overlay {
 
 	public abstract void paintHighlightOverlay(Graphics2D g, JXMapViewer map);
 
-	public abstract boolean contains(JXMapViewer map, int x, int y);	
+	public abstract Geometry getGeometry();
+
+	public abstract boolean contains(JXMapViewer map, int x, int y);
 }

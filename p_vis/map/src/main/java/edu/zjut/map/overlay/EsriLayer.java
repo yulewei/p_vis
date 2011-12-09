@@ -7,6 +7,7 @@ import org.jdesktop.swingx.JXMapViewer;
 import org.jdesktop.swingx.mapviewer.GeoPosition;
 
 import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
@@ -70,16 +71,16 @@ public class EsriLayer extends Overlay {
 			overlay.setBorder(isBorder);
 
 	}
-	
+
 	public void setFill(boolean isFill) {
 		this.isFill = isFill;
 		for (Overlay overlay : overlays)
 			overlay.setFill(isFill);
 
 	}
-	
+
 	public void setHighlighted(boolean isHighlighted) {
-		this.isHighlighted = isHighlighted;		
+		this.isHighlighted = isHighlighted;
 		for (Overlay overlay : overlays)
 			overlay.setHighlighted(isHighlighted);
 	}
@@ -128,24 +129,20 @@ public class EsriLayer extends Overlay {
 		return null;
 	}
 
-	public GeoPosition[] getBoundingBox() {
-		double minlat = Double.MAX_VALUE, minlon = Double.MAX_VALUE;
-		double maxlat = Double.MIN_VALUE, maxlon = Double.MIN_VALUE;
+	public Envelope getBoundingBox() {
+		Envelope envelope = new Envelope();
 		for (Overlay overlay : overlays) {
 			MapPolygon polygon = (MapPolygon) overlay;
-			GeoPosition[] box = polygon.getBoundingBox();
-			if (box[0].getLatitude() < minlat)
-				minlat = box[0].getLatitude();
-			if (box[0].getLongitude() < minlon)
-				minlon = box[0].getLongitude();
-			if (box[1].getLatitude() > maxlat)
-				maxlat = box[1].getLatitude();
-			if (box[1].getLongitude() > maxlon)
-				maxlon = box[1].getLongitude();
+			Envelope box = polygon.getBoundingBox();
+			envelope.expandToInclude(box);
 		}
-		GeoPosition min = new GeoPosition(minlat, minlon);
-		GeoPosition max = new GeoPosition(maxlat, maxlon);
-		return new GeoPosition[] { min, max };
+		return envelope;
+	}
+
+	@Override
+	public Geometry getGeometry() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override

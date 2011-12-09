@@ -1,10 +1,14 @@
 package edu.zjut.map.overlay;
 
 import java.awt.Graphics2D;
+import java.awt.geom.Point2D;
 
 import org.jdesktop.swingx.JXMapViewer;
 import org.jdesktop.swingx.mapviewer.GeoPosition;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 
 /**
@@ -13,21 +17,23 @@ import com.vividsolutions.jts.geom.Point;
  * @author yulewei
  */
 public class MapMarker extends Overlay {
+
 	protected int radius = 10;
 
-	protected GeoPosition position;
+	protected Point point;
 
 	public MapMarker(GeoPosition coord) {
 		this(coord, "");
 	}
 
 	public MapMarker(GeoPosition coord, String title) {
-		this.position = coord;
+		this.point = new GeometryFactory().createPoint(new Coordinate(coord
+				.getLatitude(), coord.getLongitude()));
 		this.title = title;
 	}
 
-	public MapMarker(Point coord, String title) {
-		this.position = new GeoPosition(coord.getX(), coord.getY());
+	public MapMarker(Point point, String title) {
+		this.point = point;
 		this.title = title;
 	}
 
@@ -36,8 +42,8 @@ public class MapMarker extends Overlay {
 		if (isHighlighted)
 			return;
 
-		java.awt.Point pt = GeoUtils.getScreenCoord(map, this.getPosition());
-		g.translate(pt.x, pt.y);
+		Point2D pt = GeoUtils.getScreenCoord(map, point);
+		g.translate(pt.getX(), pt.getY());
 
 		// 野割
 		if (isFill) {
@@ -59,9 +65,9 @@ public class MapMarker extends Overlay {
 	public void paintHighlightOverlay(Graphics2D g, JXMapViewer map) {
 		if (!isHighlighted)
 			return;
-		
-		java.awt.Point pt = GeoUtils.getScreenCoord(map, this.getPosition());
-		g.translate(pt.x, pt.y);
+
+		Point2D pt = GeoUtils.getScreenCoord(map, point);
+		g.translate(pt.getX(), pt.getY());
 
 		// 野割
 		if (isFill) {
@@ -79,14 +85,6 @@ public class MapMarker extends Overlay {
 		}
 	}
 
-	public GeoPosition getPosition() {
-		return position;
-	}
-
-	public void setPosition(GeoPosition position) {
-		this.position = position;
-	}
-
 	public int getRadius() {
 		return radius;
 	}
@@ -96,10 +94,15 @@ public class MapMarker extends Overlay {
 	}
 
 	@Override
-	public boolean contains(JXMapViewer map, int x, int y) {
-		java.awt.Point pt = GeoUtils.getScreenCoord(map, this.getPosition());
+	public Geometry getGeometry() {
+		return point;
+	}
 
-		return (pt.x - x) * (pt.x - x) + (pt.y - y) * (pt.y - y) < radius
-				* radius;
+	@Override
+	public boolean contains(JXMapViewer map, int x, int y) {
+		Point2D pt = GeoUtils.getScreenCoord(map, point);
+
+		return (pt.getX() - x) * (pt.getX() - x) + (pt.getY() - y)
+				* (pt.getY() - y) < radius * radius;
 	}
 }

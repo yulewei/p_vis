@@ -5,17 +5,17 @@ import java.awt.Graphics2D;
 import java.awt.Shape;
 
 import org.jdesktop.swingx.JXMapViewer;
-import org.jdesktop.swingx.mapviewer.GeoPosition;
 
 import com.vividsolutions.jts.awt.ShapeWriter;
-import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
 public class MapPolygon extends Overlay {
+
 	/**
 	 * JTS几何, 原始数据, 经纬坐标
 	 */
@@ -61,10 +61,6 @@ public class MapPolygon extends Overlay {
 			g.setColor(borderColor);
 			g.draw(shape);
 		}
-
-		Point pt = polygon.getCentroid();
-		java.awt.Point centroid = GeoUtils.getScreenCoord(map, new GeoPosition(
-				pt.getX(), pt.getY()));
 	}
 
 	@Override
@@ -88,10 +84,6 @@ public class MapPolygon extends Overlay {
 			g.setColor(highlightBorderColor);
 			g.draw(shape);
 		}
-
-		Point pt = polygon.getCentroid();
-		java.awt.Point centroid = GeoUtils.getScreenCoord(map, new GeoPosition(
-				pt.getX(), pt.getY()));
 	}
 
 	/**
@@ -99,28 +91,22 @@ public class MapPolygon extends Overlay {
 	 * 
 	 * @return
 	 */
-	public GeoPosition[] getBoundingBox() {
-		Envelope envelope = polygon.getEnvelopeInternal();
-
-		GeoPosition min = new GeoPosition(envelope.getMinX(),
-				envelope.getMinY());
-		GeoPosition max = new GeoPosition(envelope.getMaxX(),
-				envelope.getMaxY());
-		return new GeoPosition[] { min, max };
+	public Envelope getBoundingBox() {
+		return polygon.getEnvelopeInternal();
 	}
 
-	public GeoPosition getCentroid() {
-		Point pt = polygon.getCentroid();
-		return new GeoPosition(pt.getX(), pt.getY());
+	public Point getCentroid() {
+		return polygon.getCentroid();
+	}
+
+	@Override
+	public Geometry getGeometry() {
+		return polygon;
 	}
 
 	@Override
 	public boolean contains(JXMapViewer map, int x, int y) {
-		GeoPosition gp = GeoUtils.getGeoCoord(map, x, y);
-		double gx = gp.getLatitude();
-		double gy = gp.getLongitude();
-
-		return polygon.contains(new GeometryFactory()
-				.createPoint(new Coordinate(gx, gy)));
+		Point point = GeoUtils.getGeoCoord(map, x, y);
+		return polygon.contains(point);
 	}
 }

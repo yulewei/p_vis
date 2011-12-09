@@ -3,6 +3,7 @@ package edu.zjut.map.overlay;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 
 import javax.imageio.ImageIO;
@@ -58,8 +59,9 @@ public class DefaultMapMarker extends MapMarker {
 		if (isHighlighted)
 			return;
 
-		java.awt.Point pt = GeoUtils.getScreenCoord(map, this.getPosition());
-		g.drawImage(img, pt.x - anchor[0], pt.y - anchor[1], null);
+		Point2D pt = GeoUtils.getScreenCoord(map, point);
+		g.drawImage(img, (int) pt.getX() - anchor[0], (int) pt.getY()
+				- anchor[1], null);
 	}
 
 	@Override
@@ -67,21 +69,23 @@ public class DefaultMapMarker extends MapMarker {
 		if (!isHighlighted)
 			return;
 
-		java.awt.Point pt = GeoUtils.getScreenCoord(map, this.getPosition());
-		g.drawImage(highlightImg, pt.x - anchor[0], pt.y - anchor[1], null);		
-		
+		Point2D pt = GeoUtils.getScreenCoord(map, point);
+		g.drawImage(highlightImg, (int) pt.getX() - anchor[0], (int) pt.getY()
+				- anchor[1], null);
+
 		int r = 5;
 		g.setColor(Color.BLACK);
 		g.setStroke(new BasicStroke(2.0f));
-		g.translate(pt.x, pt.y);
+		g.translate(pt.getX(), pt.getY());
 		g.drawLine(-r, -r, +r, +r);
 		g.drawLine(-r, +r, +r, -r);
 	}
 
 	@Override
 	public boolean contains(JXMapViewer map, int x, int y) {
-		java.awt.Point pt = GeoUtils.getScreenCoord(map, this.getPosition());
+		Point2D pt = GeoUtils.getScreenCoord(map, point);
 
-		return Math.abs(pt.x - x) < 10 && (pt.y - y) > 0 && (pt.y - y) < 34;
+		return Math.abs(pt.getX() - x) < 10 && (pt.getY() - y) > 0
+				&& (pt.getY() - y) < 34;
 	}
 }

@@ -5,14 +5,13 @@ import java.awt.Graphics2D;
 import java.awt.Shape;
 
 import org.jdesktop.swingx.JXMapViewer;
-import org.jdesktop.swingx.mapviewer.GeoPosition;
 
 import com.vividsolutions.jts.awt.ShapeWriter;
-import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
-
+import com.vividsolutions.jts.geom.Point;
 
 public class MapPolyline extends Overlay {
 	/**
@@ -39,7 +38,7 @@ public class MapPolyline extends Overlay {
 	public MapPolyline(MultiLineString polyline, String title) {
 		this.polyline = polyline;
 		this.title = title;
-		
+
 		this.borderWidth = 2.0f;
 	}
 
@@ -47,7 +46,7 @@ public class MapPolyline extends Overlay {
 	public void paintOverlay(Graphics2D g, JXMapViewer map) {
 		if (isHighlighted)
 			return;
-		
+
 		MultiLineString polyline2 = (MultiLineString) polyline.clone();
 		GeoToPixelFilter filter = new GeoToPixelFilter(map);
 		polyline2.apply(filter);
@@ -64,7 +63,7 @@ public class MapPolyline extends Overlay {
 	public void paintHighlightOverlay(Graphics2D g, JXMapViewer map) {
 		if (!isHighlighted)
 			return;
-		
+
 		MultiLineString polyline2 = (MultiLineString) polyline.clone();
 		GeoToPixelFilter filter = new GeoToPixelFilter(map);
 		polyline2.apply(filter);
@@ -74,17 +73,17 @@ public class MapPolyline extends Overlay {
 
 		g.setStroke(new BasicStroke(highlightBorderWidth));
 		g.setColor(highlightBorderColor);
-		g.draw(shape);		
+		g.draw(shape);
+	}
+
+	@Override
+	public Geometry getGeometry() {
+		return polyline;
 	}
 
 	@Override
 	public boolean contains(JXMapViewer map, int x, int y) {
-		GeoPosition gp = GeoUtils.getGeoCoord(map, x, y);
-		double gx = gp.getLatitude();
-		double gy = gp.getLongitude();
-
-		return polyline.distance(new GeometryFactory()
-				.createPoint(new Coordinate(gx, gy))) < 0.005;
+		Point point = GeoUtils.getGeoCoord(map, x, y);
+		return polyline.distance(point) < 0.005;
 	}
-
 }
