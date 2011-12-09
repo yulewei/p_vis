@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.ButtonGroup;
-import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -28,7 +27,6 @@ import edu.zjut.common.ctrl.FieldImporter;
 import edu.zjut.common.data.DataSetForApps;
 import edu.zjut.common.data.attr.AttributeData;
 import edu.zjut.common.data.attr.MeasureField;
-import edu.zjut.common.data.geo.GeoLayer;
 import edu.zjut.common.data.geo.GeometryData;
 import edu.zjut.common.event.DataSetEvent;
 import edu.zjut.common.event.DataSetListener;
@@ -38,7 +36,6 @@ import edu.zjut.common.event.SelectionEvent;
 import edu.zjut.common.event.SelectionListener;
 import edu.zjut.map.JMapPanel;
 import edu.zjut.map.overlay.DefaultMapMarker;
-import edu.zjut.map.overlay.EsriLayer;
 import edu.zjut.map.overlay.IconMarker;
 import edu.zjut.map.overlay.MapMarker;
 import edu.zjut.map.overlay.Overlay;
@@ -76,6 +73,7 @@ public class GeoMap extends JPanel implements DataSetListener,
 	private JToggleButton selectLassoTgbtn;
 	private JToggleButton gridTgbtn;
 	private JToggleButton crossTgbtn;
+	private JToggleButton clusterTgbtn;
 
 	private MapSelector selector;
 
@@ -271,8 +269,8 @@ public class GeoMap extends JPanel implements DataSetListener,
 				"select_restangular.png")));
 		selectRestTgbtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
+				selector.setSelectType(SelectType.REST);
 				selector.setVisible(true);
-				selector.setSelectType(SelectType.Rest);
 			}
 		});
 
@@ -281,8 +279,8 @@ public class GeoMap extends JPanel implements DataSetListener,
 				"select_ellipse.png")));
 		selectEllpTgbtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
+				selector.setSelectType(SelectType.ELLIPSE);
 				selector.setVisible(true);
-				selector.setSelectType(SelectType.ellipse);
 			}
 		});
 
@@ -291,8 +289,8 @@ public class GeoMap extends JPanel implements DataSetListener,
 				"select_lasso.png")));
 		selectLassoTgbtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
+				selector.setSelectType(SelectType.LASSO);
 				selector.setVisible(true);
-				selector.setSelectType(SelectType.lasso);
 			}
 		});
 
@@ -332,6 +330,16 @@ public class GeoMap extends JPanel implements DataSetListener,
 
 		jToolBar.add(gridTgbtn);
 		jToolBar.add(crossTgbtn);
+		
+		JSeparator separator5 = new JSeparator(SwingConstants.VERTICAL);
+		jToolBar.add(separator5);
+		
+		// æ€¿‡
+		clusterTgbtn = new JToggleButton();
+		clusterTgbtn.setIcon(new ImageIcon(getClass().getResource(
+				"cluster.png")));
+		
+		jToolBar.add(clusterTgbtn);
 	}
 
 	@Override

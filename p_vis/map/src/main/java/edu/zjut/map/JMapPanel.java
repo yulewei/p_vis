@@ -21,12 +21,21 @@ import org.jdesktop.swingx.mapviewer.TileCache;
 import org.jdesktop.swingx.painter.CompoundPainter;
 import org.jdesktop.swingx.painter.Painter;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.util.GeometricShapeFactory;
+
 import edu.zjut.map.config.MapConfig;
 import edu.zjut.map.overlay.EsriLayer;
+import edu.zjut.map.overlay.GeoUtils;
 import edu.zjut.map.overlay.MapPolygon;
 import edu.zjut.map.overlay.Overlay;
 import edu.zjut.map.tile.CustomTileCache;
 import edu.zjut.map.tile.TileFactoryInfoX;
+import edu.zjut.vis.map.MapSelector.SelectType;
 
 public class JMapPanel extends JXMapViewerX implements MouseListener,
 		MouseMotionListener {
@@ -234,9 +243,14 @@ public class JMapPanel extends JXMapViewerX implements MouseListener,
 		// TODO ???
 	}
 
-	public void fitMapRectangle(GeoPosition[] boundingBox) {
-		GeoPosition minPos = boundingBox[0];
-		GeoPosition maxPos = boundingBox[1];
+	/**
+	 * 经纬坐标
+	 * 
+	 * @param boundingBox
+	 */
+	public void fitMapRectangle(Envelope box) {
+		GeoPosition minPos = new GeoPosition(box.getMinX(), box.getMinY());
+		GeoPosition maxPos = new GeoPosition(box.getMaxX(), box.getMaxY());
 
 		int zoom = getZoom();
 		Point2D minpt = getTileFactory().geoToPixel(minPos, zoom);
@@ -277,6 +291,60 @@ public class JMapPanel extends JXMapViewerX implements MouseListener,
 		}
 
 		setZoom(zoom);
+	}
+
+	/**
+	 * 构造多边形, 判断是否选中marker
+	 * 
+	 * @param points
+	 */
+	public void selectMarkers(List<Point2D> points, SelectType selectType) {
+
+		Point min = GeoUtils.getGeoCoord(this, (int) points.get(0).getX(),
+				(int) points.get(0).getY());
+		Point max = GeoUtils.getGeoCoord(this, (int) points.get(1).getX(),
+				(int) points.get(1).getY());
+
+		GeometricShapeFactory gsf = new GeometricShapeFactory();
+		Polygon polygon = null;
+		switch (selectType) {
+		case REST:
+			gsf.setWidth(max.getX() - min.getX());
+			gsf.setHeight(max.getY() - min.getY());
+			gsf.setNumPoints(4);
+			gsf.setBase(min.getCoordinate());
+			polygon = gsf.createRectangle();
+			break;
+		case ELLIPSE:
+			gsf.setWidth(max.getX() - min.getX());
+			gsf.setHeight(max.getY() - min.getY());
+			gsf.setNumPoints(100);
+			gsf.setBase(min.getCoordinate());
+			polygon = gsf.createEllipse();
+			break;
+		case LASSO:
+			GeometryFactory geometryFactory = new GeometryFactory();
+			int len = points.size();
+			Coordinate[] ring = new Coordinate[len + 1];
+			for (int i = 0; i < points.size(); i++) {
+				Point2D pt = points.get(i);
+				Point point = GeoUtils.getGeoCoord(this, (int) pt.getX(),
+						(int) pt.getY());
+				ring[i] = new Coordinate(point.getX(), point.getY());
+			}
+			ring[len] = ring[0];
+			polygon = geometryFactory.createPolygon(
+					geometryFactory.createLinearRing(ring), null);
+
+			break;
+		}
+
+		// 包含判断
+		for (Overlay overlay : markerList) {
+			if (polygon.intersects(overlay.getGeometry())) {
+				overlay.setHighlighted(true);
+			}
+		}
 	}
 
 	/**
@@ -391,7 +459,6 @@ public class JMapPanel extends JXMapViewerX implements MouseListener,
 	@Override
 	public void mousePressed(MouseEvent e) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
