@@ -120,6 +120,6 @@ public class IconMarker extends DefaultMapMarker {
 		Point2D pt = GeoUtils.getScreenCoord(map, point);
 
 		return (x - pt.getX()) > 10 && (x - pt.getX()) < 10 + textWidth
-				&& (pt.getX() - y) > 15 && (pt.getY() - y) < 40;
+				&& (pt.getY() - y) > 15 && (pt.getY() - y) < 40;
 	}
 }

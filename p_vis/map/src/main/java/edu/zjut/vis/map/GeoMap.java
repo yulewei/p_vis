@@ -76,6 +76,7 @@ public class GeoMap extends JPanel implements DataSetListener,
 	private JToggleButton clusterTgbtn;
 
 	private MapSelector selector;
+	private MarkerClusterer clusterer;
 
 	private JSplitPane jSplitPane;
 	private MapCtrlPanel ctrlPanel;
@@ -106,6 +107,8 @@ public class GeoMap extends JPanel implements DataSetListener,
 
 		selector = new MapSelector(mapPanel);
 		selector.setVisible(false);
+
+		clusterer = new MarkerClusterer(mapPanel);
 
 		mapPanel.add(selector);
 
@@ -330,15 +333,23 @@ public class GeoMap extends JPanel implements DataSetListener,
 
 		jToolBar.add(gridTgbtn);
 		jToolBar.add(crossTgbtn);
-		
+
 		JSeparator separator5 = new JSeparator(SwingConstants.VERTICAL);
 		jToolBar.add(separator5);
-		
+
 		// æ€¿‡
 		clusterTgbtn = new JToggleButton();
-		clusterTgbtn.setIcon(new ImageIcon(getClass().getResource(
-				"cluster.png")));
-		
+		clusterTgbtn.setIcon(new ImageIcon(getClass()
+				.getResource("cluster.png")));
+		clusterTgbtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				clusterer.setMarkerList(mapPanel.getMarkerList());
+				List<Overlay> clusteredMarkers = clusterer.clustering();
+				mapPanel.setMarkerList(clusteredMarkers);
+				mapPanel.repaint();
+			}
+		});
+
 		jToolBar.add(clusterTgbtn);
 	}
 

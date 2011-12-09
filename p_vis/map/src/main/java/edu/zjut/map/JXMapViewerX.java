@@ -20,19 +20,20 @@ import org.jdesktop.swingx.mapviewer.Tile;
 import org.jdesktop.swingx.mapviewer.TileCache;
 import org.jdesktop.swingx.mapviewer.TileFactoryInfo;
 
+import edu.zjut.common.event.IndicationEvent;
+import edu.zjut.common.event.IndicationListener;
+
 /**
  * 对JXMapViewer的bug hack!!
  * 
  * @author yulewei
  * 
  */
-public class JXMapViewerX extends JXMapViewer
-{
+public class JXMapViewerX extends JXMapViewer {
 
-	public JXMapViewerX()
-	{
+	public JXMapViewerX() {
 		super();
-		
+
 		this.setLayout(null);
 
 		// 替换JXMapViewer鼠标滚动事件
@@ -41,27 +42,44 @@ public class JXMapViewerX extends JXMapViewer
 			removeMouseWheelListener(l);
 
 		// zooms using the mouse wheel
-		this.addMouseWheelListener(new MouseWheelListener()
-		{
-			public void mouseWheelMoved(MouseWheelEvent e)
-			{
-				if (isZoomEnabled())
-				{
+		this.addMouseWheelListener(new MouseWheelListener() {
+			public void mouseWheelMoved(MouseWheelEvent e) {
+				if (isZoomEnabled()) {
 					setZoom(getZoom() - e.getWheelRotation());
+					fireZoomLevelChanged();
 				}
 			}
 		});
-		
+
 		// 重写
-		try
-		{
+		try {
 			this.setLoadingImage(ImageIO.read(JXMapViewer.class
 					.getResource("mapviewer/resources/loading.png")));
-		}
-		catch (IOException e)
-		{
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public void addZoomLevelListener(ZoomLevelListener l) {
+		listenerList.add(ZoomLevelListener.class, l);
+	}
+
+	public void removeZoomLevelListener(ZoomLevelListener l) {
+		listenerList.remove(ZoomLevelListener.class, l);
+	}
+
+	public void fireZoomLevelChanged() {
+		// Guaranteed to return a non-null array
+		Object[] listeners = listenerList.getListenerList();
+
+		// Process the listeners last to first, notifying
+		// those that are interested in this event
+		for (int i = listeners.length - 2; i >= 0; i -= 2) {
+			if (listeners[i] == ZoomLevelListener.class) {
+				// Lazily create the event:
+				((ZoomLevelListener) listeners[i + 1]).zoomLevelChanged();
+			}
+		}// next i
 	}
 
 	/**
@@ -75,8 +93,7 @@ public class JXMapViewerX extends JXMapViewer
 	 *            the bounds to draw within
 	 */
 	protected void drawMapTiles(final Graphics g, final int zoom,
-			Rectangle viewportBounds)
-	{
+			Rectangle viewportBounds) {
 		int size = getTileFactory().getTileSize(zoom);
 
 		// calculate the "visible" viewport area in tiles
@@ -88,10 +105,8 @@ public class JXMapViewerX extends JXMapViewer
 		int tpx = (int) Math.floor(viewportBounds.getX() / info.getTileSize(0));
 		int tpy = (int) Math.floor(viewportBounds.getY() / info.getTileSize(0));
 
-		for (int x = 0; x <= numWide; x++)
-		{
-			for (int y = 0; y <= numHigh; y++)
-			{
+		for (int x = 0; x <= numWide; x++) {
+			for (int y = 0; y <= numHigh; y++) {
 				int itpx = x + tpx;
 				int itpy = y + tpy;
 
@@ -99,26 +114,19 @@ public class JXMapViewerX extends JXMapViewer
 				// being painted
 				if (g.getClipBounds().intersects(
 						new Rectangle(itpx * size - viewportBounds.x, itpy
-								* size - viewportBounds.y, size, size)))
-				{
+								* size - viewportBounds.y, size, size))) {
 					Tile tile = getTileFactory().getTile(itpx, itpy, zoom);
 					int ox = itpx * size - viewportBounds.x;
 					int oy = itpy * size - viewportBounds.y;
 
-					if (tile.isLoaded())
-					{
+					if (tile.isLoaded()) {
 						g.drawImage(tile.getImage(), ox, oy, null);
-					}
-					else
-					{
+					} else {
 						BufferedImage image = loadPlaceholderFromCache(itpx,
 								itpy, zoom);
-						if (image != null)
-						{
+						if (image != null) {
 							g.drawImage(image, ox, oy, null);
-						}
-						else
-						{
+						} else {
 							int imageX = (size - getLoadingImage().getWidth(
 									null)) / 2;
 							int imageY = (size - getLoadingImage().getHeight(
@@ -129,8 +137,7 @@ public class JXMapViewerX extends JXMapViewer
 									+ imageY, null);
 						}
 					}
-					if (isDrawTileBorders())
-					{
+					if (isDrawTileBorders()) {
 						g.setColor(Color.black);
 						g.drawRect(ox, oy, size, size);
 						g.drawRect(ox + size / 2 - 5, oy + size / 2 - 5, 10, 10);
@@ -161,8 +168,7 @@ public class JXMapViewerX extends JXMapViewer
 	 * </p>
 	 */
 	private BufferedImage loadPlaceholderFromCache(int xtile, int ytile,
-			int zoom)
-	{
+			int zoom) {
 		TileFactoryInfo info = getTileFactory().getInfo();
 		int size = getTileFactory().getTileSize(zoom);
 
@@ -170,27 +176,22 @@ public class JXMapViewerX extends JXMapViewer
 				BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = (Graphics2D) tmpImage.getGraphics();
 		// g.drawImage(image, 0, 0, null);
-		for (int zoomDiff = 1; zoomDiff < 5; zoomDiff++)
-		{
+		for (int zoomDiff = 1; zoomDiff < 5; zoomDiff++) {
 			// first we check if there are already the 2^x tiles
 			// of a higher detail level
 			int zoom_high = zoom + zoomDiff;
-			if (zoomDiff < 3 && zoom_high <= info.getMaximumZoomLevel())
-			{
+			if (zoomDiff < 3 && zoom_high <= info.getMaximumZoomLevel()) {
 				int factor = 1 << zoomDiff;
 				int xtile_high = xtile << zoomDiff;
 				int ytile_high = ytile << zoomDiff;
 				double scale = 1.0 / factor;
 				g.setTransform(AffineTransform.getScaleInstance(scale, scale));
 				int paintedTileCount = 0;
-				for (int x = 0; x < factor; x++)
-				{
-					for (int y = 0; y < factor; y++)
-					{
+				for (int x = 0; x < factor; x++) {
+					for (int y = 0; y < factor; y++) {
 						BufferedImage img = getTileCache(xtile_high + x,
 								ytile_high + y, zoom_high);
-						if (img != null)
-						{
+						if (img != null) {
 							paintedTileCount++;
 							g.drawImage(img, x * size, y * size, null);
 						}
@@ -201,8 +202,7 @@ public class JXMapViewerX extends JXMapViewer
 			}
 
 			int zoom_low = zoom - zoomDiff;
-			if (zoom_low >= info.getMinimumZoomLevel())
-			{
+			if (zoom_low >= info.getMinimumZoomLevel()) {
 				int xtile_low = xtile >> zoomDiff;
 				int ytile_low = ytile >> zoomDiff;
 				int factor = (1 << zoomDiff);
@@ -215,8 +215,7 @@ public class JXMapViewerX extends JXMapViewer
 
 				BufferedImage img = getTileCache(xtile_low, ytile_low, zoom_low);
 
-				if (img != null)
-				{
+				if (img != null) {
 					g.drawImage(img, 0, 0, null);
 					return tmpImage;
 				}
@@ -225,23 +224,17 @@ public class JXMapViewerX extends JXMapViewer
 		return null;
 	}
 
-	private BufferedImage getTileCache(int xtile, int ytile, int zoom)
-	{
+	private BufferedImage getTileCache(int xtile, int ytile, int zoom) {
 		DefaultTileFactory tf = (DefaultTileFactory) getTileFactory();
 		TileFactoryInfo info = tf.getInfo();
 		TileCache cache = tf.getTileCache();
 
 		BufferedImage img = null;
-		try
-		{
+		try {
 			img = cache.get(new URI(info.getTileUrl(xtile, ytile, zoom)));
-		}
-		catch (IOException e)
-		{
+		} catch (IOException e) {
 			e.printStackTrace();
-		}
-		catch (URISyntaxException e)
-		{
+		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
 		return img;
