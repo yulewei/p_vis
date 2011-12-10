@@ -1,4 +1,4 @@
-package edu.zjut.vis.time;
+package edu.zjut.common.io;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -9,7 +9,6 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.TreeMap;
 
 import au.com.bytecode.opencsv.CSVReader;
 import edu.zjut.common.data.time.TimePeriod;
@@ -17,7 +16,7 @@ import edu.zjut.common.data.time.TimeSeriesCollection;
 import edu.zjut.common.data.time.TimeSeriesData;
 import edu.zjut.common.data.time.TimeType;
 
-public class DataLoader {
+public class TimeSeriesLoader {
 
 	static SimpleDateFormat format = new SimpleDateFormat("yyyy-M-d");
 
@@ -134,88 +133,6 @@ public class DataLoader {
 		for (TimeSeriesData timeSeries : timeSeriesList) {
 			dataset.addSeries(timeSeries);
 		}
-		return dataset;
-	}
-
-	/**
-	 * 按城区划分的时间序列数据
-	 * 
-	 * @return
-	 * @throws IOException
-	 * @throws ParseException
-	 */
-	public static TimeSeriesCollection loadHZDataset(String infile,
-			int dateCol, int groupCol, int valueCol, boolean avg)
-			throws IOException, ParseException {
-
-		String[] areaList = { "上城区", "下城区", "拱墅区", "西湖区", "滨江区", "江干区", "之江区",
-				"下沙区" };
-
-		// String[] areaList = { "下城区", "拱墅区", "西湖区", "滨江区", "江干区", "之江区",
-		// "下沙区" };
-		// String[] areaList = { "西湖区", "滨江区" };
-
-		TimeSeriesData[] tsArr = new TimeSeriesData[areaList.length];
-		for (int i = 0; i < areaList.length; i++) {
-			tsArr[i] = new TimeSeriesData("", areaList[i]);
-		}
-
-		CSVReader reader = new CSVReader(new FileReader(infile));
-		List<String[]> list = reader.readAll();
-
-		TreeMap<String, TreeMap<String, Double>> priceMapList = new TreeMap<>();
-		TreeMap<String, TreeMap<String, Integer>> countMapList = new TreeMap<>();
-		for (int i = 0; i < areaList.length; i++) {
-			priceMapList.put(areaList[i], new TreeMap<String, Double>());
-			countMapList.put(areaList[i], new TreeMap<String, Integer>());
-		}
-
-		for (int i = 0; i < list.size(); i++) {
-			String datestr = list.get(i)[dateCol];
-			String areastr = list.get(i)[groupCol];
-			String pricestr = list.get(i)[valueCol];
-
-			java.util.Date date = format.parse(datestr);
-			Calendar c = Calendar.getInstance();
-			c.setTime(date);
-
-			String month = c.get(Calendar.YEAR) + "-"
-					+ (c.get(Calendar.MONTH) + 1);
-			double price = Double.parseDouble(pricestr);
-
-			Double sum = priceMapList.get(areastr).get(month);
-			Integer count = countMapList.get(areastr).get(month);
-			if (sum == null) {
-				priceMapList.get(areastr).put(month, price);
-				countMapList.get(areastr).put(month, 1);
-			} else {
-				priceMapList.get(areastr).put(month, price + sum);
-				countMapList.get(areastr).put(month, count + 1);
-			}
-		}
-
-		for (int i = 0; i < areaList.length; i++) {
-			for (String month : priceMapList.get(areaList[i]).keySet()) {
-				double sum = priceMapList.get(areaList[i]).get(month);
-				int count = countMapList.get(areaList[i]).get(month);
-				String[] toks = month.split("-");
-
-				int y = Integer.parseInt(toks[0]);
-				int m = Integer.parseInt(toks[1]);
-
-				// 计算均价
-				if (avg)
-					tsArr[i].add(new TimePeriod(y, m), (float) (sum / count));
-				else
-					tsArr[i].add(new TimePeriod(y, m), (float) (sum));
-			}
-		}
-
-		TimeSeriesCollection dataset = new TimeSeriesCollection(TimeType.MONTH);
-		for (int i = 0; i < areaList.length; i++) {
-			dataset.addSeries(tsArr[i]);
-		}
-
 		return dataset;
 	}
 }

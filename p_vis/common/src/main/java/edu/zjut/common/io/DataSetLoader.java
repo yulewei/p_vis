@@ -3,6 +3,7 @@ package edu.zjut.common.io;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,12 +28,14 @@ import edu.zjut.common.data.geo.EsriFeatureObj;
 import edu.zjut.common.data.geo.GeoLayer;
 import edu.zjut.common.data.geo.GeometryData;
 import edu.zjut.common.data.time.TimeData;
+import edu.zjut.common.data.time.TimeSeriesCollection;
 import edu.zjut.common.io.DataConfig.Attr;
 import edu.zjut.common.io.DataConfig.Attr.Attribute;
 import edu.zjut.common.io.DataConfig.ColorMap;
 import edu.zjut.common.io.DataConfig.Geo;
 import edu.zjut.common.io.DataConfig.Geo.Feature;
 import edu.zjut.common.io.DataConfig.Time;
+import edu.zjut.common.io.DataConfig.Time.Series;
 
 /**
  * 
@@ -172,7 +175,21 @@ public class DataSetLoader {
 	 * @param config
 	 */
 	public void readTimeData(Time timeConfig) {
+		List<TimeSeriesCollection> seriesList = new ArrayList<>();
 
+		ArrayList<Series> configSeriesList = timeConfig.seriesList;
+		for (Series series : configSeriesList) {
+			TimeSeriesCollection timeSeries = null;
+			try {
+				timeSeries = TimeSeriesLoader.loadDataSet(series.fileName,
+						series.dateCol, series.groupCol, series.valueCol, true);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			seriesList.add(timeSeries);
+		}
+
+		this.timeData = new TimeData(seriesList);
 	}
 
 	/**

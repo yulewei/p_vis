@@ -35,7 +35,9 @@ public class DataConfig {
 		xstream.alias("col", DataConfig.Geo.Feature.Col.class);
 
 		xstream.alias("time", DataConfig.Time.class);
-
+		xstream.addImplicitCollection(DataConfig.Time.class, "seriesList");
+		xstream.alias("series", DataConfig.Time.Series.class);
+		
 		return xstream;
 	}
 
@@ -87,7 +89,14 @@ public class DataConfig {
 	}
 
 	static class Time {
-		String fileName;
+		static class Series {
+			String fileName;
+			int dateCol;
+			int groupCol;
+			int valueCol;
+		}
+
+		ArrayList<Series> seriesList;
 	}
 
 	String datasetName;

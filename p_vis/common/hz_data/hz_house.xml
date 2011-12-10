@@ -107,6 +107,17 @@
 			<fileType>geojson</fileType> </feature> -->
 	</geo>
 	<time>
-		<fileName>sale_data_by_date.csv</fileName>
+		<series>
+			<fileName>sale_data_by_date.csv</fileName>
+			<dateCol>0</dateCol>
+			<groupCol>1</groupCol>
+			<valueCol>4</valueCol>
+		</series>
+		<series>
+			<fileName>sale_data_by_date.csv</fileName>
+			<dateCol>0</dateCol>
+			<groupCol>1</groupCol>
+			<valueCol>4</valueCol>
+		</series>
 	</time>
 </dataConfig>

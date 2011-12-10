@@ -36,7 +36,6 @@ public class PTimeSeries extends PApplet implements LegendListener {
 
 	public PTimeSeries() {
 		plot = new OverviewDetailPlot(this);
-
 		detailSeriesList = new ArrayList<TimeSeriesCollection>();
 	}
 
@@ -46,6 +45,9 @@ public class PTimeSeries extends PApplet implements LegendListener {
 
 	public void setSeries(TimeSeriesCollection overviewSeries,
 			TimeSeriesCollection detailSeries) {
+		detailSeriesList.clear();
+		plot.clearDetailPlot();
+		
 		this.overviewSeries = overviewSeries;
 		this.detailSeriesList.add(detailSeries);
 
@@ -70,6 +72,15 @@ public class PTimeSeries extends PApplet implements LegendListener {
 		initColor(series);
 	}
 
+	public void setDetailSeries(TimeSeriesCollection series) {
+		detailSeriesList.clear();
+		plot.clearDetailPlot();
+
+		detailSeriesList.add(series);
+		TimeSeriesPlot detailPlot = new TimeSeriesAreaStacked(this, series);
+		plot.addDetailPlot(detailPlot, 1);
+	}
+
 	/**
 	 * TODO legend如何改进, 颜色如何控制
 	 * 
@@ -79,20 +90,12 @@ public class PTimeSeries extends PApplet implements LegendListener {
 		cTable = ColourTable.getPresetColourTable(ColourTable.SET3_8);
 		legend = new Legend(this, series.getNames(), cTable);
 		legend.addLegendListener(this);
-		
+
 		int size = overviewSeries.size();
 		colorArr = new int[size];
 		for (int i = 0; i < size; i++) {
 			colorArr[i] = cTable.findColour(i + 1);
 		}
-	}
-
-	public void setDetailSeries(TimeSeriesCollection series) {
-		detailSeriesList.add(series);
-
-		TimeSeriesPlot detailPlot = new TimeSeriesAreaStacked(this, series);
-
-		plot.addDetailPlot(detailPlot, 1);
 	}
 
 	public void setup() {
@@ -102,6 +105,9 @@ public class PTimeSeries extends PApplet implements LegendListener {
 	}
 
 	public void draw() {
+		if (overviewSeries == null)
+			return;
+
 		background(255);
 
 		float titleHeight = isShowTitle ? this.titleHeight : 0;

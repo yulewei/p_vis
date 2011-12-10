@@ -40,6 +40,11 @@ public class OverviewDetailPlot extends Plot {
 		weightList.add(weight);
 	}
 
+	public void clearDetailPlot() {
+		detailPlotList.clear();
+		weightList.clear();
+	}
+
 	/**
 	 * ÑÕÉ«¿ØÖÆ
 	 */

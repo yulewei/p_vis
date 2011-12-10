@@ -2,8 +2,6 @@ package edu.zjut.common.data.time;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeSet;
-
 
 public class TimeSeriesCollection {
 
@@ -37,14 +35,21 @@ public class TimeSeriesCollection {
 	 * 多个时间序列数据整合. 由于时间分布并不完全一致, 最小时间, 最大时间, 缺失值
 	 */
 	public void buildTimeSeries() {
-		TreeSet<TimePeriod> timeSet = new TreeSet<TimePeriod>();
+
+		timeMin = dataList.get(0).getTimeMin();
+		timeMax = dataList.get(0).getTimeMax();
 		for (TimeSeriesData series : dataList) {
-			series.build();
-			timeSet.addAll(series.getTimes());
+			TimePeriod min = series.getTimeMin();
+			TimePeriod max = series.getTimeMax();
+			if (timeMin.compareTo(min) > 0)
+				timeMin = min;
+			if (timeMax.compareTo(max) < 0)
+				timeMax = max;
 		}
 
-		timeMin = timeSet.first();
-		timeMax = timeSet.last();
+		for (TimeSeriesData series : dataList) {
+			series.fillTimeRange(timeMin, timeMax, type);
+		}
 
 		allTimes = new ArrayList<TimePeriod>();
 		for (TimePeriod time = timeMin; time.compareTo(timeMax) <= 0; time = time
@@ -77,11 +82,10 @@ public class TimeSeriesCollection {
 	public float getValueMin() {
 		return valueMin;
 	}
-	
+
 	public float getValueMax() {
 		return valueMax;
 	}
-
 
 	public TimeSeriesData get(int i) {
 		return dataList.get(i);
