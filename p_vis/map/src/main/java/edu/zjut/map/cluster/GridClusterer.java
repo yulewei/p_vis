@@ -131,15 +131,24 @@ public class GridClusterer extends MarkerClusterer {
 		List<Overlay> clusteredMarkers = new ArrayList<>();
 		for (Cluster cluster : clusters) {
 			List<Overlay> clusterMarkers = cluster.markers;
-			Overlay marker = null;
-			if (clusterMarkers.size() == 1) {
-				marker = clusterMarkers.get(0);
+			if (clusterMarkers.size() < minClusterSize) {
+				for (Overlay marker : clusterMarkers)
+					clusteredMarkers.add(marker);
 			} else {
-				marker = new ClusterIcon(cluster.center, clusterMarkers.size());
+				Overlay marker = new ClusterIcon(cluster.center,
+						clusterMarkers.size());
+				clusteredMarkers.add(marker);
 			}
-			clusteredMarkers.add(marker);
 		}
 
 		return clusteredMarkers;
+	}
+
+	public int getGridSize() {
+		return gridSize;
+	}
+
+	public void setGridSize(int gridSize) {
+		this.gridSize = gridSize;
 	}
 }

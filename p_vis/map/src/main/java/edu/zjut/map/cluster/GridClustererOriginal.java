@@ -98,14 +98,14 @@ public class GridClustererOriginal extends MarkerClusterer {
 			sumX /= cellMarkers.size();
 			sumY /= cellMarkers.size();
 
-			Overlay marker = null;
-			if (cellMarkers.size() > 1)
-				marker = new ClusterIcon(new GeoPosition(sumX, sumY),
+			if (cellMarkers.size() < minClusterSize) {
+				for (Overlay marker : cellMarkers)
+					clusteredMarkers.add(marker);
+			} else {
+				Overlay marker = new ClusterIcon(new GeoPosition(sumX, sumY),
 						cellMarkers.size());
-			else
-				marker = cellMarkers.get(0);
-
-			clusteredMarkers.add(marker);
+				clusteredMarkers.add(marker);
+			}
 		}
 
 		return clusteredMarkers;

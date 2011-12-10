@@ -18,6 +18,7 @@ public abstract class MarkerClusterer implements ZoomLevelListener {
 	protected List<Overlay> clusteredMarkers;
 
 	protected int maxZoom = 14;
+	protected int minClusterSize = 2;
 
 	public MarkerClusterer(JMapPanel mapPanel) {
 		this.mapPanel = mapPanel;
@@ -39,7 +40,6 @@ public abstract class MarkerClusterer implements ZoomLevelListener {
 		clusteredMarkers = calculateClusters(markers);
 
 		return clusteredMarkers;
-
 	}
 
 	protected abstract List<Overlay> calculateClusters(List<Overlay> markers);
@@ -49,5 +49,21 @@ public abstract class MarkerClusterer implements ZoomLevelListener {
 		List<Overlay> clusteredMarkers = clustering();
 		mapPanel.setMarkers(clusteredMarkers);
 		mapPanel.repaint();
+	}
+
+	public int getMaxZoom() {
+		return maxZoom;
+	}
+
+	public void setMaxZoom(int maxZoom) {
+		this.maxZoom = maxZoom;
+	}
+
+	public int getMinClusterSize() {
+		return minClusterSize;
+	}
+
+	public void setMinClusterSize(int minClusterSize) {
+		this.minClusterSize = minClusterSize;
 	}
 }

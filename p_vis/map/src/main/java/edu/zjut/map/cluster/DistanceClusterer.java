@@ -94,20 +94,17 @@ public class DistanceClusterer extends MarkerClusterer {
 			}
 		}
 
-		System.out.println(cluster.size());
-
 		List<Overlay> clusteredMarkers = new ArrayList<>();
 		for (TreeSet<Integer> markerIndexes : cluster) {
+			if (markerIndexes.size() < minClusterSize) {
+				for (Integer index : markerIndexes)
+					clusteredMarkers.add(markers.get(index));
 
-			Overlay marker = null;
-
-			if (markerIndexes.size() == 1) {
-				marker = markers.get(markerIndexes.first());
 			} else {
 				Point centroid = calcCentroid(markerIndexes);
-				marker = new ClusterIcon(centroid, markerIndexes.size());
+				Overlay marker = new ClusterIcon(centroid, markerIndexes.size());
+				clusteredMarkers.add(marker);
 			}
-			clusteredMarkers.add(marker);
 		}
 
 		return clusteredMarkers;
