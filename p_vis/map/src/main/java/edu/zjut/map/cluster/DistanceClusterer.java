@@ -16,7 +16,7 @@ import edu.zjut.map.JMapPanel;
 import edu.zjut.map.overlay.Overlay;
 
 /**
- * 基于距离marker聚类, Distance-based Clustering
+ * 基于距离marker聚类, 距离为屏幕上的距离, Distance-based Clustering
  * 
  * @author yulewei
  * 

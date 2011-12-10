@@ -13,7 +13,7 @@ import edu.zjut.map.JMapPanel;
 import edu.zjut.map.overlay.Overlay;
 
 /**
- * 最原始的基于网格marker聚类.
+ * 最原始的基于网格marker聚类. 网格由切分整张地图得到
  * 
  * @author yulewei
  * 

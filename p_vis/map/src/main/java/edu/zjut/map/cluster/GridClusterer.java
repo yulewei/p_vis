@@ -16,7 +16,7 @@ import edu.zjut.map.JMapPanel;
 import edu.zjut.map.overlay.Overlay;
 
 /**
- * 基于网格marker聚类, grid-based clustering.
+ * 基于网格marker聚类, 网格由cluster的中心位置确定, grid-based clustering.
  * 
  * <p>
  * 参考实现: <a href=
