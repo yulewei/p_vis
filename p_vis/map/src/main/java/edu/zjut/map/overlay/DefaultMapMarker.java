@@ -13,6 +13,8 @@ import org.jdesktop.swingx.mapviewer.GeoPosition;
 
 import com.vividsolutions.jts.geom.Point;
 
+import edu.zjut.map.GeoUtils;
+
 /**
  * 
  * @author yulewei

@@ -5,9 +5,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.util.ArrayList;
@@ -30,28 +29,21 @@ import com.vividsolutions.jts.util.GeometricShapeFactory;
 
 import edu.zjut.map.config.MapConfig;
 import edu.zjut.map.overlay.EsriLayer;
-import edu.zjut.map.overlay.GeoUtils;
 import edu.zjut.map.overlay.MapPolygon;
 import edu.zjut.map.overlay.Overlay;
 import edu.zjut.map.tile.CustomTileCache;
 import edu.zjut.map.tile.TileFactoryInfoX;
 import edu.zjut.vis.map.MapSelector.SelectType;
 
-public class JMapPanel extends JXMapViewerX implements MouseListener,
-		MouseMotionListener {
+public class JMapPanel extends JXMapViewerX {
 
-	private int mouseX;
-	private int mouseY;
-	protected GeoPosition curGeoPosition;
-	protected Overlay curPolygon;
-	protected int curOverlayIndex = -1;
+	protected StatusListener statusListener;
+	protected IndicationListener indexListener;
 
-	protected List<Overlay> markerList;
-	protected List<EsriLayer> layerList;
+	protected List<Overlay> markers;
+	protected List<EsriLayer> layers;
 
 	protected int activeLayer = 0;
-
-	protected boolean isCoordValid;
 
 	public final int STATUS_BAR_HEIGHT = 25;
 	protected boolean isDrawTileBorders = true;
@@ -63,14 +55,19 @@ public class JMapPanel extends JXMapViewerX implements MouseListener,
 	protected Painter<JXMapViewer> statusBarOverlay;
 	protected Painter<JXMapViewer> centerCrossOverlay;
 	protected Painter<JXMapViewer> scaleRuleOverlay;
+
 	private boolean needUpdate;
 
 	public JMapPanel() {
-		this.addMouseListener(this);
-		this.addMouseMotionListener(this);
+		statusListener = new StatusListener();
+		this.addMouseListener(statusListener);
+		this.addMouseMotionListener(statusListener);
+		indexListener = new IndicationListener();
+		this.addMouseListener(indexListener);
+		this.addMouseMotionListener(indexListener);
 
-		markerList = new ArrayList<Overlay>();
-		layerList = new ArrayList<EsriLayer>();
+		markers = new ArrayList<Overlay>();
+		layers = new ArrayList<EsriLayer>();
 
 		initPainters();
 	}
@@ -101,11 +98,11 @@ public class JMapPanel extends JXMapViewerX implements MouseListener,
 
 		highlightOverlay = new Painter<JXMapViewer>() {
 			public void paint(Graphics2D g, JXMapViewer map, int w, int h) {
-				if (curOverlayIndex != -1) {
-					Overlay marker = markerList.get(curOverlayIndex);
+				if (indexListener.curOverlayIndex != -1) {
+					Overlay marker = markers.get(indexListener.curOverlayIndex);
 					String text = marker.getTitle();
-					drawTooltip(g, text, mouseX, mouseY, new Color(1.0f, 1.0f,
-							0.8f));
+					drawTooltip(g, text, indexListener.mouseX,
+							indexListener.mouseY, new Color(1.0f, 1.0f, 0.8f));
 				}
 			}
 		};
@@ -120,16 +117,17 @@ public class JMapPanel extends JXMapViewerX implements MouseListener,
 
 				String latitude = "-";
 				String longitude = "-";
-				if (curGeoPosition != null && isCoordValid) {
-					latitude = String
-							.format("%f", curGeoPosition.getLatitude());
+				if (statusListener.curGeoPosition != null
+						&& statusListener.isCoordValid) {
+					latitude = String.format("%f",
+							statusListener.curGeoPosition.getLatitude());
 					longitude = String.format("%f",
-							curGeoPosition.getLongitude());
+							statusListener.curGeoPosition.getLongitude());
 				}
 
-				g.drawString(String.format("%s: %s  %s: %s", "latitude",
-						latitude, "longitude", longitude), 10,
-						getSize().height - 8);
+				g.drawString(String.format("%s: %s  %s: %s  %s: %s",
+						"latitude", latitude, "longitude", longitude, "zoom",
+						JMapPanel.this.getZoom()), 10, getSize().height - 8);
 			}
 		};
 
@@ -158,43 +156,41 @@ public class JMapPanel extends JXMapViewerX implements MouseListener,
 	}
 
 	public void addOverlay(Overlay overlay) {
-		markerList.add(overlay);
+		markers.add(overlay);
 		needUpdate = true;
 	}
 
 	public void addLayer(EsriLayer layer) {
-		layerList.add(layer);
+		layers.add(layer);
 		needUpdate = true;
 	}
 
-	public List<Overlay> getMarkerList() {
-		return markerList;
+	public List<Overlay> getMarkers() {
+		return markers;
 	}
 
-	public void setMarkerList(List<Overlay> markerList) {
-		this.markerList = markerList;
+	public void setMarkers(List<Overlay> markers) {
+		this.markers = markers;
 		needUpdate = true;
 	}
 
-	public List<EsriLayer> getLayerList() {
-		return layerList;
+	public List<EsriLayer> getLayers() {
+		return layers;
 	}
 
-	public void setLayerList(List<EsriLayer> layerList) {
-		this.layerList = layerList;
+	public void setLayers(List<EsriLayer> layerList) {
+		this.layers = layerList;
 		needUpdate = true;
 	}
 
 	public void clearOverlays() {
-		markerList.clear();
+		markers.clear();
 	}
 
 	@Override
 	public void paint(Graphics g) {
 		if (needUpdate) {
 			updateOverlayPainterList();
-			// if (layerList != null && layerList.size() >= 1)
-			// fitMapRectangle(layerList.get(0).getBoundingBox());
 			needUpdate = false;
 		}
 
@@ -204,19 +200,19 @@ public class JMapPanel extends JXMapViewerX implements MouseListener,
 	private void updateOverlayPainterList() {
 		ArrayList<Painter<JXMapViewer>> list = new ArrayList<Painter<JXMapViewer>>();
 
-		for (EsriLayer layer : layerList) {
+		for (EsriLayer layer : layers) {
 			list.add(layer.getOverlayPainter());
 		}
 
-		for (EsriLayer layer : layerList) {
+		for (EsriLayer layer : layers) {
 			list.add(layer.getHighlightOverlayPainter());
 		}
 
-		for (Overlay overlay : markerList) {
+		for (Overlay overlay : markers) {
 			list.add(overlay.getOverlayPainter());
 		}
 
-		for (Overlay overlay : markerList) {
+		for (Overlay overlay : markers) {
 			list.add(overlay.getHighlightOverlayPainter());
 		}
 
@@ -340,7 +336,7 @@ public class JMapPanel extends JXMapViewerX implements MouseListener,
 		}
 
 		// °üº¬ÅÐ¶Ï
-		for (Overlay overlay : markerList) {
+		for (Overlay overlay : markers) {
 			if (polygon.intersects(overlay.getGeometry())) {
 				overlay.setHighlighted(true);
 			}
@@ -397,86 +393,94 @@ public class JMapPanel extends JXMapViewerX implements MouseListener,
 		updateOverlayPainterList();
 	}
 
-	@Override
-	public void mouseDragged(MouseEvent e) {
-		// TODO Auto-generated method stub
+	private class StatusListener extends MouseAdapter {
+		GeoPosition curGeoPosition;
+		boolean isCoordValid;
+
+		@Override
+		public void mouseMoved(MouseEvent e) {
+			curGeoPosition = convertPointToGeoPosition(e.getPoint());
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			isCoordValid = true;
+			repaint();
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+			isCoordValid = false;
+			repaint();
+		}
 	}
 
-	@Override
-	public void mouseMoved(MouseEvent e) {
-		curGeoPosition = convertPointToGeoPosition(e.getPoint());
-		curOverlayIndex = -1;
-		curPolygon = null;
-		mouseX = e.getX();
-		mouseY = e.getY();
+	private class IndicationListener extends MouseAdapter {
 
-		for (int i = 0; i < markerList.size(); i++) {
-			Overlay overlay = markerList.get(i);
-			if (overlay.contains(this, mouseX, mouseY)) {
-				curOverlayIndex = i;
+		int mouseX;
+		int mouseY;
+
+		int curOverlayIndex = -1;
+
+		@Override
+		public void mouseMoved(MouseEvent e) {
+			curOverlayIndex = -1;
+			mouseX = e.getX();
+			mouseY = e.getY();
+
+			for (int i = 0; i < markers.size(); i++) {
+				Overlay overlay = markers.get(i);
+				if (overlay.contains(JMapPanel.this, mouseX, mouseY)) {
+					curOverlayIndex = i;
+				}
+			}
+
+			for (int i = 0; i < markers.size(); i++) {
+				Overlay overlay = markers.get(i);
+				if (i != curOverlayIndex)
+					overlay.setHighlighted(false);
+				else
+					overlay.setHighlighted(true);
+			}
+
+			for (int i = 0; i < layers.size(); i++) {
+				EsriLayer layer = layers.get(i);
+				layer.setHighlighted(false);
+				Overlay overlay = layer.containOverlay(JMapPanel.this, mouseX,
+						mouseY);
+				if (overlay != null)
+					overlay.setHighlighted(true);
+			}
+
+			repaint();
+		}
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			for (int i = 0; i < markers.size(); i++) {
+				Overlay overlay = markers.get(i);
+				if (overlay.contains(JMapPanel.this, e.getX(), e.getY())) {
+					// this.overlayClicked(overlay, e);
+				}
+			}
+
+			if (e.getClickCount() == 2 && !layers.isEmpty()) {
+				EsriLayer layer = layers.get(activeLayer);
+				Overlay overlay = layer.containOverlay(JMapPanel.this, mouseX,
+						mouseY);
+				if (overlay != null && overlay instanceof MapPolygon) {
+					MapPolygon ploygon = (MapPolygon) overlay;
+					fitMapToRectangle(ploygon.getBoundingBox());
+				}
+			}
+			repaint();
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			if (e.getButton() == MouseEvent.BUTTON3 && !layers.isEmpty()) {
+				fitMapToRectangle(layers.get(0).getBoundingBox());
 			}
 		}
-
-		for (int i = 0; i < markerList.size(); i++) {
-			Overlay overlay = markerList.get(i);
-			if (i != curOverlayIndex)
-				overlay.setHighlighted(false);
-			else
-				overlay.setHighlighted(true);
-		}
-
-		for (int i = 0; i < layerList.size(); i++) {
-			EsriLayer layer = layerList.get(i);
-			layer.setHighlighted(false);
-			Overlay overlay = layer.containOverlay(this, mouseX, mouseY);
-			if (overlay != null)
-				overlay.setHighlighted(true);
-		}
-
-		repaint();
-	}
-
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		for (int i = 0; i < markerList.size(); i++) {
-			Overlay overlay = markerList.get(i);
-			if (overlay.contains(this, e.getX(), e.getY())) {
-				// this.overlayClicked(overlay, e);
-			}
-		}
-
-		if (e.getClickCount() == 2 && !layerList.isEmpty()) {
-			EsriLayer layer = layerList.get(activeLayer);
-			Overlay overlay = layer.containOverlay(this, mouseX, mouseY);
-			if (overlay != null && overlay instanceof MapPolygon) {
-				MapPolygon ploygon = (MapPolygon) overlay;
-				fitMapToRectangle(ploygon.getBoundingBox());
-			}
-		}
-		repaint();
-	}
-
-	@Override
-	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		if (e.getButton() == MouseEvent.BUTTON3 && !layerList.isEmpty()) {
-			fitMapToRectangle(layerList.get(0).getBoundingBox());
-		}
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		isCoordValid = true;
-		repaint();
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
-		isCoordValid = false;
-		repaint();
 	}
 }

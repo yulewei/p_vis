@@ -14,6 +14,8 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
+import edu.zjut.map.GeoUtils;
+
 public class MapPolygon extends Overlay {
 
 	/**

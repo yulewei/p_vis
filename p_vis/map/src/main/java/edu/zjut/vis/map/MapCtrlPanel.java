@@ -200,7 +200,7 @@ public class MapCtrlPanel extends JPanel {
 			}
 		}
 
-		mapPanel.setLayerList(layerList);
+		mapPanel.setLayers(layerList);
 		mapPanel.repaint();
 	}
 

@@ -35,6 +35,9 @@ import edu.zjut.common.event.IndicationListener;
 import edu.zjut.common.event.SelectionEvent;
 import edu.zjut.common.event.SelectionListener;
 import edu.zjut.map.JMapPanel;
+import edu.zjut.map.cluster.DistanceClusterer;
+import edu.zjut.map.cluster.GridClusterer;
+import edu.zjut.map.cluster.GridClustererOriginal;
 import edu.zjut.map.cluster.MarkerClusterer;
 import edu.zjut.map.overlay.DefaultMapMarker;
 import edu.zjut.map.overlay.IconMarker;
@@ -110,9 +113,8 @@ public class GeoMap extends JPanel implements DataSetListener,
 		selector.setVisible(false);
 		mapPanel.add(selector);
 
-		clusterer = new MarkerClusterer(mapPanel);
-		mapPanel.addZoomLevelListener(clusterer);
-		
+		clusterer = new GridClusterer(mapPanel);
+
 		ctrlPanel = new MapCtrlPanel(this, mapPanel);
 		jSplitPane.add(ctrlPanel, JSplitPane.LEFT);
 
@@ -343,11 +345,21 @@ public class GeoMap extends JPanel implements DataSetListener,
 		clusterTgbtn.setIcon(new ImageIcon(getClass()
 				.getResource("cluster.png")));
 		clusterTgbtn.addActionListener(new ActionListener() {
+			List<Overlay> oldMarkers;
+
 			public void actionPerformed(ActionEvent evt) {
-				clusterer.setMarkerList(mapPanel.getMarkerList());
-				List<Overlay> clusteredMarkers = clusterer.clustering();
-				mapPanel.setMarkerList(clusteredMarkers);
-				mapPanel.repaint();
+				if (clusterTgbtn.isSelected()) {
+					oldMarkers = mapPanel.getMarkers();
+					clusterer.setMarkers(oldMarkers);
+					mapPanel.setMarkers(clusterer.clustering());
+					mapPanel.addZoomLevelListener(clusterer);
+					mapPanel.repaint();
+				} else {
+					clusterer.setMarkers(null);
+					mapPanel.setMarkers(oldMarkers);
+					mapPanel.removeZoomLevelListener(clusterer);
+					mapPanel.repaint();
+				}
 			}
 		});
 
@@ -398,7 +410,7 @@ public class GeoMap extends JPanel implements DataSetListener,
 			markerIndexMap.put(marker, i);
 		}
 
-		mapPanel.setMarkerList(markerList);
+		mapPanel.setMarkers(markerList);
 
 		updateMarkerAppearance();
 	}

@@ -11,6 +11,8 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 
+import edu.zjut.map.GeoUtils;
+
 /**
  * 标记, "圆圈+叉叉"的显示效果
  * 

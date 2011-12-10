@@ -15,11 +15,21 @@ import org.jdesktop.swingx.mapviewer.GeoPosition;
 
 import com.vividsolutions.jts.geom.Point;
 
-import edu.zjut.map.overlay.GeoUtils;
+import edu.zjut.map.GeoUtils;
 import edu.zjut.map.overlay.MapMarker;
 
 public class ClusterIcon extends MapMarker {
 
+	/**
+	 * 根据聚集大小, 显示5种不同颜色的图标
+	 * <ul>
+	 * <li>Blue < 10</li>
+	 * <li>Yellow < 100</li>
+	 * <li>Red < 1000</li>
+	 * <li>Purple < 10000</li>
+	 * <li>Dark purple < 10000+</li>
+	 * </ul>
+	 */
 	private static BufferedImage[] images;
 
 	static {
@@ -36,7 +46,6 @@ public class ClusterIcon extends MapMarker {
 	}
 
 	protected int sum;
-	protected int[][] anchor;
 
 	private int textWidth = -1;
 
@@ -60,6 +69,7 @@ public class ClusterIcon extends MapMarker {
 		for (int k = sum; k / 10 != 0; k /= 10, index++)
 			;
 
+		index = index > 5 ? 5 : index;
 		BufferedImage img = images[index];
 		Point2D pt = GeoUtils.getScreenCoord(map, point);
 		g.drawImage(img, (int) pt.getX() - img.getWidth() / 2, (int) pt.getY()

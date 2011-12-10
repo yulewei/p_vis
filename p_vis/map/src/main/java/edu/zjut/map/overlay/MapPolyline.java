@@ -13,6 +13,8 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.Point;
 
+import edu.zjut.map.GeoUtils;
+
 public class MapPolyline extends Overlay {
 	/**
 	 * JTS几何, 原始数据, 经纬坐标
