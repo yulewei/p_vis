@@ -1,4 +1,4 @@
-package edu.zjut.vis.map;
+package edu.zjut.map.cluster;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -11,7 +11,6 @@ import com.vividsolutions.jts.geom.Point;
 
 import edu.zjut.map.JMapPanel;
 import edu.zjut.map.ZoomLevelListener;
-import edu.zjut.map.overlay.ClusterMarker;
 import edu.zjut.map.overlay.Overlay;
 
 public class MarkerClusterer implements ZoomLevelListener {
@@ -43,13 +42,12 @@ public class MarkerClusterer implements ZoomLevelListener {
 		}
 
 		public String toString() {
-			return x + " " + y;
+			return "(" + x + " " + y + ")";
 		}
 	}
 
 	public MarkerClusterer(JMapPanel mapPanel) {
 		this.mapPanel = mapPanel;
-		mapPanel.addZoomLevelListener(this);
 	}
 
 	public MarkerClusterer(JMapPanel mapPanel, int gridSize, int maxZoom) {
@@ -107,8 +105,8 @@ public class MarkerClusterer implements ZoomLevelListener {
 			Overlay marker = null;
 
 			if (markers.size() > 1)
-				marker = new ClusterMarker(new GeoPosition(sumX, sumY),
-						markers.size() + "");
+				marker = new ClusterIcon(new GeoPosition(sumX, sumY),
+						markers.size());
 			else
 				marker = markers.get(0);
 

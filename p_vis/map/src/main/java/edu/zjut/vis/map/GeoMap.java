@@ -35,6 +35,7 @@ import edu.zjut.common.event.IndicationListener;
 import edu.zjut.common.event.SelectionEvent;
 import edu.zjut.common.event.SelectionListener;
 import edu.zjut.map.JMapPanel;
+import edu.zjut.map.cluster.MarkerClusterer;
 import edu.zjut.map.overlay.DefaultMapMarker;
 import edu.zjut.map.overlay.IconMarker;
 import edu.zjut.map.overlay.MapMarker;
@@ -107,11 +108,11 @@ public class GeoMap extends JPanel implements DataSetListener,
 
 		selector = new MapSelector(mapPanel);
 		selector.setVisible(false);
-
-		clusterer = new MarkerClusterer(mapPanel);
-
 		mapPanel.add(selector);
 
+		clusterer = new MarkerClusterer(mapPanel);
+		mapPanel.addZoomLevelListener(clusterer);
+		
 		ctrlPanel = new MapCtrlPanel(this, mapPanel);
 		jSplitPane.add(ctrlPanel, JSplitPane.LEFT);
 
@@ -227,7 +228,7 @@ public class GeoMap extends JPanel implements DataSetListener,
 				"zoom_fit.png")));
 		zoomFitTglbtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
-				mapPanel.fitMapMarkers();
+				mapPanel.fitMapToMarkers();
 				mapPanel.repaint();
 			}
 		});

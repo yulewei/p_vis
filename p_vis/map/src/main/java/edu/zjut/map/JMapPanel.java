@@ -239,7 +239,7 @@ public class JMapPanel extends JXMapViewerX implements MouseListener,
 	/**
 	 * 调整最佳zoom level, 以显示全部markers
 	 */
-	public void fitMapMarkers() {
+	public void fitMapToMarkers() {
 		// TODO ???
 	}
 
@@ -248,7 +248,7 @@ public class JMapPanel extends JXMapViewerX implements MouseListener,
 	 * 
 	 * @param boundingBox
 	 */
-	public void fitMapRectangle(Envelope box) {
+	public void fitMapToRectangle(Envelope box) {
 		GeoPosition minPos = new GeoPosition(box.getMinX(), box.getMinY());
 		GeoPosition maxPos = new GeoPosition(box.getMaxX(), box.getMaxY());
 
@@ -450,7 +450,7 @@ public class JMapPanel extends JXMapViewerX implements MouseListener,
 			Overlay overlay = layer.containOverlay(this, mouseX, mouseY);
 			if (overlay != null && overlay instanceof MapPolygon) {
 				MapPolygon ploygon = (MapPolygon) overlay;
-				fitMapRectangle(ploygon.getBoundingBox());
+				fitMapToRectangle(ploygon.getBoundingBox());
 			}
 		}
 		repaint();
@@ -464,7 +464,7 @@ public class JMapPanel extends JXMapViewerX implements MouseListener,
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		if (e.getButton() == MouseEvent.BUTTON3 && !layerList.isEmpty()) {
-			fitMapRectangle(layerList.get(0).getBoundingBox());
+			fitMapToRectangle(layerList.get(0).getBoundingBox());
 		}
 	}
 

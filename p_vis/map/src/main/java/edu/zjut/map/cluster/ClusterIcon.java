@@ -1,4 +1,4 @@
-package edu.zjut.map.overlay;
+package edu.zjut.map.cluster;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -15,31 +15,39 @@ import org.jdesktop.swingx.mapviewer.GeoPosition;
 
 import com.vividsolutions.jts.geom.Point;
 
-public class ClusterMarker extends MapMarker {
+import edu.zjut.map.overlay.GeoUtils;
+import edu.zjut.map.overlay.MapMarker;
 
-	private static BufferedImage img = null;
+public class ClusterIcon extends MapMarker {
+
+	private static BufferedImage[] images;
 
 	static {
 		try {
-			img = ImageIO.read(DefaultMapMarker.class
-					.getResource("resources/m1.png"));
+			images = new BufferedImage[5];
+			for (int i = 0; i < 5; i++) {
+				images[i] = ImageIO.read(ClusterIcon.class.getResource(String
+						.format("m%d.png", i + 1)));
+			}
 
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 	}
 
-	protected int[] anchor;
+	protected int sum;
+	protected int[][] anchor;
+
 	private int textWidth = -1;
 
-	public ClusterMarker(GeoPosition coord, String title) {
-		super(coord, title);
-		anchor = new int[] { img.getWidth() / 2, img.getHeight() / 2 };
+	public ClusterIcon(GeoPosition coord, int sum) {
+		super(coord, "");
+		this.sum = sum;
 	}
 
-	public ClusterMarker(Point point, String title) {
-		super(point, title);
-		anchor = new int[] { img.getWidth() / 2, img.getHeight() / 2 };
+	public ClusterIcon(Point point, int sum) {
+		super(point, "");
+		this.sum = sum;
 	}
 
 	@Override
@@ -47,19 +55,25 @@ public class ClusterMarker extends MapMarker {
 		if (isHighlighted)
 			return;
 
+		// 按10进制位数计算
+		int index = 0;
+		for (int k = sum; k / 10 != 0; k /= 10, index++)
+			;
+
+		BufferedImage img = images[index];
 		Point2D pt = GeoUtils.getScreenCoord(map, point);
-		g.drawImage(img, (int) pt.getX() - anchor[0], (int) pt.getY()
-				- anchor[1], null);
+		g.drawImage(img, (int) pt.getX() - img.getWidth() / 2, (int) pt.getY()
+				- img.getHeight() / 2, null);
 
 		if (textWidth == -1) {
 			Font f = g.getFont();
 			FontRenderContext frc = g.getFontRenderContext();
-			Rectangle2D rec = f.getStringBounds(title, frc);
+			Rectangle2D rec = f.getStringBounds(String.valueOf(sum), frc);
 			textWidth = (int) rec.getWidth();
 		}
 
 		g.setPaint(Color.BLACK);
-		g.drawString(title, (int) pt.getX() - textWidth / 2,
+		g.drawString(String.valueOf(sum), (int) pt.getX() - textWidth / 2,
 				(int) pt.getY() + 5);
 	}
 
@@ -68,12 +82,13 @@ public class ClusterMarker extends MapMarker {
 		if (!isHighlighted)
 			return;
 
+		BufferedImage img = images[(int) Math.log10(sum)];
 		Point2D pt = GeoUtils.getScreenCoord(map, point);
-		g.drawImage(img, (int) pt.getX() - anchor[0], (int) pt.getY()
-				- anchor[1], null);
+		g.drawImage(img, (int) pt.getX() - img.getWidth() / 2, (int) pt.getY()
+				- img.getHeight() / 2, null);
 
 		g.setPaint(Color.BLACK);
-		g.drawString(title, (int) pt.getX() - textWidth / 2,
+		g.drawString(String.valueOf(sum), (int) pt.getX() - textWidth / 2,
 				(int) pt.getY() + 5);
 	}
 
