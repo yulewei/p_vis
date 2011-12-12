@@ -1,32 +1,27 @@
 package edu.zjut.chart.plot;
 
-import java.util.List;
-
+import processing.core.PApplet;
 import edu.zjut.common.data.time.TimePeriod;
 import edu.zjut.common.data.time.TimeSeriesCollection;
 import edu.zjut.common.data.time.TimeSeriesData;
-import processing.core.PApplet;
 
-public class TimeSeriesPoints extends TimeSeriesPlot {
+public class PointRenderer extends TimeSeriesPlot {
 
-	public TimeSeriesPoints(PApplet p, TimeSeriesCollection tsList) {
+	public PointRenderer(PApplet p, TimeSeriesCollection tsList) {
 		super(p, tsList);
 	}
 
 	@Override
 	protected void drawChart() {
 		p.strokeWeight(5);
-		for (int i = 0; i < series.size(); i++) {
+		for (int i = 0; i < series.seriesSize(); i++) {
 			p.stroke(colorArr[i]);
 			TimeSeriesData ts = series.get(i);
-			List<TimePeriod> times = ts.getTimes();
-			List<Float> values = ts.getValues();
-
-			for (int row = 0; row < times.size(); row++) {
-				TimePeriod time = times.get(row);
+			for (int row = 0; row < ts.size(); row++) {
+				TimePeriod time = ts.getTime(row);
 				if (time.compareTo(visualMin) >= 0
 						&& time.compareTo(visualMax) <= 0) {
-					float value = values.get(row);
+					float value = ts.getValue(row);
 					float x = PApplet.map(time.getSerialIndex(),
 							visualMin.getSerialIndex(),
 							visualMax.getSerialIndex(), plotX1, plotX2);

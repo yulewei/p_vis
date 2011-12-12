@@ -1,16 +1,14 @@
 package edu.zjut.chart.plot;
 
-import java.util.List;
-
+import processing.core.PApplet;
+import processing.core.PConstants;
 import edu.zjut.common.data.time.TimePeriod;
 import edu.zjut.common.data.time.TimeSeriesCollection;
 import edu.zjut.common.data.time.TimeSeriesData;
-import processing.core.PApplet;
-import processing.core.PConstants;
 
-public class TimeSeriesArea extends TimeSeriesPlot {
+public class AreaRenderer extends TimeSeriesPlot {
 
-	public TimeSeriesArea(PApplet p, TimeSeriesCollection tsList) {
+	public AreaRenderer(PApplet p, TimeSeriesCollection tsList) {
 		super(p, tsList);
 	}
 
@@ -18,16 +16,14 @@ public class TimeSeriesArea extends TimeSeriesPlot {
 	protected void drawChart() {
 		p.noStroke();
 
-		for (int i = 0; i < series.size(); i++) {
+		for (int i = 0; i < series.seriesSize(); i++) {
 			p.fill(colorArr[i]);
 			p.beginShape();
 
 			TimeSeriesData ts = series.get(i);
-			List<TimePeriod> times = ts.getTimes();
-			List<Float> values = ts.getValues();
 			TimePeriod min = visualMax, max = visualMin;
-			for (int row = 0; row < times.size(); row++) {
-				TimePeriod time = times.get(row);
+			for (int row = 0; row < ts.size(); row++) {
+				TimePeriod time = ts.getTime(row);
 				if (time.compareTo(visualMin) >= 0
 						&& time.compareTo(visualMax) <= 0) {
 					if (time.compareTo(min) < 0)
@@ -35,12 +31,12 @@ public class TimeSeriesArea extends TimeSeriesPlot {
 					if (time.compareTo(max) > 0)
 						max = time;
 
-					float value = values.get(row);
+					float value = ts.getValue(row);
 					float x = PApplet.map(time.getSerialIndex(),
 							visualMin.getSerialIndex(),
 							visualMax.getSerialIndex(), plotX1, plotX2);
-					float y = PApplet.map(value, axisValueMin, axisValueMax, plotY2,
-							plotY1);
+					float y = PApplet.map(value, axisValueMin, axisValueMax,
+							plotY2, plotY1);
 					p.vertex(x, y);
 				}
 			}

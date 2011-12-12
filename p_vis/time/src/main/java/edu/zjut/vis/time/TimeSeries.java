@@ -2,53 +2,60 @@ package edu.zjut.vis.time;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JToggleButton;
+import javax.swing.JToolBar;
 
+import edu.zjut.chart.plot.ChartType;
+import edu.zjut.chart.plot.PlotFactory;
+import edu.zjut.chart.plot.TimeSeriesPlot;
 import edu.zjut.common.data.DataSetForApps;
 import edu.zjut.common.data.time.TimeData;
 import edu.zjut.common.data.time.TimeSeriesCollection;
 import edu.zjut.common.event.DataSetEvent;
 import edu.zjut.common.event.DataSetListener;
-import edu.zjut.time.PTimeSeries;
 
 public class TimeSeries extends JPanel implements DataSetListener {
 
 	private DataSetForApps dataSet;
 	private TimeData timeData;
 
-	static String title = "hello";
-	PTimeSeries pTimeSeries;
+	TimeSeriesCollection overviewSeries;
+	List<TimeSeriesCollection> detailSeriesList;
+
+	private JToolBar jToolBar;
+	private PTimeSeries pTimeSeries;
 
 	public TimeSeries() {
+		detailSeriesList = new ArrayList<TimeSeriesCollection>();
+
 		BorderLayout layout = new BorderLayout();
 		this.setLayout(layout);
+
+		initToolbar();
+		this.add(jToolBar, BorderLayout.NORTH);
 
 		pTimeSeries = new PTimeSeries();
 		pTimeSeries.setPreferredSize(new Dimension(800, 600));
 
-		TimeSeriesCollection overviewSeries = null;
-		TimeSeriesCollection detailSeries = null;
-
-		String infile = "hz_data/sale_data_by_date.csv";
-		try {
-			overviewSeries = DataLoader.loadDataSet(infile, 0, 1, 4, true);
-			detailSeries = DataLoader.loadDataSet(infile, 0, 1, 4, true);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		overviewSeries.buildTimeSeries();
-		detailSeries.buildTimeSeries();
-
-//		pTimeSeries.setTitle(title);
-//		pTimeSeries.setSeries(overviewSeries, detailSeries);
-
 		pTimeSeries.init();
-		this.add(pTimeSeries);
+		this.add(pTimeSeries, BorderLayout.CENTER);
+
 		this.setPreferredSize(new Dimension(800, 600));
+	}
+
+	private void initToolbar() {
+		jToolBar = new JToolBar();
+		JToggleButton sideBarTglbtn = new JToggleButton();
+		sideBarTglbtn.setIcon(new ImageIcon(getClass().getResource(
+				"sidebar.png")));
+
+		jToolBar.add(sideBarTglbtn);
 	}
 
 	@Override
@@ -60,12 +67,14 @@ public class TimeSeries extends JPanel implements DataSetListener {
 
 		TimeSeriesCollection timeSeries1 = series.get(0);
 		TimeSeriesCollection timeSeries2 = series.get(1);
-		
 		timeSeries1.buildTimeSeries();
 		timeSeries2.buildTimeSeries();
 
-		pTimeSeries.setTitle(title);
-		pTimeSeries.setSeries(timeSeries1, timeSeries2);
+		TimeSeriesPlot overviewPlot = PlotFactory.create(ChartType.LINE,
+				pTimeSeries, timeSeries1);
+		TimeSeriesPlot detailPlot = PlotFactory.create(ChartType.BAR,
+				pTimeSeries, timeSeries2);
+		pTimeSeries.setSeries(overviewPlot, detailPlot);
 	}
 
 	public static void main(String[] args) {

@@ -8,14 +8,14 @@ import edu.zjut.common.data.time.TimePeriod;
 import edu.zjut.common.data.time.TimeSeriesCollection;
 import edu.zjut.common.data.time.TimeSeriesData;
 
-public class TimeSeriesAreaStacked extends TimeSeriesPlot {
+public class AreaStackedRenderer extends TimeSeriesPlot {
 
 	float[][] sumValues;
 	float[] plotX;
 	float[][] plotY;
 	int indexMin, indexMax;
 
-	public TimeSeriesAreaStacked(PApplet p, TimeSeriesCollection tsList) {
+	public AreaStackedRenderer(PApplet p, TimeSeriesCollection tsList) {
 		super(p, tsList);
 	}
 
@@ -26,16 +26,42 @@ public class TimeSeriesAreaStacked extends TimeSeriesPlot {
 		timeMax = series.getTimeMax();
 
 		// 纵坐标范围
-		int size = series.size();
+		int size = series.seriesSize();
+		int range = series.getTimeRange();
 		sumValues = new float[size][];
 		for (int i = 0; i < size; i++) {
 			List<Float> values = series.get(i).getValues();
-			sumValues[i] = new float[values.size()];
+			sumValues[i] = new float[range];
 			for (int j = 0; j < values.size(); j++) {
 				float t = 0;
 				if (i > 0)
 					t = sumValues[i - 1][j];
-				sumValues[i][j] = values.get(j) + t;
+
+				Float value = values.get(j);
+				if (value == null) {
+					Float left = null;
+					int leftIndex = j - 1;
+					while (left == null) {
+						if (leftIndex < 0)
+							break;
+						left = values.get(leftIndex--);
+					}
+
+					Float right = null;
+					int rightIndex = j + 1;
+					while (right == null) {
+						if (rightIndex >= values.size())
+							break;
+						right = values.get(rightIndex++);
+					}
+					if (left == null)
+						left = right;
+					if (right == null)
+						right = left;
+
+					value = (left + right) / 2;
+				}
+				sumValues[i][j] = value + t;
 			}
 		}
 
@@ -79,8 +105,8 @@ public class TimeSeriesAreaStacked extends TimeSeriesPlot {
 		}
 
 		// 叠加后的Y绘制位置
-		plotY = new float[series.size()][];
-		for (int i = 0; i < series.size(); i++) {
+		plotY = new float[series.seriesSize()][];
+		for (int i = 0; i < series.seriesSize(); i++) {
 			plotY[i] = new float[sumValues[i].length];
 			for (int row = indexMin; row <= indexMax; row++) {
 				float value = sumValues[i][row];
@@ -91,7 +117,7 @@ public class TimeSeriesAreaStacked extends TimeSeriesPlot {
 		}
 
 		p.noStroke();
-		for (int i = 0; i < series.size(); i++) {
+		for (int i = 0; i < series.seriesSize(); i++) {
 			p.fill(colorArr[i]);
 
 			p.beginShape();
@@ -120,7 +146,7 @@ public class TimeSeriesAreaStacked extends TimeSeriesPlot {
 		int minIndex = -1, minRow = -1;
 		float minX = -1, minY1 = -1, minY2 = -1;
 
-		for (int i = 0; i < series.size(); i++) {
+		for (int i = 0; i < series.seriesSize(); i++) {
 			TimeSeriesData ts = series.get(i);
 			for (int row = indexMin; row <= indexMax; row++) {
 				float dis = Math.abs(p.mouseX - plotX[row]);

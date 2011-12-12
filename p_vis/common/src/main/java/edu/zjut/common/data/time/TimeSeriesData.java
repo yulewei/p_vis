@@ -11,11 +11,7 @@ public class TimeSeriesData {
 
 	private SortedMap<TimePeriod, Float> data;
 
-	/**
-	 * 由最小时间和最大时间填充而成
-	 */
 	private List<TimePeriod> times;
-
 	private List<Float> values;
 
 	public TimeSeriesData(String timeName, String valueName) {
@@ -32,23 +28,32 @@ public class TimeSeriesData {
 	/**
 	 * 在最小时间和最大时间之间填充缺失数据
 	 */
-	public void fillTimeRange(TimePeriod timeMin, TimePeriod timeMax,
-			TimeType type) {
+	public void build() {
 
 		times = new ArrayList<TimePeriod>();
 		values = new ArrayList<Float>();
-		for (TimePeriod time = timeMin; time.compareTo(timeMax) <= 0; time = time
-				.rollDate(type, 1)) {
-			times.add(time);
 
-			Float value = data.get(time);
-			if (value == null) {
-				data.put(time, null);
-				values.add(0.0f); // TODO 用0.0填充缺省值???
-			} else {
-				values.add(value);
-			}
+		times.addAll(data.keySet());
+		for (TimePeriod time : times) {
+			values.add(data.get(time));
 		}
+
+		// for (TimePeriod time = timeMin; time.compareTo(timeMax) <= 0; time =
+		// time
+		// .rollDate(type, 1)) {
+		// times.add(time);
+		//
+		// Float value = data.get(time);
+		// if (value == null) {
+		// data.put(time, null);
+		// values.add(null);
+		//
+		// // TODO 用0.0填充缺省值???
+		// // values.add(0.0f);
+		// } else {
+		// values.add(value);
+		// }
+		// }
 	}
 
 	public int size() {
@@ -64,18 +69,26 @@ public class TimeSeriesData {
 	}
 
 	public TimePeriod getTimeMin() {
-		return data.firstKey();
+		return times.get(0);
 	}
 
 	public TimePeriod getTimeMax() {
-		return data.lastKey();
+		return times.get(times.size() - 1);
+	}
+
+	public float getValueMin() {
+		return values.get(0);
+	}
+
+	public float getValueMax() {
+		return values.get(values.size() - 1);
 	}
 
 	public TimePeriod getTime(int index) {
 		return times.get(index);
 	}
 
-	public float getValue(int index) {
+	public Float getValue(int index) {
 		return values.get(index);
 	}
 

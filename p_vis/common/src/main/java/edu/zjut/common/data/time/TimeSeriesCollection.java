@@ -6,29 +6,24 @@ import java.util.List;
 public class TimeSeriesCollection {
 
 	private TimeType type;
-	private List<TimeSeriesData> dataList;
+	private List<TimeSeriesData> seriesList;
 
 	private TimePeriod timeMin;
 	private TimePeriod timeMax;
-
-	float valueMin, valueMax;
-
-	/**
-	 * 由最小时间和最大时间填充而成
-	 */
-	private List<TimePeriod> allTimes;
+	private float valueMin;
+	private float valueMax;
 
 	public TimeSeriesCollection(TimeType type) {
 		this.type = type;
-		dataList = new ArrayList<TimeSeriesData>();
+		seriesList = new ArrayList<TimeSeriesData>();
 	}
 
 	public void addSeries(TimeSeriesData series) {
-		dataList.add(series);
+		seriesList.add(series);
 	}
 
 	public void removeSeries(TimeSeriesData series) {
-		dataList.remove(series);
+		seriesList.remove(series);
 	}
 
 	/**
@@ -36,38 +31,28 @@ public class TimeSeriesCollection {
 	 */
 	public void buildTimeSeries() {
 
-		timeMin = dataList.get(0).getTimeMin();
-		timeMax = dataList.get(0).getTimeMax();
-		for (TimeSeriesData series : dataList) {
-			TimePeriod min = series.getTimeMin();
-			TimePeriod max = series.getTimeMax();
-			if (timeMin.compareTo(min) > 0)
-				timeMin = min;
-			if (timeMax.compareTo(max) < 0)
-				timeMax = max;
-		}
-
-		for (TimeSeriesData series : dataList) {
-			series.fillTimeRange(timeMin, timeMax, type);
-		}
-
-		allTimes = new ArrayList<TimePeriod>();
-		for (TimePeriod time = timeMin; time.compareTo(timeMax) <= 0; time = time
-				.rollDate(type, 1)) {
-			allTimes.add(time);
-		}
-
+		// 时间范围
+		timeMin = null;
+		timeMax = null;
 		// 纵坐标范围
 		valueMin = Float.MAX_VALUE;
 		valueMax = Float.MIN_VALUE;
-		for (TimeSeriesData series : dataList) {
-			List<Float> values = series.getValues();
-			for (float value : values) {
-				if (value < valueMin)
-					valueMin = value;
-				if (value > valueMax)
-					valueMax = value;
-			}
+		for (TimeSeriesData series : seriesList) {
+			series.build();
+
+			TimePeriod tmin = series.getTimeMin();
+			TimePeriod tmax = series.getTimeMax();
+			if (timeMin == null || timeMin.compareTo(tmin) > 0)
+				timeMin = tmin;
+			if (timeMax == null || timeMax.compareTo(tmax) < 0)
+				timeMax = tmax;
+
+			float vmin = series.getValueMin();
+			float vmax = series.getValueMax();
+			if (vmin < valueMin)
+				valueMin = vmin;
+			if (vmax > valueMax)
+				valueMax = vmax;
 		}
 	}
 
@@ -88,19 +73,15 @@ public class TimeSeriesCollection {
 	}
 
 	public TimeSeriesData get(int i) {
-		return dataList.get(i);
+		return seriesList.get(i);
 	}
 
-	public int size() {
-		return dataList.size();
+	public int seriesSize() {
+		return seriesList.size();
 	}
 
-	public List<TimePeriod> getAllTimes() {
-		return allTimes;
-	}
-
-	public TimePeriod getTime(int index) {
-		return allTimes.get(index);
+	public int getTimeRange() {
+		return timeMax.subtract(timeMin) + 1;
 	}
 
 	public TimeType getTimeType() {
@@ -108,9 +89,9 @@ public class TimeSeriesCollection {
 	}
 
 	public String[] getNames() {
-		String[] names = new String[dataList.size()];
-		for (int i = 0; i < dataList.size(); i++) {
-			names[i] = dataList.get(i).getValueName();
+		String[] names = new String[seriesList.size()];
+		for (int i = 0; i < seriesList.size(); i++) {
+			names[i] = seriesList.get(i).getValueName();
 		}
 
 		return names;

@@ -4,7 +4,6 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.List;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
@@ -226,15 +225,16 @@ public abstract class TimeSeriesPlot extends Plot {
 		TimePeriod minyear = null;
 		float minvalue = -1, minx = -1, miny = -1;
 
-		for (int i = 0; i < series.size(); i++) {
+		for (int i = 0; i < series.seriesSize(); i++) {
 			TimeSeriesData ts = series.get(i);
-			List<TimePeriod> times = ts.getTimes();
-			List<Float> values = ts.getValues();
-			for (int row = 0; row < times.size(); row++) {
-				TimePeriod time = times.get(row);
+			for (int row = 0; row < ts.size(); row++) {
+				TimePeriod time = ts.getTime(row);
 				if (time.compareTo(visualMin) >= 0
 						&& time.compareTo(visualMax) <= 0) {
-					float value = values.get(row);
+					Float value = ts.getValue(row);
+					if(value==null)
+						continue;
+					
 					float x = PApplet.map(time.getSerialIndex(),
 							visualMin.getSerialIndex(),
 							visualMax.getSerialIndex(), plotX1, plotX2);

@@ -3,11 +3,9 @@ package edu.zjut.common.data.time;
 import java.util.Calendar;
 import java.util.Date;
 
-
 public class TimePeriod implements Comparable<TimePeriod> {
 
 	private int month;
-
 	private int year;
 
 	public TimePeriod(int year) {
@@ -59,6 +57,10 @@ public class TimePeriod implements Comparable<TimePeriod> {
 
 	public String toString() {
 		return this.year + " " + this.month;
+	}
+
+	public int subtract(TimePeriod time) {
+		return (this.year - time.year) * 12 + this.month - time.month;
 	}
 
 	public int compareTo(TimePeriod time) {

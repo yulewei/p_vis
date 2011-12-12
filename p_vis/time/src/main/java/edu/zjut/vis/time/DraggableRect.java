@@ -1,4 +1,4 @@
-package edu.zjut.chart.plot;
+package edu.zjut.vis.time;
 
 import java.awt.Cursor;
 import java.awt.event.KeyEvent;
@@ -84,7 +84,7 @@ public class DraggableRect implements MouseListener, MouseMotionListener,
 		p.strokeWeight(1);
 		p.stroke(0);
 
-		p.fill(175, 150);
+		p.fill(175, 100);
 
 		x1 = PApplet.map(leftIndex, minIndex, maxIndex, minX, maxX);
 		x2 = PApplet.map(rightIndex, minIndex, maxIndex, minX, maxX);

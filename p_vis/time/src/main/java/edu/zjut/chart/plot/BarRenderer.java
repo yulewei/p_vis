@@ -1,18 +1,16 @@
 package edu.zjut.chart.plot;
 
-import java.util.List;
-
+import processing.core.PApplet;
+import processing.core.PConstants;
 import edu.zjut.common.data.time.TimePeriod;
 import edu.zjut.common.data.time.TimeSeriesCollection;
 import edu.zjut.common.data.time.TimeSeriesData;
-import processing.core.PApplet;
-import processing.core.PConstants;
 
-public class TimeSeriesBars extends TimeSeriesPlot {
+public class BarRenderer extends TimeSeriesPlot {
 
 	float barWidth = 10;
 
-	public TimeSeriesBars(PApplet p, TimeSeriesCollection tsList) {
+	public BarRenderer(PApplet p, TimeSeriesCollection tsList) {
 		super(p, tsList);
 	}
 
@@ -22,19 +20,16 @@ public class TimeSeriesBars extends TimeSeriesPlot {
 		// stroke(0);
 		p.rectMode(PConstants.CORNERS);
 
-		int size = series.size();
+		int size = series.seriesSize();
 		for (int i = 0; i < size; i++) {
 			p.fill(colorArr[i]);
 
 			TimeSeriesData ts = series.get(i);
-			List<TimePeriod> times = ts.getTimes();
-			List<Float> values = ts.getValues();
-
-			for (int row = 0; row < times.size(); row++) {
-				TimePeriod time = times.get(row);
+			for (int row = 0; row < ts.size(); row++) {
+				TimePeriod time = ts.getTime(row);
 				if (time.compareTo(visualMin) >= 0
 						&& time.compareTo(visualMax) <= 0) {
-					float value = values.get(row);
+					float value = ts.getValue(row);
 					float x = PApplet.map(time.getSerialIndex(),
 							visualMin.getSerialIndex(),
 							visualMax.getSerialIndex(), plotX1, plotX2);
