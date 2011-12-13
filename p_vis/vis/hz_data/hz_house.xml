@@ -93,14 +93,14 @@
 			<name>unit</name>
 			<geoType>layers</geoType>
 			<fileName>map/unit.json</fileName>
-			<subDir>map/unit_layers</subDir>
+			<subDir>map/unit</subDir>
 			<fileType>geojson</fileType>
 		</feature>
 		<feature>
 			<name>ghj_map</name>
 			<geoType>layers</geoType>
 			<fileName>map/ghj_map.json</fileName>
-			<subDir>map/ghj_map_layers</subDir>
+			<subDir>map/ghj_map</subDir>
 			<fileType>geojson</fileType>
 		</feature>
 		<!-- <feature> <name>规划单元</name> <geoType>polygon</geoType> <fileName>map/0.json</fileName> 
