@@ -108,16 +108,16 @@
 	</geo>
 	<time>
 		<series>
-			<fileName>hz_data/sale_data_by_date.csv</fileName>
+			<fileName>hz_data/sale_data.csv</fileName>
 			<dateCol>0</dateCol>
-			<groupCol>1</groupCol>
-			<valueCol>4</valueCol>
+			<groupCol>3</groupCol>
+			<valueCol>6</valueCol>
 		</series>
 		<series>
-			<fileName>hz_data/sale_data_by_date.csv</fileName>
+			<fileName>hz_data/sale_data.csv</fileName>
 			<dateCol>0</dateCol>
-			<groupCol>1</groupCol>
-			<valueCol>4</valueCol>
+			<groupCol>3</groupCol>
+			<valueCol>6</valueCol>
 		</series>
 	</time>
 </dataConfig>
