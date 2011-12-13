@@ -86,4 +86,12 @@ public abstract class Axis {
 	protected abstract void drawVer();
 
 	protected abstract void drawGrid();
+	
+	public boolean isDrawGrid() {
+		return isDrawGrid;
+	}
+
+	public void setDrawGrid(boolean isDrawGrid) {
+		this.isDrawGrid = isDrawGrid;
+	}	
 }

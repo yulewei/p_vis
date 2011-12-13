@@ -309,4 +309,13 @@ public abstract class TimeSeriesPlot extends Plot {
 	public void setTimeAxis(DateAxis timeAxis) {
 		this.timeAxis = timeAxis;
 	}
+	
+	public boolean isDrawGrid() {
+		return timeAxis.isDrawGrid();
+	}
+
+	public void setDrawGrid(boolean isDrawGrid) {
+		this.timeAxis.setDrawGrid(isDrawGrid);
+		this.valueAxis.setDrawGrid(isDrawGrid);
+	}
 }

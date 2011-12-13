@@ -79,7 +79,7 @@ public class AreaStackedRenderer extends TimeSeriesPlot {
 	protected void drawChart() {
 
 		// 假设全部时间数据相同
-		List<TimePeriod> years = series.get(0).getTimes();
+		List<TimePeriod> years = series.get(1).getTimes();
 		plotX = new float[years.size()];
 		TimePeriod yearMin = visualMax, yearMax = visualMin;
 		indexMin = 0;

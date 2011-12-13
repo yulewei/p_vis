@@ -53,8 +53,8 @@ public class DraggableRect implements MouseListener, MouseMotionListener,
 		this.maxIndex = maxIndex;
 
 		// Ä¬ÈÏÖµ
-		leftIndex = minIndex + (maxIndex - minIndex) / 10;
-		rightIndex = minIndex + (maxIndex - minIndex) / 10 * 3;
+		leftIndex = minIndex + (maxIndex - minIndex) / 10 * 5;
+		rightIndex = maxIndex;
 
 		p.addMouseListener(this);
 		p.addMouseMotionListener(this);
@@ -84,12 +84,28 @@ public class DraggableRect implements MouseListener, MouseMotionListener,
 		p.strokeWeight(1);
 		p.stroke(0);
 
-		p.fill(175, 100);
+		p.noStroke();
+		p.fill(175, 50);
 
 		x1 = PApplet.map(leftIndex, minIndex, maxIndex, minX, maxX);
 		x2 = PApplet.map(rightIndex, minIndex, maxIndex, minX, maxX);
 
-		p.rect(x1, y1, x2, y2);
+		p.rect(minX, y1, x1, y2);
+		p.rect(x2, y1, maxX, y2);
+
+		p.stroke(50);
+		p.strokeWeight(1.5f);
+		p.line(x1, y2, x2, y2);
+
+		p.strokeWeight(1);
+
+		p.line(x1, y1, x1, y2);
+		p.line(x2, y1, x2, y2);
+
+		p.line(minX, y1, x1, y1);
+		p.line(x2, y1, maxX, y1);
+
+		// p.rect(x1, y1, x2, y2);
 
 		drawHandle();
 
@@ -100,6 +116,8 @@ public class DraggableRect implements MouseListener, MouseMotionListener,
 		float hx = x1, hy = (y1 + y2) / 2;
 		int linew = 2, gap = 3;
 
+		p.strokeWeight(1);
+		p.stroke(0);
 		p.ellipseMode(PConstants.CENTER);
 		p.fill(180);
 

@@ -32,7 +32,7 @@ public class PTimeSeries extends PApplet implements LegendListener {
 	List<TimeSeriesPlot> detailPlotList;
 	List<Integer> weightList;
 
-	float overviewWeight = 0.6f;
+	float overviewWeight = 0.4f;
 
 	public PTimeSeries() {
 		this.detailPlotList = new ArrayList<TimeSeriesPlot>();
@@ -95,6 +95,13 @@ public class PTimeSeries extends PApplet implements LegendListener {
 		overviewPlot.setColors(colorArr);
 		for (TimeSeriesPlot plot : detailPlotList)
 			plot.setColors(colorArr);
+	}
+
+	public void setDrawGrid(boolean isDrawGrid) {
+		overviewPlot.setDrawGrid(isDrawGrid);
+		for (TimeSeriesPlot plot : detailPlotList)
+			plot.setDrawGrid(isDrawGrid);
+
 	}
 
 	public void setup() {
