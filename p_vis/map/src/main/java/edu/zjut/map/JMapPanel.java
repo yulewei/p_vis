@@ -98,8 +98,15 @@ public class JMapPanel extends JXMapViewerX {
 
 		highlightOverlay = new Painter<JXMapViewer>() {
 			public void paint(Graphics2D g, JXMapViewer map, int w, int h) {
-				if (indexListener.curOverlayIndex != -1) {
-					Overlay marker = markers.get(indexListener.curOverlayIndex);
+//				if (indexListener.curOverlayIndex != -1) {
+//					Overlay marker = markers.get(indexListener.curOverlayIndex);
+//					String text = marker.getTitle();
+//					drawTooltip(g, text, indexListener.mouseX,
+//							indexListener.mouseY, new Color(1.0f, 1.0f, 0.8f));
+//				}
+				
+				if (indexListener.indicationOverlay != null) {
+					Overlay marker = indexListener.indicationOverlay;
 					String text = marker.getTitle();
 					drawTooltip(g, text, indexListener.mouseX,
 							indexListener.mouseY, new Color(1.0f, 1.0f, 0.8f));
@@ -420,10 +427,12 @@ public class JMapPanel extends JXMapViewerX {
 		int mouseX;
 		int mouseY;
 
+		Overlay indicationOverlay = null;
 		int curOverlayIndex = -1;
 
 		@Override
 		public void mouseMoved(MouseEvent e) {
+			indicationOverlay = null;
 			curOverlayIndex = -1;
 			mouseX = e.getX();
 			mouseY = e.getY();
@@ -432,6 +441,7 @@ public class JMapPanel extends JXMapViewerX {
 				Overlay overlay = markers.get(i);
 				if (overlay.contains(JMapPanel.this, mouseX, mouseY)) {
 					curOverlayIndex = i;
+					indicationOverlay = overlay;
 				}
 			}
 
@@ -449,7 +459,10 @@ public class JMapPanel extends JXMapViewerX {
 				Overlay overlay = layer.containOverlay(JMapPanel.this, mouseX,
 						mouseY);
 				if (overlay != null)
+				{
 					overlay.setHighlighted(true);
+					indicationOverlay = overlay;
+				}
 			}
 
 			repaint();

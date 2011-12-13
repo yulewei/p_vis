@@ -56,6 +56,7 @@ public class EsriJSONParser {
 			e.printStackTrace();
 		} catch (JSONException e) {
 			e.printStackTrace();
+			System.err.println(fileName);
 		}
 	}
 
@@ -78,11 +79,15 @@ public class EsriJSONParser {
 
 			int objectId = (Integer) jsonattributes.get("OBJECTID");
 
-			String name = (String) jsonattributes.get(displayFieldName
-					.toUpperCase());
+			String name = "";
+			try {
+				name = jsonattributes.get(displayFieldName.toUpperCase())
+						.toString();
+			} catch (JSONException e) {
+				name = jsonattributes.get(displayFieldName).toString();
+			}
 
 			JSONObject jsongeometry = (JSONObject) object.get("geometry");
-
 			Geometry geometry = parseGeometry(jsongeometry);
 			features[i] = new EsriFeatureObj(objectId, name, geometry);
 		}
@@ -151,7 +156,7 @@ public class EsriJSONParser {
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws JSONException, IOException {
-		String fileName = "map/44.json";
+		String fileName = "map/5.json";
 		EsriJSONParser parser = new EsriJSONParser(fileName);
 		EsriFeatureObj[] features = parser.getFeatures();
 
