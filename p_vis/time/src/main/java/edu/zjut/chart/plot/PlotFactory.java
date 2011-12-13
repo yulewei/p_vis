@@ -12,6 +12,8 @@ public class PlotFactory {
 			return new PointRenderer(p, timeSeries);
 		case LINE:
 			return new LineRenderer(p, timeSeries);
+		case CURVE:
+			return new CurveRenderer(p, timeSeries);
 		case BAR:
 			return new BarRenderer(p, timeSeries);
 		case AREA:
@@ -22,4 +24,22 @@ public class PlotFactory {
 
 		return null;
 	}
+
+	public static ChartType parseType(TimeSeriesPlot plot) {
+		if (plot instanceof PointRenderer)
+			return ChartType.POINT;
+		if (plot instanceof LineRenderer)
+			return ChartType.LINE;
+		if (plot instanceof CurveRenderer)
+			return ChartType.CURVE;
+		if (plot instanceof BarRenderer)
+			return ChartType.BAR;
+		if (plot instanceof AreaRenderer)
+			return ChartType.AREA;
+		if (plot instanceof AreaStackedRenderer)
+			return ChartType.AREA_STACKED;
+
+		return null;
+	}
+
 }

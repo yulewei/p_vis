@@ -109,15 +109,27 @@
 	<time>
 		<series>
 			<fileName>hz_data/sale_data.csv</fileName>
+			<name>均价</name>
 			<dateCol>0</dateCol>
 			<groupCol>3</groupCol>
 			<valueCol>6</valueCol>
+			<summaryType>mean</summaryType>
 		</series>
 		<series>
 			<fileName>hz_data/sale_data.csv</fileName>
+			<name>交易数</name>
 			<dateCol>0</dateCol>
 			<groupCol>3</groupCol>
-			<valueCol>6</valueCol>
+			<valueCol>5</valueCol>
+			<summaryType>sum</summaryType>
+		</series>
+		<series>
+			<fileName>hz_data/sale_data.csv</fileName>
+			<name>预定数</name>
+			<dateCol>0</dateCol>
+			<groupCol>3</groupCol>
+			<valueCol>4</valueCol>
+			<summaryType>sum</summaryType>
 		</series>
 	</time>
 </dataConfig>

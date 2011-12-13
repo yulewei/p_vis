@@ -23,12 +23,36 @@ import edu.zjut.common.data.attr.MeasureField;
 import edu.zjut.common.data.geo.GeoLayer;
 import edu.zjut.common.data.geo.GeometryData;
 import edu.zjut.common.data.time.TimeData;
+import edu.zjut.common.data.time.TimeSeriesCollection;
 import edu.zjut.common.event.DataSetEvent;
 import edu.zjut.common.event.DataSetListener;
 import edu.zjut.common.io.DataSetLoader;
 import edu.zjut.coordination.CoordinationManager;
 
+
+/**
+* This code was edited or generated using CloudGarden's Jigloo
+* SWT/Swing GUI Builder, which is free for non-commercial
+* use. If Jigloo is being used commercially (ie, by a corporation,
+* company or business for any purpose whatever) then you
+* should purchase a license for each developer using Jigloo.
+* Please visit www.cloudgarden.com for details.
+* Use of Jigloo implies acceptance of these licensing terms.
+* A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR
+* THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED
+* LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
+*/
 public class DataWindow extends JPanel implements DataSetListener {
+
+	{
+		//Set Look & Feel
+		try {
+			javax.swing.UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 
 	private static final long serialVersionUID = 1L;
 	final static Logger logger = Logger.getLogger(DataWindow.class.getName());
@@ -122,8 +146,8 @@ public class DataWindow extends JPanel implements DataSetListener {
 		layerList.setVisibleRowCount(10);
 		layerList.setDropMode(DropMode.ON_OR_INSERT);
 		layerList.setDragEnabled(true);
-		layerList.setTransferHandler(new FieldExporter<GeoLayer>(
-				GeoLayer.class));
+		layerList
+				.setTransferHandler(new FieldExporter<GeoLayer>(GeoLayer.class));
 
 		jPanel1.add(new JScrollPane(layerList), BorderLayout.CENTER);
 	}
@@ -175,6 +199,14 @@ public class DataWindow extends JPanel implements DataSetListener {
 
 		layerList.setModel(layerModel);
 
+		List<TimeSeriesCollection> seriesCol = timeData.getSeries();
+		DefaultListModel<String> seriesModel = new DefaultListModel<String>();
+		for (TimeSeriesCollection series : seriesCol) {
+			seriesModel.addElement(series.getName());
+		}
+
+		timeList.setModel(seriesModel);
+
 		repaint();
 	}
 
@@ -195,7 +227,7 @@ public class DataWindow extends JPanel implements DataSetListener {
 		JFrame jframe = new JFrame();
 		jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		jframe.setLocation(100, 100);
-		jframe.setSize(300, 500);
+		jframe.setSize(300, 450);
 		jframe.add(dataWin);
 		jframe.setVisible(true);
 	}

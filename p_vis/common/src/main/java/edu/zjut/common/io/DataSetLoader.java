@@ -179,8 +179,12 @@ public class DataSetLoader {
 		for (Series series : configSeriesList) {
 			TimeSeriesCollection timeSeries = null;
 			try {
+
+				SummaryType summaryType = SummaryType
+						.valueOf(series.summaryType.toUpperCase());
 				timeSeries = TimeSeriesLoader.loadDataSet(series.fileName,
-						series.dateCol, series.groupCol, series.valueCol, true);
+						series.name, series.dateCol, series.groupCol,
+						series.valueCol, summaryType);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

@@ -32,19 +32,20 @@ public class PTimeSeries extends PApplet implements LegendListener {
 	List<TimeSeriesPlot> detailPlotList;
 	List<Integer> weightList;
 
-	float overviewWeight = 0.4f;
+	float overviewWeight = 0.6f;
 
 	public PTimeSeries() {
 		this.detailPlotList = new ArrayList<TimeSeriesPlot>();
 		this.weightList = new ArrayList<Integer>();
 	}
 
-	public void setSeries(TimeSeriesPlot overviewPlot, TimeSeriesPlot detailPlot) {
-		setOverviewPlot(overviewPlot);
+	public void setSeries(List<TimeSeriesPlot> plots) {
+		setOverviewPlot(plots.get(0));
 
 		detailPlotList.clear();
 		weightList.clear();
-		addDetailPlot(detailPlot, 1);
+
+		setDetailPlots(plots.subList(1, plots.size()));
 	}
 
 	public void setOverviewPlot(TimeSeriesPlot subplot) {
@@ -55,9 +56,34 @@ public class PTimeSeries extends PApplet implements LegendListener {
 		this.cover = new DraggableRect(this, 0, range - 1);
 	}
 
+	public TimeSeriesPlot getOverviewPlot() {
+		return overviewPlot;
+	}
+
+	public void setDetailPlots(List<TimeSeriesPlot> detailPlotList) {
+		this.detailPlotList = detailPlotList;
+		weightList.clear();
+		for (int i = 0; i < detailPlotList.size(); i++) {
+			weightList.add(1);
+		}
+	}
+
+	public List<TimeSeriesPlot> getDetailPlots() {
+		return detailPlotList;
+	}
+
+	public void setDetailPlot(int index, TimeSeriesPlot detailPlot) {
+		detailPlot.setColors(colorArr);
+		detailPlotList.set(index, detailPlot);
+	}
+
 	public void setOverviewRange(int left, int right) {
-		this.cover.setLeftIndex(left);
-		this.cover.setRightIndex(right);
+		cover.setLeftIndex(left);
+		cover.setRightIndex(right);
+	}
+
+	public int[] getOverviewRange() {
+		return new int[] { cover.getLeftIndex(), cover.getRightIndex() };
 	}
 
 	/**
@@ -69,6 +95,11 @@ public class PTimeSeries extends PApplet implements LegendListener {
 	public void addDetailPlot(TimeSeriesPlot subplot, int weight) {
 		detailPlotList.add(subplot);
 		weightList.add(weight);
+	}
+
+	public void removeDetailPlot(int index) {
+		detailPlotList.remove(index);
+		weightList.remove(index);
 	}
 
 	/**
@@ -188,4 +219,5 @@ public class PTimeSeries extends PApplet implements LegendListener {
 			colorArr[i] = cTable.findColour(i + 1);
 		}
 	}
+
 }

@@ -66,6 +66,7 @@ public abstract class TimeSeriesPlot extends Plot {
 	float axisValueMin, axisValueMax;
 
 	private boolean isIncludeZero = false;
+	private boolean isShowTitle = true;
 	private boolean isShowLabel = false;
 	private boolean isShowHighlight = true;
 
@@ -107,10 +108,10 @@ public abstract class TimeSeriesPlot extends Plot {
 			intervalMinor = interval;
 		}
 
-		// TODO 坐标轴包含0		
+		// TODO 坐标轴包含0
 		axisValueMin = 0;
 		axisValueMax = PApplet.ceil(valueMax / interval) * interval;
-		
+
 		valueAxis = new NumberAxis(p);
 		valueAxis.axisData(axisValueMin, axisValueMax);
 		valueAxis.interval(interval);
@@ -199,6 +200,13 @@ public abstract class TimeSeriesPlot extends Plot {
 		if (isShowHighlight)
 			drawDataHighlight();
 
+		if (isShowTitle) {
+			p.fill(50);
+			p.textSize(14);
+			p.textAlign(PConstants.RIGHT, PConstants.TOP);
+			p.text(series.getName(), plotX2 - 2, plotY1 - 2);
+		}
+
 		p.popStyle();
 	}
 
@@ -232,9 +240,9 @@ public abstract class TimeSeriesPlot extends Plot {
 				if (time.compareTo(visualMin) >= 0
 						&& time.compareTo(visualMax) <= 0) {
 					Float value = ts.getValue(row);
-					if(value==null)
+					if (value == null)
 						continue;
-					
+
 					float x = PApplet.map(time.getSerialIndex(),
 							visualMin.getSerialIndex(),
 							visualMax.getSerialIndex(), plotX1, plotX2);
@@ -309,7 +317,7 @@ public abstract class TimeSeriesPlot extends Plot {
 	public void setTimeAxis(DateAxis timeAxis) {
 		this.timeAxis = timeAxis;
 	}
-	
+
 	public boolean isDrawGrid() {
 		return timeAxis.isDrawGrid();
 	}

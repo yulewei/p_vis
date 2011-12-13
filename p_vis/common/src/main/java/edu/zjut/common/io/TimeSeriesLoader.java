@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 
 import au.com.bytecode.opencsv.CSVReader;
+import edu.zjut.common.data.attr.SummaryType;
 import edu.zjut.common.data.time.TimePeriod;
 import edu.zjut.common.data.time.TimeSeriesCollection;
 import edu.zjut.common.data.time.TimeSeriesData;
@@ -46,13 +47,34 @@ public class TimeSeriesLoader {
 	}
 
 	/**
+	 * 目前只支持两种summary类型
+	 */
+	private static double calcSummary(List<Record> records,
+			SummaryType summaryType) {
+		if (summaryType == SummaryType.SUM || summaryType == SummaryType.MEAN) {
+			double sum = 0;
+			int count = records.size();
+			for (Record r : records) {
+				sum += r.value;
+			}
+
+			if (summaryType == SummaryType.SUM)
+				return sum;
+			if (summaryType == SummaryType.MEAN)
+				return sum / count;
+		}
+
+		return records.size();
+	}
+
+	/**
 	 * 构建时间序列数据
 	 * 
 	 * @param records
 	 * @return
 	 */
 	private static TimeSeriesData buildTimeSeries(List<Record> records,
-			String curGroup, boolean avg) {
+			String curGroup, SummaryType summaryType) {
 		TimeSeriesData timeSeries = new TimeSeriesData("", curGroup);
 
 		Calendar c = Calendar.getInstance();
@@ -71,14 +93,9 @@ public class TimeSeriesLoader {
 			} else if (curYearMonth == yearMonth) {
 				recordsGroup.add(record);
 			} else {
-				double sum = 0;
-				int count = avg ? recordsGroup.size() : 1;
-				for (Record r : recordsGroup) {
-					sum += r.value;
-				}
-
+				float value = (float) calcSummary(recordsGroup, summaryType);
 				timeSeries.add(new TimePeriod(curYearMonth / 100,
-						curYearMonth % 100), (float) (sum / count));
+						curYearMonth % 100), value);
 
 				curYearMonth = yearMonth;
 				recordsGroup = new ArrayList<>();
@@ -89,9 +106,9 @@ public class TimeSeriesLoader {
 		return timeSeries;
 	}
 
-	public static TimeSeriesCollection loadDataSet(String infile, int dateCol,
-			int groupCol, int valueCol, boolean avg) throws IOException,
-			ParseException {
+	public static TimeSeriesCollection loadDataSet(String infile, String name,
+			int dateCol, int groupCol, int valueCol, SummaryType summaryType)
+			throws IOException, ParseException {
 
 		CSVReader reader = new CSVReader(new FileReader(infile));
 		List<String[]> list = reader.readAll();
@@ -122,14 +139,15 @@ public class TimeSeriesLoader {
 				recordsGroup.add(record);
 			} else {
 				timeSeriesList
-						.add(buildTimeSeries(recordsGroup, curGroup, avg));
+						.add(buildTimeSeries(recordsGroup, curGroup, summaryType));
 				curGroup = record.group;
 				recordsGroup = new ArrayList<>();
 				recordsGroup.add(record);
 			}
 		}
 
-		TimeSeriesCollection dataset = new TimeSeriesCollection(TimeType.MONTH);
+		TimeSeriesCollection dataset = new TimeSeriesCollection(name,
+				TimeType.MONTH,summaryType);
 		for (TimeSeriesData timeSeries : timeSeriesList) {
 			dataset.addSeries(timeSeries);
 		}

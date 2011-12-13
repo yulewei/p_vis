@@ -3,8 +3,12 @@ package edu.zjut.common.data.time;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.zjut.common.data.attr.SummaryType;
+
 public class TimeSeriesCollection {
 
+	private String name;
+	private SummaryType summaryType;
 	private TimeType type;
 	private List<TimeSeriesData> seriesList;
 
@@ -13,8 +17,11 @@ public class TimeSeriesCollection {
 	private float valueMin;
 	private float valueMax;
 
-	public TimeSeriesCollection(TimeType type) {
+	public TimeSeriesCollection(String name, TimeType type,
+			SummaryType summaryType) {
+		this.name = name;
 		this.type = type;
+		this.summaryType = summaryType;
 		seriesList = new ArrayList<TimeSeriesData>();
 	}
 
@@ -56,6 +63,18 @@ public class TimeSeriesCollection {
 		}
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public SummaryType getSummaryType() {
+		return summaryType;
+	}
+
 	public TimePeriod getTimeMin() {
 		return timeMin;
 	}
@@ -95,5 +114,9 @@ public class TimeSeriesCollection {
 		}
 
 		return names;
+	}
+
+	public String toString() {
+		return name;
 	}
 }

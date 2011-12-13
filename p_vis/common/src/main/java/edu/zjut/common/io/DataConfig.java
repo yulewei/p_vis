@@ -91,9 +91,11 @@ public class DataConfig {
 	static class Time {
 		static class Series {
 			String fileName;
+			String name;
 			int dateCol;
 			int groupCol;
 			int valueCol;
+			String summaryType;
 		}
 
 		ArrayList<Series> seriesList;

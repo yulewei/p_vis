@@ -17,7 +17,7 @@ public class AreaRenderer extends TimeSeriesPlot {
 		p.noStroke();
 
 		for (int i = 0; i < series.seriesSize(); i++) {
-			p.fill(colorArr[i]);
+			p.fill(colorArr[i], 180);
 			p.beginShape();
 
 			TimeSeriesData ts = series.get(i);

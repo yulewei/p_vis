@@ -13,12 +13,13 @@ import javax.swing.ListCellRenderer;
 
 import edu.zjut.common.data.attr.DimensionField;
 import edu.zjut.common.data.attr.MeasureField;
+import edu.zjut.common.data.geo.GeoLayer;
 
 public class FieldComponent<E> extends JComponent implements
 		ListCellRenderer<E> {
 
 	public static enum ColorEnum {
-		WHITE, GREEN, BLUE, YELLOW;
+		WHITE, GREEN, BLUE, YELLOW, ORANGE;
 
 		public Color[] getColor() {
 			switch (this) {
@@ -36,6 +37,10 @@ public class FieldComponent<E> extends JComponent implements
 				Color yellow = new Color(230, 200, 50);
 				Color darkYellow = new Color(200, 170, 30);
 				return new Color[] { yellow, darkYellow };
+			case ORANGE:
+				Color orange = new Color(230, 180, 100);
+				Color darkOrange = new Color(200, 160, 80);
+				return new Color[] { orange, darkOrange };
 			}
 			return new Color[] { Color.WHITE, Color.WHITE };
 		}
@@ -130,8 +135,10 @@ public class FieldComponent<E> extends JComponent implements
 				color = ColorEnum.GREEN;
 			else if (value instanceof MeasureField)
 				color = ColorEnum.BLUE;
-			else
+			else if (value instanceof GeoLayer)
 				color = ColorEnum.YELLOW;
+			else
+				color = ColorEnum.ORANGE;
 		}
 
 		this.setValue(value);

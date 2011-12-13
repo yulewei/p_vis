@@ -14,6 +14,9 @@ public class TimeSeriesData {
 	private List<TimePeriod> times;
 	private List<Float> values;
 
+	private float valueMin;
+	private float valueMax;
+
 	public TimeSeriesData(String timeName, String valueName) {
 		this.timeName = timeName;
 		this.valueName = valueName;
@@ -36,6 +39,16 @@ public class TimeSeriesData {
 		times.addAll(data.keySet());
 		for (TimePeriod time : times) {
 			values.add(data.get(time));
+		}
+
+		// ×Ý×ø±ê·¶Î§
+		valueMin = Float.MAX_VALUE;
+		valueMax = Float.MIN_VALUE;
+		for (float value : values) {
+			if (value < valueMin)
+				valueMin = value;
+			if (value > valueMax)
+				valueMax = value;
 		}
 
 		// for (TimePeriod time = timeMin; time.compareTo(timeMax) <= 0; time =
@@ -77,11 +90,11 @@ public class TimeSeriesData {
 	}
 
 	public float getValueMin() {
-		return values.get(0);
+		return valueMin;
 	}
 
 	public float getValueMax() {
-		return values.get(values.size() - 1);
+		return valueMax;
 	}
 
 	public TimePeriod getTime(int index) {

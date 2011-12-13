@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -20,6 +21,7 @@ import edu.zjut.chart.plot.ChartType;
 import edu.zjut.chart.plot.PlotFactory;
 import edu.zjut.chart.plot.TimeSeriesPlot;
 import edu.zjut.common.data.DataSetForApps;
+import edu.zjut.common.data.attr.SummaryType;
 import edu.zjut.common.data.time.TimeData;
 import edu.zjut.common.data.time.TimeSeriesCollection;
 import edu.zjut.common.event.DataSetEvent;
@@ -37,6 +39,9 @@ public class TimeSeries extends JPanel implements DataSetListener {
 
 	private JToolBar jToolBar;
 	private JToggleButton sideBarTglbtn;
+	private JToggleButton monthbtn;
+	private JToggleButton quarterbtn;
+	private JToggleButton yearbtn;
 	private JToggleButton allbtn;
 	private JToggleButton gridTgbtn;
 
@@ -65,8 +70,8 @@ public class TimeSeries extends JPanel implements DataSetListener {
 
 		ctrlPanel = new TimeCtrlPanel(this, pTimeSeries);
 		jSplitPane.add(ctrlPanel, JSplitPane.LEFT);
-		
-		jSplitPane.setDividerLocation(150);
+
+		jSplitPane.setDividerLocation(180);
 
 		this.setPreferredSize(new Dimension(800, 600));
 	}
@@ -91,7 +96,7 @@ public class TimeSeries extends JPanel implements DataSetListener {
 					jSplitPane.setDividerSize(0);
 					ctrlPanel.setVisible(false);
 				} else {
-					jSplitPane.setDividerLocation(150);
+					jSplitPane.setDividerLocation(180);
 					jSplitPane.setDividerSize(dividerSize);
 					ctrlPanel.setVisible(true);
 				}
@@ -103,17 +108,72 @@ public class TimeSeries extends JPanel implements DataSetListener {
 		JSeparator separator1 = new JSeparator(SwingConstants.VERTICAL);
 		jToolBar.add(separator1);
 
+		monthbtn = new JToggleButton("Month");
+		monthbtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				if (monthbtn.isSelected()) {
+					int[] range = pTimeSeries.getOverviewRange();
+					int left = range[1] - 1;
+					left = left < 0 ? 0 : left;
+					pTimeSeries.setOverviewRange(left, range[1]);
+					pTimeSeries.redraw();
+				}
+			}
+		});		
+		
+		
+		quarterbtn = new JToggleButton("Quarter");
+		quarterbtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				if (quarterbtn.isSelected()) {
+					int[] range = pTimeSeries.getOverviewRange();
+					int left = range[1] - 4;
+					left = left < 0 ? 0 : left;
+					pTimeSeries.setOverviewRange(left, range[1]);
+					pTimeSeries.redraw();
+				}
+			}
+		});
+
+		
+		yearbtn = new JToggleButton("Year");
+		yearbtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				if (yearbtn.isSelected()) {
+					int[] range = pTimeSeries.getOverviewRange();
+					int left = range[1] - 12;
+					left = left < 0 ? 0 : left;					
+					pTimeSeries.setOverviewRange(left, range[1]);
+					pTimeSeries.redraw();
+				}
+			}
+		});
+
 		allbtn = new JToggleButton("All");
 		allbtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				if (allbtn.isSelected()) {
 					pTimeSeries.setOverviewRange(0,
 							overviewSeries.getTimeRange() - 1);
+					pTimeSeries.redraw();
 				}
 			}
 		});
 
-		jToolBar.add(allbtn);
+		jToolBar.add(monthbtn);
+		jToolBar.add(quarterbtn);
+		jToolBar.add(yearbtn);
+		jToolBar.add(allbtn);		
+		
+		ButtonGroup btnGrupIcon = new ButtonGroup();
+		btnGrupIcon.add(monthbtn);
+		btnGrupIcon.add(quarterbtn);
+		btnGrupIcon.add(yearbtn);
+		btnGrupIcon.add(allbtn);
+
+		JSeparator separator2 = new JSeparator(SwingConstants.VERTICAL);
+		jToolBar.add(separator2);
+
 
 		// 辅助显示, 网格/中心点等
 		gridTgbtn = new JToggleButton();
@@ -135,21 +195,32 @@ public class TimeSeries extends JPanel implements DataSetListener {
 		timeData = dataSet.getTimeData();
 
 		List<TimeSeriesCollection> series = timeData.getSeries();
+		List<ChartType> types = new ArrayList<>();
+		for (TimeSeriesCollection timeSeries : series) {
+			timeSeries.buildTimeSeries();
+			SummaryType summaryType = timeSeries.getSummaryType();
+			if (summaryType == SummaryType.SUM)
+				types.add(ChartType.AREA_STACKED);
+			else
+				types.add(ChartType.LINE);
+		}
 
-		TimeSeriesCollection timeSeries1 = series.get(0);
-		TimeSeriesCollection timeSeries2 = series.get(1);
-		timeSeries1.buildTimeSeries();
-		timeSeries2.buildTimeSeries();
+		overviewSeries = series.get(0);
+		detailSeriesList = series.subList(1, series.size());
 
-		overviewSeries = timeSeries1;
-		detailSeriesList.clear();
-		detailSeriesList.add(timeSeries2);
+		setPlot(series, types);
+		ctrlPanel.setState(series, types);
+	}
 
-		TimeSeriesPlot overviewPlot = PlotFactory.create(ChartType.LINE,
-				pTimeSeries, timeSeries1);
-		TimeSeriesPlot detailPlot = PlotFactory.create(ChartType.AREA_STACKED,
-				pTimeSeries, timeSeries2);
-		pTimeSeries.setSeries(overviewPlot, detailPlot);
+	public void setPlot(List<TimeSeriesCollection> series, List<ChartType> types) {
+		List<TimeSeriesPlot> plots = new ArrayList<TimeSeriesPlot>();
+		for (int i = 0; i < series.size(); i++) {
+			TimeSeriesPlot plot = PlotFactory.create(types.get(i), pTimeSeries,
+					series.get(i));
+			plots.add(plot);
+		}
+
+		pTimeSeries.setSeries(plots);
 	}
 
 	public static void main(String[] args) {
