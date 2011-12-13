@@ -46,6 +46,7 @@ public class JMapPanel extends JXMapViewerX {
 	protected int activeLayer = 0;
 
 	public final int STATUS_BAR_HEIGHT = 25;
+	protected boolean isShowMarkers = true;
 	protected boolean isDrawTileBorders = true;
 	protected boolean isShowStatusBar = true;
 	protected boolean isShowCenterCross = false;
@@ -98,13 +99,6 @@ public class JMapPanel extends JXMapViewerX {
 
 		highlightOverlay = new Painter<JXMapViewer>() {
 			public void paint(Graphics2D g, JXMapViewer map, int w, int h) {
-//				if (indexListener.curOverlayIndex != -1) {
-//					Overlay marker = markers.get(indexListener.curOverlayIndex);
-//					String text = marker.getTitle();
-//					drawTooltip(g, text, indexListener.mouseX,
-//							indexListener.mouseY, new Color(1.0f, 1.0f, 0.8f));
-//				}
-				
 				if (indexListener.indicationOverlay != null) {
 					Overlay marker = indexListener.indicationOverlay;
 					String text = marker.getTitle();
@@ -215,12 +209,14 @@ public class JMapPanel extends JXMapViewerX {
 			list.add(layer.getHighlightOverlayPainter());
 		}
 
-		for (Overlay overlay : markers) {
-			list.add(overlay.getOverlayPainter());
-		}
+		if (isShowMarkers) {
+			for (Overlay overlay : markers) {
+				list.add(overlay.getOverlayPainter());
+			}
 
-		for (Overlay overlay : markers) {
-			list.add(overlay.getHighlightOverlayPainter());
+			for (Overlay overlay : markers) {
+				list.add(overlay.getHighlightOverlayPainter());
+			}
 		}
 
 		list.add(highlightOverlay);
@@ -390,6 +386,16 @@ public class JMapPanel extends JXMapViewerX {
 		}
 	}
 
+	public boolean isShowMarkers() {
+		return isShowMarkers;
+	}
+
+	public void setShowMarkers(boolean isShowMarkers) {
+		this.isShowMarkers = isShowMarkers;
+
+		updateOverlayPainterList();
+	}
+
 	public boolean isShowCenterCross() {
 		return isShowCenterCross;
 	}
@@ -433,24 +439,19 @@ public class JMapPanel extends JXMapViewerX {
 		@Override
 		public void mouseMoved(MouseEvent e) {
 			indicationOverlay = null;
-			curOverlayIndex = -1;
 			mouseX = e.getX();
 			mouseY = e.getY();
 
-			for (int i = 0; i < markers.size(); i++) {
-				Overlay overlay = markers.get(i);
-				if (overlay.contains(JMapPanel.this, mouseX, mouseY)) {
-					curOverlayIndex = i;
-					indicationOverlay = overlay;
-				}
-			}
-
-			for (int i = 0; i < markers.size(); i++) {
-				Overlay overlay = markers.get(i);
-				if (i != curOverlayIndex)
+			if (isShowMarkers) {
+				for (int i = 0; i < markers.size(); i++) {
+					Overlay overlay = markers.get(i);
 					overlay.setHighlighted(false);
-				else
-					overlay.setHighlighted(true);
+					if (overlay.contains(JMapPanel.this, mouseX, mouseY)) {
+						overlay.setHighlighted(true);
+						curOverlayIndex = i;
+						indicationOverlay = overlay;
+					}
+				}
 			}
 
 			for (int i = 0; i < layers.size(); i++) {
@@ -458,8 +459,7 @@ public class JMapPanel extends JXMapViewerX {
 				layer.setHighlighted(false);
 				Overlay overlay = layer.containOverlay(JMapPanel.this, mouseX,
 						mouseY);
-				if (overlay != null)
-				{
+				if (overlay != null) {
 					overlay.setHighlighted(true);
 					indicationOverlay = overlay;
 				}

@@ -66,6 +66,9 @@ public class GeoMap extends JPanel implements DataSetListener,
 	private JToggleButton circleTglbtn;
 	private JToggleButton markerTglbtn;
 	private JToggleButton iconTglbtn;
+	private JToggleButton visibleTglbtn;
+	private ImageIcon visibleOn;
+	private ImageIcon visibleOff;
 
 	private JToggleButton moveTglbtn;
 	private JButton zoomInTglbtn;
@@ -210,6 +213,29 @@ public class GeoMap extends JPanel implements DataSetListener,
 		JSeparator separator2 = new JSeparator(SwingConstants.VERTICAL);
 		jToolBar.add(separator2);
 
+		// markers是否可见
+		visibleTglbtn = new JToggleButton();
+		visibleTglbtn.setSelected(true);
+		visibleOn = new ImageIcon(getClass().getResource("visible-on.png"));
+		visibleOff = new ImageIcon(getClass().getResource("visible-off.png"));
+		visibleTglbtn.setIcon(visibleOn);
+		visibleTglbtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				if (visibleTglbtn.isSelected()) {
+					visibleTglbtn.setIcon(visibleOn);
+					mapPanel.setShowMarkers(true);
+				} else {
+					visibleTglbtn.setIcon(visibleOff);
+					mapPanel.setShowMarkers(false);
+				}
+				mapPanel.repaint();
+			}
+		});
+
+		jToolBar.add(visibleTglbtn);
+		JSeparator separator3 = new JSeparator(SwingConstants.VERTICAL);
+		jToolBar.add(separator3);
+
 		// 平移与缩放, pan + zoom
 		moveTglbtn = new JToggleButton();
 		moveTglbtn.setIcon(new ImageIcon(getClass().getResource("move.png")));
@@ -256,8 +282,8 @@ public class GeoMap extends JPanel implements DataSetListener,
 		btnGrupZoom.add(zoomFitTglbtn);
 		btnGrupZoom.add(zoomOutTglbtn);
 
-		JSeparator separator3 = new JSeparator(SwingConstants.VERTICAL);
-		jToolBar.add(separator3);
+		JSeparator separator4 = new JSeparator(SwingConstants.VERTICAL);
+		jToolBar.add(separator4);
 
 		// 选择模式
 		selectTglbtn = new JToggleButton();
@@ -311,8 +337,8 @@ public class GeoMap extends JPanel implements DataSetListener,
 		btnGrupSelect.add(selectEllpTgbtn);
 		btnGrupSelect.add(selectLassoTgbtn);
 
-		JSeparator separator4 = new JSeparator(SwingConstants.VERTICAL);
-		jToolBar.add(separator4);
+		JSeparator separator5 = new JSeparator(SwingConstants.VERTICAL);
+		jToolBar.add(separator5);
 
 		// 地图辅助显示, 网格/中心点等
 		gridTgbtn = new JToggleButton();
@@ -337,8 +363,8 @@ public class GeoMap extends JPanel implements DataSetListener,
 		jToolBar.add(gridTgbtn);
 		jToolBar.add(crossTgbtn);
 
-		JSeparator separator5 = new JSeparator(SwingConstants.VERTICAL);
-		jToolBar.add(separator5);
+		JSeparator separator6 = new JSeparator(SwingConstants.VERTICAL);
+		jToolBar.add(separator6);
 
 		// 聚类
 		clusterTgbtn = new JToggleButton();
