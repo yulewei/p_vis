@@ -12,6 +12,8 @@ public class DateAxis extends Axis {
 
 	private DateFormat yearFormat = new SimpleDateFormat("yyyy");
 	private DateFormat mouthFormat = new SimpleDateFormat("yyyy.MM");
+	private DateFormat dayFormat = new SimpleDateFormat("yyyy.MM.dd");
+
 	private DateFormat dateFormat;
 
 	TimePeriod timeMin, timeMax;
@@ -46,6 +48,8 @@ public class DateAxis extends Axis {
 				dateFormat = yearFormat;
 			if (type == TimeType.MONTH)
 				dateFormat = mouthFormat;
+			if (type == TimeType.DATE)
+				dateFormat = dayFormat;
 		}
 
 		// ×îÐ¡¼ä¾à10ÏñËØ
@@ -151,7 +155,6 @@ public class DateAxis extends Axis {
 	@Override
 	protected void drawVer() {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override

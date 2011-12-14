@@ -24,6 +24,7 @@ import edu.zjut.common.data.DataSetForApps;
 import edu.zjut.common.data.attr.SummaryType;
 import edu.zjut.common.data.time.TimeData;
 import edu.zjut.common.data.time.TimeSeriesCollection;
+import edu.zjut.common.data.time.TimeType;
 import edu.zjut.common.event.DataSetEvent;
 import edu.zjut.common.event.DataSetListener;
 
@@ -39,8 +40,9 @@ public class TimeSeries extends JPanel implements DataSetListener {
 
 	private JToolBar jToolBar;
 	private JToggleButton sideBarTglbtn;
+
+	private JToggleButton datebtn;
 	private JToggleButton monthbtn;
-	private JToggleButton quarterbtn;
 	private JToggleButton yearbtn;
 	private JToggleButton allbtn;
 	private JToggleButton gridTgbtn;
@@ -108,42 +110,32 @@ public class TimeSeries extends JPanel implements DataSetListener {
 		JSeparator separator1 = new JSeparator(SwingConstants.VERTICAL);
 		jToolBar.add(separator1);
 
-		monthbtn = new JToggleButton("Month");
-		monthbtn.addActionListener(new ActionListener() {
+		datebtn = new JToggleButton("Date");
+		datebtn.setSelected(true);
+		datebtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
-				if (monthbtn.isSelected()) {
-					int[] range = pTimeSeries.getOverviewRange();
-					int left = range[1] - 1;
-					left = left < 0 ? 0 : left;
-					pTimeSeries.setOverviewRange(left, range[1]);
-					pTimeSeries.redraw();
-				}
-			}
-		});		
-		
-		
-		quarterbtn = new JToggleButton("Quarter");
-		quarterbtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent evt) {
-				if (quarterbtn.isSelected()) {
-					int[] range = pTimeSeries.getOverviewRange();
-					int left = range[1] - 4;
-					left = left < 0 ? 0 : left;
-					pTimeSeries.setOverviewRange(left, range[1]);
+				if (datebtn.isSelected()) {
+					reBuildTimeSeries(TimeType.DATE);
 					pTimeSeries.redraw();
 				}
 			}
 		});
 
-		
+		monthbtn = new JToggleButton("Month");
+		monthbtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				if (monthbtn.isSelected()) {
+					reBuildTimeSeries(TimeType.MONTH);
+					pTimeSeries.redraw();
+				}
+			}
+		});
+
 		yearbtn = new JToggleButton("Year");
 		yearbtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				if (yearbtn.isSelected()) {
-					int[] range = pTimeSeries.getOverviewRange();
-					int left = range[1] - 12;
-					left = left < 0 ? 0 : left;					
-					pTimeSeries.setOverviewRange(left, range[1]);
+					reBuildTimeSeries(TimeType.YEAR);
 					pTimeSeries.redraw();
 				}
 			}
@@ -160,20 +152,19 @@ public class TimeSeries extends JPanel implements DataSetListener {
 			}
 		});
 
+		jToolBar.add(datebtn);
 		jToolBar.add(monthbtn);
-		jToolBar.add(quarterbtn);
 		jToolBar.add(yearbtn);
-		jToolBar.add(allbtn);		
-		
+		jToolBar.add(allbtn);
+
 		ButtonGroup btnGrupIcon = new ButtonGroup();
+		btnGrupIcon.add(datebtn);
 		btnGrupIcon.add(monthbtn);
-		btnGrupIcon.add(quarterbtn);
 		btnGrupIcon.add(yearbtn);
 		btnGrupIcon.add(allbtn);
 
 		JSeparator separator2 = new JSeparator(SwingConstants.VERTICAL);
 		jToolBar.add(separator2);
-
 
 		// 辅助显示, 网格/中心点等
 		gridTgbtn = new JToggleButton();
@@ -210,6 +201,34 @@ public class TimeSeries extends JPanel implements DataSetListener {
 
 		setPlot(series, types);
 		ctrlPanel.setState(series, types);
+	}
+
+	public void reBuildTimeSeries(TimeType timeType) {
+		TimeSeriesPlot oldOPlot = pTimeSeries.getOverviewPlot();
+		TimeSeriesCollection oseries = oldOPlot.getSeries();
+		oseries.setTimeType(timeType);
+		oseries.buildTimeSeries();
+
+		ChartType otype = PlotFactory.parseType(oldOPlot);
+		TimeSeriesPlot newOPlot = PlotFactory.create(otype, pTimeSeries,
+				oseries);
+		pTimeSeries.setOverviewPlot(newOPlot);
+
+		List<TimeSeriesPlot> oldDPlots = pTimeSeries.getDetailPlots();
+		List<TimeSeriesPlot> newDPlots = new ArrayList<TimeSeriesPlot>();
+		for (TimeSeriesPlot plot : oldDPlots) {
+			TimeSeriesCollection series = plot.getSeries();
+			series.setTimeType(timeType);
+			series.buildTimeSeries();
+
+			ChartType type = PlotFactory.parseType(plot);
+			TimeSeriesPlot newDPlot = PlotFactory.create(type, pTimeSeries,
+					series);
+
+			newDPlots.add(newDPlot);
+		}
+
+		pTimeSeries.setDetailPlots(newDPlots);
 	}
 
 	public void setPlot(List<TimeSeriesCollection> series, List<ChartType> types) {

@@ -31,6 +31,8 @@ public abstract class TimeSeriesPlot extends Plot {
 	public final static DateFormat YEAR_FORMAT = new SimpleDateFormat("yyyy");
 	public final static DateFormat MOUTH_FORMAT = new SimpleDateFormat(
 			"yyyy.MM");
+	public final static DateFormat DAY_FORMAT = new SimpleDateFormat(
+			"yyyy.MM.dd");
 
 	protected DateFormat dateFormat;
 	protected NumberFormat numberFormat = new DecimalFormat("0");
@@ -79,6 +81,8 @@ public abstract class TimeSeriesPlot extends Plot {
 			dateFormat = YEAR_FORMAT;
 		if (series.getTimeType() == TimeType.MONTH)
 			dateFormat = MOUTH_FORMAT;
+		if (series.getTimeType() == TimeType.DATE)
+			dateFormat = DAY_FORMAT;
 
 		calcRange();
 

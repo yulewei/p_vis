@@ -7,9 +7,10 @@ import edu.zjut.common.data.attr.SummaryType;
 
 public class TimeSeriesCollection {
 
+	private TimeType timeType = TimeType.DATE;
+
 	private String name;
 	private SummaryType summaryType;
-	private TimeType type;
 	private List<TimeSeriesData> seriesList;
 
 	private TimePeriod timeMin;
@@ -17,10 +18,8 @@ public class TimeSeriesCollection {
 	private float valueMin;
 	private float valueMax;
 
-	public TimeSeriesCollection(String name, TimeType type,
-			SummaryType summaryType) {
+	public TimeSeriesCollection(String name, SummaryType summaryType) {
 		this.name = name;
-		this.type = type;
 		this.summaryType = summaryType;
 		seriesList = new ArrayList<TimeSeriesData>();
 	}
@@ -34,7 +33,7 @@ public class TimeSeriesCollection {
 	}
 
 	/**
-	 * 多个时间序列数据整合. 由于时间分布并不完全一致, 最小时间, 最大时间, 缺失值
+	 * 
 	 */
 	public void buildTimeSeries() {
 
@@ -45,7 +44,9 @@ public class TimeSeriesCollection {
 		valueMin = Float.MAX_VALUE;
 		valueMax = Float.MIN_VALUE;
 		for (TimeSeriesData series : seriesList) {
-			series.build();
+			
+			// 根据当前的时间粒度, 重新计算
+			series.build(timeType, summaryType);
 
 			TimePeriod tmin = series.getTimeMin();
 			TimePeriod tmax = series.getTimeMax();
@@ -100,11 +101,15 @@ public class TimeSeriesCollection {
 	}
 
 	public int getTimeRange() {
-		return timeMax.subtract(timeMin) + 1;
+		return timeMax.subtract(timeType, timeMin) + 1;
+	}
+
+	public void setTimeType(TimeType timeType) {
+		this.timeType = timeType;
 	}
 
 	public TimeType getTimeType() {
-		return type;
+		return timeType;
 	}
 
 	public String[] getNames() {

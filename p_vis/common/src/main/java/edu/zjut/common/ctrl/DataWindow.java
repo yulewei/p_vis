@@ -29,30 +29,17 @@ import edu.zjut.common.event.DataSetListener;
 import edu.zjut.common.io.DataSetLoader;
 import edu.zjut.coordination.CoordinationManager;
 
-
-/**
-* This code was edited or generated using CloudGarden's Jigloo
-* SWT/Swing GUI Builder, which is free for non-commercial
-* use. If Jigloo is being used commercially (ie, by a corporation,
-* company or business for any purpose whatever) then you
-* should purchase a license for each developer using Jigloo.
-* Please visit www.cloudgarden.com for details.
-* Use of Jigloo implies acceptance of these licensing terms.
-* A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR
-* THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED
-* LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
-*/
 public class DataWindow extends JPanel implements DataSetListener {
 
 	{
-		//Set Look & Feel
+		// Set Look & Feel
 		try {
-			javax.swing.UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
-		} catch(Exception e) {
+			javax.swing.UIManager
+					.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-
 
 	private static final long serialVersionUID = 1L;
 	final static Logger logger = Logger.getLogger(DataWindow.class.getName());
@@ -69,7 +56,7 @@ public class DataWindow extends JPanel implements DataSetListener {
 	FieldList<DimensionField> dimensionList;
 	FieldList<MeasureField> measureList;
 	FieldList<GeoLayer> layerList;
-	FieldList<String> timeList;
+	FieldList<TimeSeriesCollection> timeList;
 
 	public DataWindow() {
 		super();
@@ -165,7 +152,12 @@ public class DataWindow extends JPanel implements DataSetListener {
 		timeLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		jPanel1.add(timeLabel, BorderLayout.NORTH);
 
-		timeList = new FieldList<String>();
+		timeList = new FieldList<TimeSeriesCollection>();
+		timeList.setDropMode(DropMode.ON_OR_INSERT);
+		timeList.setDragEnabled(true);
+		timeList.setTransferHandler(new FieldExporter<TimeSeriesCollection>(
+				TimeSeriesCollection.class));
+
 		jPanel1.add(timeList, BorderLayout.CENTER);
 	}
 
@@ -200,9 +192,9 @@ public class DataWindow extends JPanel implements DataSetListener {
 		layerList.setModel(layerModel);
 
 		List<TimeSeriesCollection> seriesCol = timeData.getSeries();
-		DefaultListModel<String> seriesModel = new DefaultListModel<String>();
+		DefaultListModel<TimeSeriesCollection> seriesModel = new DefaultListModel<>();
 		for (TimeSeriesCollection series : seriesCol) {
-			seriesModel.addElement(series.getName());
+			seriesModel.addElement(series);
 		}
 
 		timeList.setModel(seriesModel);

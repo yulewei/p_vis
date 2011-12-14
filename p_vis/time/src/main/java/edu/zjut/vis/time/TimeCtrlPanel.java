@@ -16,12 +16,14 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SpringLayout;
+import javax.swing.TransferHandler;
 
-import edu.zjut.chart.plot.PlotFactory;
 import edu.zjut.chart.plot.ChartType;
+import edu.zjut.chart.plot.PlotFactory;
 import edu.zjut.chart.plot.TimeSeriesPlot;
 import edu.zjut.common.ctrl.FieldComponent;
 import edu.zjut.common.ctrl.FieldComponent.ColorEnum;
+import edu.zjut.common.ctrl.FieldImporter;
 import edu.zjut.common.data.time.TimeSeriesCollection;
 
 public class TimeCtrlPanel extends JPanel {
@@ -179,6 +181,27 @@ public class TimeCtrlPanel extends JPanel {
 		pTimeSeries.redraw();
 	}
 
+	public void timeSeriesChanged(int index, TimeSeriesCollection series) {
+		if (index == 0) {
+			TimeSeriesPlot oldPlot = pTimeSeries.getOverviewPlot();
+			ChartType type = PlotFactory.parseType(oldPlot);
+			TimeSeriesPlot plot = PlotFactory.create(type, pTimeSeries, series);
+			pTimeSeries.setOverviewPlot(plot);
+		} else {
+			index--;
+
+			TimeSeriesPlot oldPlot = pTimeSeries.getDetailPlots().get(index);
+			ChartType type = PlotFactory.parseType(oldPlot);
+
+			TimeSeriesPlot detailPlot = PlotFactory.create(type, pTimeSeries,
+					series);
+			pTimeSeries.setDetailPlot(index, detailPlot);
+		}
+
+		repaint();
+		pTimeSeries.redraw();
+	}
+
 	public class SeriesPanel extends JPanel {
 		private int index;
 
@@ -201,6 +224,9 @@ public class TimeCtrlPanel extends JPanel {
 			setLayout(springLayout);
 
 			seriesComp = new FieldComponent<TimeSeriesCollection>();
+			seriesComp
+					.setTransferHandler(new SeriesImporter(seriesComp, index));
+
 			this.add(seriesComp);
 
 			seriesLbl = new JLabel();
@@ -256,6 +282,34 @@ public class TimeCtrlPanel extends JPanel {
 					SpringLayout.SOUTH, typeComboBox);
 			springLayout.putConstraint(SpringLayout.WEST, typeLabel, 0,
 					SpringLayout.WEST, seriesLbl);
+		}
+	}
+
+	public class SeriesImporter extends FieldImporter<TimeSeriesCollection> {
+
+		private int index;
+		private FieldComponent<TimeSeriesCollection> seriesComp;
+
+		public SeriesImporter(FieldComponent<TimeSeriesCollection> seriesComp,
+				int index) {
+			super(TimeSeriesCollection.class);
+			this.seriesComp = seriesComp;
+			this.index = index;
+		}
+
+		public boolean importData(TransferHandler.TransferSupport support) {
+			getTransferData(support);
+
+			List<TimeSeriesCollection> values = data.getValues();
+			if (!values.isEmpty()) {
+				TimeSeriesCollection series = values.get(0);
+
+				seriesComp.setValue(series);
+				seriesComp.setColor(ColorEnum.ORANGE);
+				timeSeriesChanged(index, series);
+			}
+
+			return true;
 		}
 	}
 }

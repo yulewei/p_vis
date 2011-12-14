@@ -68,7 +68,7 @@ public class TimeSeriesLoader {
 	}
 
 	/**
-	 * 构建时间序列数据
+	 * 构建时间序列数据, 时间最小粒度为日期
 	 * 
 	 * @param records
 	 * @return
@@ -77,27 +77,22 @@ public class TimeSeriesLoader {
 			String curGroup, SummaryType summaryType) {
 		TimeSeriesData timeSeries = new TimeSeriesData("", curGroup);
 
-		Calendar c = Calendar.getInstance();
+		// 汇总同一天的数据
 		List<Record> recordsGroup = null;
-		int curYearMonth = -1;
+		TimePeriod curDate = null;
 		for (int i = 0; i < records.size(); i++) {
 			Record record = records.get(i);
-			c.setTime(record.date);
-			int yearMonth = c.get(Calendar.YEAR) * 100 + c.get(Calendar.MONTH)
-					+ 1;
-
-			if (curYearMonth == -1) {
-				curYearMonth = yearMonth;
+			TimePeriod yearDate = new TimePeriod(record.date);
+			if (curDate == null) {
+				curDate = yearDate;
 				recordsGroup = new ArrayList<>();
 				recordsGroup.add(record);
-			} else if (curYearMonth == yearMonth) {
+			} else if (curDate.compareTo(yearDate) == 0) {
 				recordsGroup.add(record);
 			} else {
 				float value = (float) calcSummary(recordsGroup, summaryType);
-				timeSeries.add(new TimePeriod(curYearMonth / 100,
-						curYearMonth % 100), value);
-
-				curYearMonth = yearMonth;
+				timeSeries.add(curDate, value);
+				curDate = yearDate;
 				recordsGroup = new ArrayList<>();
 				recordsGroup.add(record);
 			}
@@ -138,8 +133,8 @@ public class TimeSeriesLoader {
 			} else if (curGroup.equals(record.group)) {
 				recordsGroup.add(record);
 			} else {
-				timeSeriesList
-						.add(buildTimeSeries(recordsGroup, curGroup, summaryType));
+				timeSeriesList.add(buildTimeSeries(recordsGroup, curGroup,
+						summaryType));
 				curGroup = record.group;
 				recordsGroup = new ArrayList<>();
 				recordsGroup.add(record);
@@ -147,7 +142,7 @@ public class TimeSeriesLoader {
 		}
 
 		TimeSeriesCollection dataset = new TimeSeriesCollection(name,
-				TimeType.MONTH,summaryType);
+				summaryType);
 		for (TimeSeriesData timeSeries : timeSeriesList) {
 			dataset.addSeries(timeSeries);
 		}

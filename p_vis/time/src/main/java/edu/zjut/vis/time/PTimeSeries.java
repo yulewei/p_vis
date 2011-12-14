@@ -66,6 +66,9 @@ public class PTimeSeries extends PApplet implements LegendListener {
 		for (int i = 0; i < detailPlotList.size(); i++) {
 			weightList.add(1);
 		}
+
+		for (TimeSeriesPlot plot : detailPlotList)
+			plot.setColors(colorArr);
 	}
 
 	public List<TimeSeriesPlot> getDetailPlots() {
@@ -191,10 +194,9 @@ public class PTimeSeries extends PApplet implements LegendListener {
 
 		// »æÖÆ¶à¸ödetail plot
 		TimePeriod baseTime = overviewPlot.getSeries().getTimeMin();
-		TimePeriod minTime = baseTime.rollDate(TimeType.MONTH,
-				cover.getLeftIndex());
-		TimePeriod maxTime = baseTime.rollDate(TimeType.MONTH,
-				cover.getRightIndex());
+		TimeType type = overviewPlot.getSeries().getTimeType();
+		TimePeriod minTime = baseTime.rollDate(type, cover.getLeftIndex());
+		TimePeriod maxTime = baseTime.rollDate(type, cover.getRightIndex());
 
 		float dy = y;
 		for (int i = 0; i < detailPlotList.size(); i++) {
@@ -219,5 +221,4 @@ public class PTimeSeries extends PApplet implements LegendListener {
 			colorArr[i] = cTable.findColour(i + 1);
 		}
 	}
-
 }

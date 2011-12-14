@@ -1,5 +1,6 @@
 package edu.zjut.chart.plot;
 
+import java.util.Date;
 import java.util.List;
 
 import processing.core.PApplet;
@@ -178,14 +179,14 @@ public class AreaStackedRenderer extends TimeSeriesPlot {
 			p.line(minX, minY1, minX, minY2);
 
 			// ÎÄ±¾
-			int year = series.get(minIndex).getTime(minRow).getYear();
+			Date time = series.get(minIndex).getTime(minRow).getTime();
 			float value = series.get(minIndex).getValue(minRow);
 
 			p.fill(0);
 			p.textSize(12);
 			p.textAlign(PConstants.LEFT);
-			p.text(PApplet.nf(value, 0, 2) + " (" + year + ")", minX + 3,
-					(minY1 + minY2) / 2);
+			p.text(PApplet.nf(value, 0, 2) + " (" + dateFormat.format(time)
+					+ ")", minX + 3, (minY1 + minY2) / 2);
 		}
 	}
 }

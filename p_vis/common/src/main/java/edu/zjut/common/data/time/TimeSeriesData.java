@@ -5,10 +5,15 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import edu.zjut.common.data.attr.SummaryType;
+
 public class TimeSeriesData {
 	private String timeName;
 	private String valueName;
 
+	/**
+	 * 原始数据, 时间粒度为日期
+	 */
 	private SortedMap<TimePeriod, Float> data;
 
 	private List<TimePeriod> times;
@@ -29,16 +34,54 @@ public class TimeSeriesData {
 	}
 
 	/**
-	 * 在最小时间和最大时间之间填充缺失数据
+	 * 根据当前的时间粒度, 重新计算
 	 */
-	public void build() {
+	public void build(TimeType timeType, SummaryType summaryType) {
 
-		times = new ArrayList<TimePeriod>();
-		values = new ArrayList<Float>();
+		List<TimePeriod> originalTimes = new ArrayList<TimePeriod>();
+		List<Float> originalValues = new ArrayList<Float>();
 
-		times.addAll(data.keySet());
-		for (TimePeriod time : times) {
-			values.add(data.get(time));
+		originalTimes.addAll(data.keySet());
+		for (TimePeriod time : originalTimes) {
+			originalValues.add(data.get(time));
+		}
+
+		if (timeType == TimeType.DATE) {
+			times = originalTimes;
+			values = originalValues;
+		} else {
+			times = new ArrayList<TimePeriod>();
+			values = new ArrayList<Float>();
+
+			List<Float> valuesGroup = null;
+			TimePeriod curTime = null;
+			for (int i = 0; i < originalTimes.size(); i++) {
+				TimePeriod time = null;
+				if (timeType == TimeType.MONTH) {
+					TimePeriod tmp = originalTimes.get(i);
+					time = new TimePeriod(tmp.getYear(), tmp.getMonth());
+				} else {
+					TimePeriod tmp = originalTimes.get(i);
+					time = new TimePeriod(tmp.getYear());
+				}
+
+				Float value = originalValues.get(i);
+				if (curTime == null) {
+					curTime = time;
+					valuesGroup = new ArrayList<>();
+					valuesGroup.add(value);
+				} else if (curTime.compareTo(time) == 0) {
+					valuesGroup.add(value);
+				} else {
+					float sum = (float) calcSummary(valuesGroup, summaryType);
+					times.add(curTime);
+					values.add(sum);
+
+					curTime = time;
+					valuesGroup = new ArrayList<>();
+					valuesGroup.add(value);
+				}
+			}
 		}
 
 		// 纵坐标范围
@@ -50,27 +93,27 @@ public class TimeSeriesData {
 			if (value > valueMax)
 				valueMax = value;
 		}
+	}
 
-		// for (TimePeriod time = timeMin; time.compareTo(timeMax) <= 0; time =
-		// time
-		// .rollDate(type, 1)) {
-		// times.add(time);
-		//
-		// Float value = data.get(time);
-		// if (value == null) {
-		// data.put(time, null);
-		// values.add(null);
-		//
-		// // TODO 用0.0填充缺省值???
-		// // values.add(0.0f);
-		// } else {
-		// values.add(value);
-		// }
-		// }
+	private double calcSummary(List<Float> values, SummaryType summaryType) {
+		if (summaryType == SummaryType.SUM || summaryType == SummaryType.MEAN) {
+			double sum = 0;
+			int count = values.size();
+			for (Float v : values) {
+				sum += v;
+			}
+
+			if (summaryType == SummaryType.SUM)
+				return sum;
+			if (summaryType == SummaryType.MEAN)
+				return sum / count;
+		}
+
+		return values.size();
 	}
 
 	public int size() {
-		return data.size();
+		return times.size();
 	}
 
 	public String getTimeName() {
