@@ -297,9 +297,11 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 				g2.drawString(label, (int) (curx - 10), height + 30);
 			}
 
-			g2.drawString("" + comp.getAxisOffset(i), (int) (curx + 2),
-					borderV / 2 - 22);
-			g2.drawString("" + (comp.getAxisOffset(i) + comp.getAxisScale(i)),
+			g2.drawString(String.format("%.2f", comp.getAxisOffset(i)),
+					(int) (curx + 2), borderV / 2 - 22);
+			g2.drawString(
+					String.format("%.2f",
+							comp.getAxisOffset(i) + comp.getAxisScale(i)),
 					(int) (curx + 2), height + borderV / 2 - 5);
 
 			drawArrow(g2, (int) curx, -20, 8, false, (comp.getAxisScale(i) < 0));
@@ -309,8 +311,8 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 		if (inBrush) {
 			g2.setColor(new Color(0.7f, 0.0f, 0.0f));
 			g2.setStroke(new BasicStroke(2.5f));
-			g2.draw(new Line2D.Double(brushHoverX, brushHoverStart, brushHoverX,
-					brushHoverEnd));
+			g2.draw(new Line2D.Double(brushHoverX, brushHoverStart,
+					brushHoverX, brushHoverEnd));
 		}
 
 		// angular brushing
