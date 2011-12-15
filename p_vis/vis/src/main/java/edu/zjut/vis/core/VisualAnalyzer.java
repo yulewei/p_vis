@@ -16,10 +16,14 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -31,6 +35,7 @@ import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -112,7 +117,7 @@ public class VisualAnalyzer extends JFrame implements IndicationListener {
 		// VizState state = Utils.openDefaultLayout();
 		// VizState state = Utils.getVizStateFromFile("vis_state.xml");
 		// VizState state = Utils.getVizStateFromFile("treemap.xml");
-		vizState = Utils.getVizStateFromFile("pcp.xml");
+		vizState = Utils.getVizStateFromFile("pcp2.xml");
 		// VizState state = Utils.getVizStateFromFile("map.xml");
 		// VizState state = Utils.getVizStateFromFile("time.xml");
 		// VizState state = Utils.getVizStateFromFile("final.xml");
@@ -156,7 +161,7 @@ public class VisualAnalyzer extends JFrame implements IndicationListener {
 		saveStateItem = new JMenuItem("Save State");
 		captureMainItem = new JMenuItem("Capture Main Window");
 		captureSelectedItem = new JMenuItem("Capture Selected Window");
-		
+
 		// ¿ì½Ý¼ü
 		openStateItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,
 				InputEvent.CTRL_MASK));
@@ -235,7 +240,9 @@ public class VisualAnalyzer extends JFrame implements IndicationListener {
 
 		aboutItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
-
+				JOptionPane.showMessageDialog(VisualAnalyzer.this,
+						"Visual Analyzer", "About",
+						JOptionPane.INFORMATION_MESSAGE);
 			}
 		});
 	}
@@ -537,6 +544,20 @@ public class VisualAnalyzer extends JFrame implements IndicationListener {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+		Logger logger = Logger.getLogger("vis");
+		logger.setLevel(Level.INFO);
+		logger.info(System.getProperty("java.version"));
+
+		try {
+			FileHandler fHandler = new FileHandler("vis_app.log");
+			fHandler.setFormatter(new SimpleFormatter());
+			logger.addHandler(fHandler);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		logger.finest("java.version = " + System.getProperty("java.version"));
 
 		String fileName = "hz_data/hz_house.xml";
 		VisualAnalyzer app = new VisualAnalyzer(fileName);

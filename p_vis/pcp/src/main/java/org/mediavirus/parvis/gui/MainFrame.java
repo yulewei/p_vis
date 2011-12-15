@@ -465,7 +465,7 @@ public class MainFrame extends javax.swing.JFrame implements ProgressListener, B
     }//GEN-END:initComponents
 
     private void preferencesMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_preferencesMenuActionPerformed
-        PrefsFrame pf = new PrefsFrame(parallelDisplay);
+        PrefsDialog pf = new PrefsDialog(parallelDisplay);
         pf.show();
     }//GEN-LAST:event_preferencesMenuActionPerformed
 

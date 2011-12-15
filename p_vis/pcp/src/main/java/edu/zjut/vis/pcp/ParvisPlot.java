@@ -1,13 +1,21 @@
 package edu.zjut.vis.pcp;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.util.logging.Logger;
-
-import edu.zjut.common.event.IndicationEvent;
-import edu.zjut.common.event.IndicationListener;
-import edu.zjut.common.event.SelectionListener;
 
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -17,17 +25,34 @@ import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.LineBorder;
+import javax.swing.border.TitledBorder;
 
-import org.mediavirus.parvis.file.STFFile;
 import org.mediavirus.parvis.gui.BrushList;
 import org.mediavirus.parvis.gui.BrushListener;
 import org.mediavirus.parvis.gui.ParallelDisplay;
-import org.mediavirus.parvis.gui.PrefsFrame;
+import org.mediavirus.parvis.gui.PrefsDialog;
 import org.mediavirus.parvis.gui.ProgressEvent;
 import org.mediavirus.parvis.gui.ProgressListener;
 import org.mediavirus.parvis.model.Brush;
 import org.mediavirus.parvis.model.ParallelSpaceModel;
 
+
+/**
+* This code was edited or generated using CloudGarden's Jigloo
+* SWT/Swing GUI Builder, which is free for non-commercial
+* use. If Jigloo is being used commercially (ie, by a corporation,
+* company or business for any purpose whatever) then you
+* should purchase a license for each developer using Jigloo.
+* Please visit www.cloudgarden.com for details.
+* Use of Jigloo implies acceptance of these licensing terms.
+* A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR
+* THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED
+* LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
+*/
 /**
  * parvis主界面. 修改自 {@link org.mediavirus.parvis.gui.MainFrame}
  * 
@@ -39,49 +64,44 @@ public class ParvisPlot extends JPanel implements ProgressListener,
 
 	protected final static Logger logger = Logger.getLogger(ParvisPlot.class
 			.getName());
-	
+
 	protected boolean isShowBrushList = false;
 
 	protected ParallelDisplay parallelDisplay;
 
-	private JButton resetBrushButton;
-	private JSeparator jSeparator2;
-	private JPanel quickPrefPanel;
 	private JPanel statusPanel;
-	private JToolBar modeBar;
+	private JPanel progressPanel;
+	private JPanel quickPrefPanel;
 	private JCheckBox hoverBox;
 	private JLabel timeLabel;
 	private JProgressBar progressBar;
-	private JLabel countLabel;
-	private JButton resetAllButton;
-	private JToggleButton translateButton;
-	private JToggleButton orderButton;
-	private JToggleButton scaleButton;
 	private JCheckBox fuzzyBrushBox;
-	private JPanel progressPanel;
-	private JLabel modeLabel;
-	private JToggleButton brushButton;
-	private JPanel toolbarPanel;
 	private JTextField radiusField;
 	private JCheckBox tooltipBox;
 	private JCheckBox histogramBox;
 	private JLabel progressLabel;
-	private ButtonGroup buttonEditGroup;
-	private ButtonGroup buttonViewGroup;
-	private JToolBar viewBar;
-	private JLabel viewLabel;
+
+	private JPanel toolbarPanel;
+	private JToolBar modeBar;
+	private JToggleButton orderButton;
+	private JToggleButton scaleButton;
+	private JToggleButton translateButton;
+	private JToggleButton brushButton;
 	private JToggleButton scaleZeroMaxButton;
 	private JToggleButton scaleMinMaxButton;
 	private JToggleButton scaleMinMaxAbsButton;
-	private JSeparator jSeparator1;
-	private JButton preferencesButton;
+	private JButton prefsButton;
+
+	private JLabel countLabel;
+	private JButton resetBrushButton;
+	private JButton resetAllButton;
 
 	public ParvisPlot() {
-		initComponents();       
-		
+		initComponents();
+
 		parallelDisplay.addProgressListener(this);
 		parallelDisplay.addBrushListener(this);
-		
+
 		BrushList brushList = new BrushList(parallelDisplay);
 		brushList.setLocation(this.getX() + this.getWidth(), this.getY());
 		brushList.setVisible(isShowBrushList);
@@ -97,319 +117,229 @@ public class ParvisPlot extends JPanel implements ProgressListener,
 	}
 
 	private void initComponents() {
+		this.setLayout(new BorderLayout());
+
 		parallelDisplay = new ParallelDisplay();
-		buttonEditGroup = new ButtonGroup();
-		buttonViewGroup = new ButtonGroup();
+		parallelDisplay.setPreferredSize(new Dimension(800, 500));
+		this.add(parallelDisplay, BorderLayout.CENTER);
+
 		statusPanel = new JPanel();
+		statusPanel.setLayout(new BorderLayout());
+		statusPanel.setPreferredSize(new java.awt.Dimension(800, 30));
+		this.add(statusPanel, BorderLayout.SOUTH);
+
 		progressPanel = new JPanel();
-		progressLabel = new JLabel();
-		progressBar = new JProgressBar();
-		timeLabel = new JLabel();
-		quickPrefPanel = new JPanel();
-		histogramBox = new JCheckBox();
-		tooltipBox = new JCheckBox();
-		hoverBox = new JCheckBox();
-		fuzzyBrushBox = new JCheckBox();
-		radiusField = new JTextField();
-		toolbarPanel = new JPanel();
-		modeBar = new JToolBar();
-		modeLabel = new JLabel();
-		orderButton = new JToggleButton();
-		scaleButton = new JToggleButton();
-		translateButton = new JToggleButton();
-		brushButton = new JToggleButton();
-		jSeparator2 = new JSeparator();
-		countLabel = new JLabel();
-		resetBrushButton = new JButton();
-		resetAllButton = new JButton();
+		progressPanel.setLayout(new FlowLayout());
+		statusPanel.add(progressPanel, BorderLayout.WEST);
+		progressPanel.setPreferredSize(new java.awt.Dimension(216, 37));
 
-		viewBar = new JToolBar();
-		viewLabel = new JLabel();
-		scaleZeroMaxButton = new JToggleButton();
-		scaleMinMaxButton = new JToggleButton();
-		scaleMinMaxAbsButton = new JToggleButton();
-		jSeparator1 = new JSeparator();
-		preferencesButton = new JButton();
-
-		this.setLayout(new java.awt.BorderLayout());
-
-		statusPanel.setLayout(new java.awt.BorderLayout());
-
-		statusPanel.setBorder(new javax.swing.border.TitledBorder(
-				new javax.swing.border.EtchedBorder(), "status",
-				javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
-				javax.swing.border.TitledBorder.DEFAULT_POSITION,
-				new java.awt.Font("Dialog", 0, 10)));
-		statusPanel.setFont(new java.awt.Font("Dialog", 0, 10));
-		statusPanel.setPreferredSize(new java.awt.Dimension(272, 50));
-		progressPanel.setLayout(new java.awt.FlowLayout(
-				java.awt.FlowLayout.CENTER, 5, 0));
-
-		progressLabel.setFont(new java.awt.Font("Dialog", 0, 10));
-		progressLabel.setText("progress:");
+		progressLabel = new JLabel("progress:");
 		progressPanel.add(progressLabel);
 
-		progressBar.setFont(new java.awt.Font("Dialog", 0, 10));
-		progressBar.setMaximumSize(new java.awt.Dimension(32767, 18));
-		progressBar.setMinimumSize(new java.awt.Dimension(10, 16));
-		progressBar.setPreferredSize(new java.awt.Dimension(100, 18));
+		progressBar = new JProgressBar();
+		progressBar.setMaximumSize(new Dimension(32767, 18));
+		progressBar.setMinimumSize(new Dimension(10, 16));
+		progressBar.setPreferredSize(new Dimension(100, 18));
 		progressBar.setStringPainted(true);
 		progressPanel.add(progressBar);
 
-		timeLabel.setFont(new java.awt.Font("Dialog", 0, 10));
-		timeLabel.setText("(0.0 s)");
+		timeLabel = new JLabel("(0.0 s)");
 		progressPanel.add(timeLabel);
 
-		statusPanel.add(progressPanel, java.awt.BorderLayout.WEST);
+		quickPrefPanel = new JPanel();
+		quickPrefPanel.setLayout(new FlowLayout());
+		statusPanel.add(quickPrefPanel, BorderLayout.EAST);
 
-		quickPrefPanel.setLayout(new java.awt.FlowLayout(
-				java.awt.FlowLayout.CENTER, 5, 0));
-
-		histogramBox.setFont(new java.awt.Font("Dialog", 0, 10));
-		histogramBox.setText("hist.");
-		histogramBox.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
+		histogramBox = new JCheckBox("hist.");
+		histogramBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
 				histogramBoxActionPerformed(evt);
 			}
 		});
 
 		quickPrefPanel.add(histogramBox);
 
-		tooltipBox.setFont(new java.awt.Font("Dialog", 0, 10));
+		tooltipBox = new JCheckBox("tooltips");
 		tooltipBox.setSelected(true);
-		tooltipBox.setText("tooltips");
-		tooltipBox.setMargin(new java.awt.Insets(0, 2, 0, 2));
 		tooltipBox.setEnabled(false);
-		tooltipBox.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
+		tooltipBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
 				tooltipBoxActionPerformed(evt);
 			}
 		});
 
 		quickPrefPanel.add(tooltipBox);
 
-		hoverBox.setFont(new java.awt.Font("Dialog", 0, 10));
-		hoverBox.setText("line");
-		hoverBox.setMargin(new java.awt.Insets(0, 2, 0, 2));
-		hoverBox.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
+		hoverBox = new JCheckBox("line");
+		hoverBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
 				hoverBoxActionPerformed(evt);
 			}
 		});
 
 		quickPrefPanel.add(hoverBox);
 
-		fuzzyBrushBox.setFont(new java.awt.Font("Dialog", 0, 10));
+		fuzzyBrushBox = new JCheckBox("Brush Fuzziness:");
 		fuzzyBrushBox.setSelected(true);
-		fuzzyBrushBox.setText("Brush Fuzziness:");
-		fuzzyBrushBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
-		fuzzyBrushBox.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
+		fuzzyBrushBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
 				fuzzyBrushBoxActionPerformed(evt);
 			}
 		});
 
 		quickPrefPanel.add(fuzzyBrushBox);
 
-		radiusField.setFont(new java.awt.Font("Dialog", 0, 10));
-		radiusField.setText(" 20 %");
-		radiusField.setBorder(new javax.swing.border.LineBorder(
-				(java.awt.Color) javax.swing.UIManager.getDefaults().get(
-						"Button.select")));
-		radiusField.setPreferredSize(new java.awt.Dimension(30, 17));
-		radiusField.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
+		radiusField = new JTextField(" 20 %");
+		radiusField.setBorder(new LineBorder((Color) UIManager.getDefaults()
+				.get("Button.select")));
+		radiusField.setPreferredSize(new Dimension(30, 17));
+		radiusField.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
 				radiusFieldActionPerformed(evt);
 			}
 		});
-
-		radiusField.addFocusListener(new java.awt.event.FocusAdapter() {
-			public void focusGained(java.awt.event.FocusEvent evt) {
+		radiusField.addFocusListener(new FocusAdapter() {
+			public void focusGained(FocusEvent evt) {
 				radiusFieldFocusGained(evt);
 			}
 		});
 
 		quickPrefPanel.add(radiusField);
 
-		statusPanel.add(quickPrefPanel, java.awt.BorderLayout.EAST);
+		toolbarPanel = new JPanel();
+		toolbarPanel.setLayout(new BorderLayout());
+		this.add(toolbarPanel, BorderLayout.NORTH);
 
-		this.add(statusPanel, java.awt.BorderLayout.SOUTH);
+		modeBar = new JToolBar();
+		toolbarPanel.add(modeBar);
 
-		toolbarPanel.setLayout(new java.awt.GridLayout(2, 0));
-		// toolbarPanel.setLayout(new java.awt.BorderLayout());
-
-		modeLabel.setFont(new java.awt.Font("Dialog", 0, 10));
-		modeLabel.setText("Edit Mode: ");
-		modeBar.add(modeLabel);
-
-		orderButton.setFont(new java.awt.Font("Dialog", 0, 10));
-		orderButton.setIcon(new javax.swing.ImageIcon(getClass().getResource(
-				"/org/mediavirus/parvis/gui/reorder.gif")));
-		orderButton.setSelected(true);
-		orderButton.setText("Order");
+		orderButton = new JToggleButton();
 		orderButton
-				.setToolTipText("Reorder axes by dragging them across the display.");
-		buttonEditGroup.add(orderButton);
-		orderButton.setMargin(new java.awt.Insets(2, 2, 2, 2));
-		orderButton.setMaximumSize(new java.awt.Dimension(65, 27));
-		orderButton.setMinimumSize(new java.awt.Dimension(65, 27));
-		orderButton.setPreferredSize(new java.awt.Dimension(65, 27));
-		orderButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				.setIcon(new ImageIcon(getClass().getResource("reorder.gif")));
+		orderButton.setSelected(true);
+		orderButton.setToolTipText("Reorder Axes");
+		orderButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
 				setEditModeOrder(evt);
 			}
 		});
 
-		modeBar.add(orderButton);
-
-		scaleButton.setFont(new java.awt.Font("Dialog", 0, 10));
-		scaleButton.setIcon(new javax.swing.ImageIcon(getClass().getResource(
-				"/org/mediavirus/parvis/gui/scale.gif")));
-		scaleButton.setText("Scale");
-		scaleButton
-				.setToolTipText("Scale axes by dragging up (zoom out) or down (zoom in).");
-		buttonEditGroup.add(scaleButton);
-		scaleButton.setMargin(new java.awt.Insets(2, 2, 2, 2));
-		scaleButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
+		scaleButton = new JToggleButton();
+		scaleButton.setIcon(new ImageIcon(getClass().getResource("scale.gif")));
+		scaleButton.setToolTipText("Scale Axes");
+		scaleButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
 				setEditModeScale(evt);
 			}
 		});
 
-		modeBar.add(scaleButton);
-
-		translateButton.setFont(new java.awt.Font("Dialog", 0, 10));
-		translateButton.setIcon(new javax.swing.ImageIcon(getClass()
-				.getResource("/org/mediavirus/parvis/gui/move.gif")));
-		translateButton.setText("Translate");
-		translateButton
-				.setToolTipText("Translate axes by dragging up or down.");
-		buttonEditGroup.add(translateButton);
-		translateButton.setMargin(new java.awt.Insets(2, 2, 2, 2));
-		translateButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
+		translateButton = new JToggleButton();
+		translateButton.setIcon(new ImageIcon(getClass()
+				.getResource("move.gif")));
+		translateButton.setToolTipText("Translate Axes");
+		translateButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
 				setEditModeTranslate(evt);
 			}
 		});
 
-		modeBar.add(translateButton);
-
-		brushButton.setFont(new java.awt.Font("Dialog", 0, 10));
-		brushButton.setIcon(new javax.swing.ImageIcon(getClass().getResource(
-				"/org/mediavirus/parvis/gui/brush.gif")));
-		brushButton.setText("Brush");
-		brushButton.setToolTipText("Translate axes by dragging up or down.");
-		buttonEditGroup.add(brushButton);
-		brushButton.setMargin(new java.awt.Insets(2, 2, 2, 2));
-		brushButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
+		brushButton = new JToggleButton();
+		brushButton.setIcon(new ImageIcon(getClass().getResource("brush.gif")));
+		brushButton.setToolTipText("Brush");
+		brushButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
 				setEditModeBrush(evt);
 			}
 		});
 
+		ButtonGroup buttonEditGroup = new ButtonGroup();
+		buttonEditGroup.add(orderButton);
+		buttonEditGroup.add(scaleButton);
+		buttonEditGroup.add(translateButton);
+		buttonEditGroup.add(brushButton);
+
+		modeBar.add(orderButton);
+		modeBar.add(scaleButton);
+		modeBar.add(translateButton);
 		modeBar.add(brushButton);
 
-		jSeparator2.setOrientation(javax.swing.SwingConstants.VERTICAL);
-		modeBar.add(jSeparator2);
-		modeBar.add(Box.createHorizontalGlue());
-
-		countLabel.setFont(new java.awt.Font("Dialog", 0, 10));
-		countLabel.setText("0 / 0   ");
-		countLabel.setMaximumSize(new java.awt.Dimension(100, 16));
-		modeBar.add(countLabel);
-
-		resetBrushButton.setFont(new java.awt.Font("Dialog", 0, 10));
-		resetBrushButton.setText("Reset Brush");
-		resetBrushButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				resetBrushButtonActionPerformed(evt);
-			}
-		});
-
-		modeBar.add(resetBrushButton);
-
-		resetAllButton.setBackground(new java.awt.Color(255, 153, 153));
-		resetAllButton.setFont(new java.awt.Font("Dialog", 0, 10));
-		resetAllButton.setText("Reset All");
-		resetAllButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				resetAllButtonActionPerformed(evt);
-			}
-		});
-
-		modeBar.add(resetAllButton);
-
-		toolbarPanel.add(modeBar);
+		modeBar.add(new JSeparator(SwingConstants.VERTICAL));
 
 		// 界面简单修改
-		viewLabel.setFont(new java.awt.Font("Dialog", 0, 10));
-		viewLabel.setText("View Mode: ");
-		viewBar.add(viewLabel);
+		scaleZeroMaxButton = new JToggleButton("0-max");
+		scaleZeroMaxButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				scaleZeroMaxActionPerformed(evt);
+			}
+		});
 
-		scaleZeroMaxButton.setFont(new java.awt.Font("Dialog", 0, 11));
-		scaleZeroMaxButton.setText("0-max");
-		scaleZeroMaxButton
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						scaleZeroMaxItemActionPerformed(evt);
-					}
-				});
-		buttonViewGroup.add(scaleZeroMaxButton);
-		viewBar.add(scaleZeroMaxButton);
-
-		scaleMinMaxButton.setFont(new java.awt.Font("Dialog", 0, 11));
-		scaleMinMaxButton.setText("min-max");
+		scaleMinMaxButton = new JToggleButton("min-max");
 		scaleMinMaxButton.setSelected(true);
-		scaleMinMaxButton
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						scaleMinMaxItemActionPerformed(evt);
-					}
-				});
+		scaleMinMaxButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				scaleMinMaxActionPerformed(evt);
+			}
+		});
+
+		scaleMinMaxAbsButton = new JToggleButton("min-max (abs)");
+		scaleMinMaxAbsButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				scaleMinMaxAbsActionPerformed(evt);
+			}
+		});
+
+		ButtonGroup buttonViewGroup = new ButtonGroup();
+		buttonViewGroup.add(scaleZeroMaxButton);
 		buttonViewGroup.add(scaleMinMaxButton);
-		viewBar.add(scaleMinMaxButton);
-
-		scaleMinMaxAbsButton.setFont(new java.awt.Font("Dialog", 0, 11));
-		scaleMinMaxAbsButton.setText("min-max (abs)");
-		scaleMinMaxAbsButton
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						scaleMinMaxAbsItemActionPerformed(evt);
-					}
-				});
 		buttonViewGroup.add(scaleMinMaxAbsButton);
-		viewBar.add(scaleMinMaxAbsButton);
 
-		jSeparator1.setOrientation(javax.swing.SwingConstants.VERTICAL);
-		viewBar.add(jSeparator1);
-		viewBar.add(Box.createHorizontalGlue());
+		modeBar.add(scaleZeroMaxButton);
+		modeBar.add(scaleMinMaxButton);
+		modeBar.add(scaleMinMaxAbsButton);
 
-		preferencesButton.setFont(new java.awt.Font("Dialog", 0, 11));
-		preferencesButton.setText("Preferences...");
-		preferencesButton
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						preferencesMenuActionPerformed(evt);
-					}
-				});
-		viewBar.add(preferencesButton);
+		modeBar.add(Box.createHorizontalGlue());
 
-		toolbarPanel.add(viewBar);
+		countLabel = new JLabel("0 / 0   ");
 
-		this.add(toolbarPanel, java.awt.BorderLayout.NORTH);
+		resetBrushButton = new JButton("Reset Brush");
+		resetBrushButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				resetBrushActionPerformed(evt);
+			}
+		});
 
-		parallelDisplay.setPreferredSize(new java.awt.Dimension(800, 500));
-		this.add(parallelDisplay, java.awt.BorderLayout.CENTER);
+		resetAllButton = new JButton("Reset All");
+		resetAllButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				resetAllActionPerformed(evt);
+			}
+		});
 
+		modeBar.add(countLabel);
+		modeBar.add(resetBrushButton);
+		modeBar.add(resetAllButton);
+
+		modeBar.add(new JSeparator(SwingConstants.VERTICAL));
+
+		prefsButton = new JButton();
+		prefsButton.setIcon(new ImageIcon(getClass().getResource("cog.png")));
+		prefsButton.setToolTipText("Preferences");
+		prefsButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				prefsActionPerformed(evt);
+			}
+		});
+
+		modeBar.add(prefsButton);
 	}
 
-	private void histogramBoxActionPerformed(java.awt.event.ActionEvent evt) {
+	private void histogramBoxActionPerformed(ActionEvent evt) {
 		parallelDisplay.setBoolPreference("histogram",
 				histogramBox.isSelected());
 		parallelDisplay.repaint();
 	}
 
-	private void fuzzyBrushBoxActionPerformed(java.awt.event.ActionEvent evt) {
+	private void fuzzyBrushBoxActionPerformed(ActionEvent evt) {
 		if (fuzzyBrushBox.isSelected()) {
 			radiusField.setEnabled(true);
 			String txt = radiusField.getText();
@@ -427,15 +357,15 @@ public class ParvisPlot extends JPanel implements ProgressListener,
 		}
 	}
 
-	private void resetAllButtonActionPerformed(java.awt.event.ActionEvent evt) {
+	private void resetAllActionPerformed(ActionEvent evt) {
 		parallelDisplay.resetAll();
 	}
 
-	private void resetBrushButtonActionPerformed(java.awt.event.ActionEvent evt) {
+	private void resetBrushActionPerformed(ActionEvent evt) {
 		parallelDisplay.setCurrentBrush(null);
 	}
 
-	private void hoverBoxActionPerformed(java.awt.event.ActionEvent evt) {
+	private void hoverBoxActionPerformed(ActionEvent evt) {
 		if (hoverBox.isSelected()) {
 			tooltipBox.setEnabled(true);
 			parallelDisplay.setBoolPreference("hoverText",
@@ -450,7 +380,7 @@ public class ParvisPlot extends JPanel implements ProgressListener,
 		}
 	}
 
-	private void radiusFieldActionPerformed(java.awt.event.ActionEvent evt) {
+	private void radiusFieldActionPerformed(ActionEvent evt) {
 		String txt = radiusField.getText();
 		if (txt.indexOf('%') > -1) {
 			txt = txt.substring(0, txt.indexOf('%'));
@@ -464,49 +394,49 @@ public class ParvisPlot extends JPanel implements ProgressListener,
 		radiusField.transferFocus();
 	}
 
-	private void radiusFieldFocusGained(java.awt.event.FocusEvent evt) {
+	private void radiusFieldFocusGained(FocusEvent evt) {
 		radiusField.selectAll();
 	}
 
-	private void setEditModeTranslate(java.awt.event.ActionEvent evt) {
+	private void setEditModeTranslate(ActionEvent evt) {
 		parallelDisplay.setEditMode(ParallelDisplay.TRANSLATE);
 		translateButton.setSelected(true);
 	}
 
-	private void setEditModeScale(java.awt.event.ActionEvent evt) {
+	private void setEditModeScale(ActionEvent evt) {
 		parallelDisplay.setEditMode(ParallelDisplay.SCALE);
 		scaleButton.setSelected(true);
 	}
 
-	private void setEditModeOrder(java.awt.event.ActionEvent evt) {
+	private void setEditModeOrder(ActionEvent evt) {
 		parallelDisplay.setEditMode(ParallelDisplay.REORDER);
 		orderButton.setSelected(true);
 	}
 
-	private void setEditModeBrush(java.awt.event.ActionEvent evt) {
+	private void setEditModeBrush(ActionEvent evt) {
 		parallelDisplay.setEditMode(ParallelDisplay.BRUSH);
 		brushButton.setSelected(true);
 	}
 
-	private void tooltipBoxActionPerformed(java.awt.event.ActionEvent evt) {
+	private void tooltipBoxActionPerformed(ActionEvent evt) {
 		parallelDisplay.setBoolPreference("hoverText", tooltipBox.isSelected());
 	}
 
-	private void scaleMinMaxAbsItemActionPerformed(
-			java.awt.event.ActionEvent evt) {
+	private void scaleMinMaxAbsActionPerformed(ActionEvent evt) {
 		parallelDisplay.minMaxAbsScale();
 	}
 
-	private void scaleMinMaxItemActionPerformed(java.awt.event.ActionEvent evt) {
+	private void scaleMinMaxActionPerformed(ActionEvent evt) {
 		parallelDisplay.minMaxScale();
 	}
 
-	private void scaleZeroMaxItemActionPerformed(java.awt.event.ActionEvent evt) {
+	private void scaleZeroMaxActionPerformed(ActionEvent evt) {
 		parallelDisplay.zeroMaxScale();
 	}
 
-	private void preferencesMenuActionPerformed(java.awt.event.ActionEvent evt) {
-		PrefsFrame pf = new PrefsFrame(parallelDisplay);
+	private void prefsActionPerformed(ActionEvent evt) {
+		PrefsDialog pf = new PrefsDialog(parallelDisplay);
+		pf.setLocationRelativeTo(this);
 		pf.setVisible(true);
 	}
 
@@ -556,10 +486,10 @@ public class ParvisPlot extends JPanel implements ProgressListener,
 		} else {
 			countLabel
 					.setText("0 / " + parallelDisplay.getNumRecords() + "   ");
-		}		
+		}
 	}
 
 	public void setModel(ParallelSpaceModel model) {
 		parallelDisplay.setModel(model);
-	}	
+	}
 }
