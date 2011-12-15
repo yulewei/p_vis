@@ -1,10 +1,12 @@
-/**
- * 
- */
 package edu.zjut.vis.marshal;
 
+import java.io.Reader;
+import java.util.logging.Logger;
+
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
+
 import edu.zjut.common.ctrl.DataWindow;
-import edu.zjut.vis.core.GeoVizToolkit;
 import edu.zjut.vis.core.ToolkitBean;
 import edu.zjut.vis.core.VizState;
 import edu.zjut.vis.map.GeoMap;
@@ -15,18 +17,6 @@ import geovista.animation.ConditioningAnimator;
 import geovista.animation.IndicationAnimator;
 import geovista.animation.SelectionAnimator;
 
-import java.util.logging.Logger;
-
-import javax.swing.JFrame;
-import javax.swing.JTextArea;
-
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.converters.reflection.PureJavaReflectionProvider;
-
-/**
- * @author localadmin
- * 
- */
 public class Marshaler {
 
 	XStream streamer;
@@ -34,11 +24,10 @@ public class Marshaler {
 	static final Logger logger = Logger.getLogger(Marshaler.class.getName());
 
 	private Marshaler() {
-
 		streamer = new XStream(new PureJavaReflectionProvider());
 
 		streamer.alias("VizState", VizState.class);
-		
+
 		streamer.alias("DataWindow", DataWindow.class);
 		streamer.registerConverter(new VariablePickerConverter());
 
@@ -63,49 +52,10 @@ public class Marshaler {
 		streamer.alias("TimeSeries", TimeSeries.class);
 		streamer.registerConverter(new TimeSeriesConverter());
 
-		
 		streamer.alias("ToolkitBean", ToolkitBean.class);
 		streamer.registerConverter(new ToolkitBeanConverter());
 
 		streamer.registerConverter(new JInternalFrameConverter());
-	}
-
-	// as yet unimplemented. If the constructor with every class listed
-	// approach gets cumbersome, then it would not be too hard.
-	public void registerConverter(Class clazz) {
-		logger.finest(clazz.getName());
-	}
-
-	static String JAVA_NEWLINE = "\n";
-	static String XML_NEWLINE = "&#010";
-
-	static String newLinesToXML(String input) {
-		return input.replaceAll(JAVA_NEWLINE, XML_NEWLINE);
-	}
-
-	static String newLinesToJava(String input) {
-
-		return input.replaceAll(XML_NEWLINE, JAVA_NEWLINE);
-	}
-
-	public static void main(String[] args) {
-		String testString = "123 \n 456";
-
-		String newString = newLinesToXML(testString);
-		String oldString = newLinesToJava(newString);
-		JFrame frame = new JFrame();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		JTextArea area = new JTextArea();
-		area.setText(oldString);
-		frame.add(area);
-		frame.pack();
-		frame.setVisible(true);
-
-	}
-
-	public String vizToXML(GeoVizToolkit gvt) {
-		logger.info(gvt.toString());
-		return null;
 	}
 
 	public String toXML(Object obj) {
@@ -114,8 +64,12 @@ public class Marshaler {
 	}
 
 	public Object fromXML(String xml) {
-		Object gvz2 = streamer.fromXML(xml);
-		return gvz2;
+		Object obj = streamer.fromXML(xml);
+		return obj;
 	}
-
+	
+	public Object fromXML(Reader reader) {
+		Object obj = streamer.fromXML(reader);
+		return obj;
+	}
 }

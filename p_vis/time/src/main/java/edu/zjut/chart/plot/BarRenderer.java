@@ -8,7 +8,7 @@ import edu.zjut.common.data.time.TimeSeriesData;
 
 public class BarRenderer extends TimeSeriesPlot {
 
-	float barWidth = 10;
+	float barWidth = 8;
 
 	public BarRenderer(PApplet p, TimeSeriesCollection tsList) {
 		super(p, tsList);
@@ -42,5 +42,4 @@ public class BarRenderer extends TimeSeriesPlot {
 			}
 		}
 	}
-
 }

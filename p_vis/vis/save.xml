@@ -1,44 +1,46 @@
 <VizState>
   <beanSet>
     <entry>
-      <string>DataWindow (2)</string>
+      <string>ParallelPlot</string>
       <ToolkitBean>
-        <objectClass>edu.zjut.common.ctrl.DataWindow</objectClass>
-        <originalBean/>
-        <uniqueName>DataWindow (2)</uniqueName>
+        <objectClass>edu.zjut.vis.pcp.ParallelPlot</objectClass>
+        <originalBean>
+          <selection/>
+        </originalBean>
+        <uniqueName>ParallelPlot</uniqueName>
         <internalFrame>
           <location>
-            <x>293</x>
-            <y>89</y>
+            <x>279</x>
+            <y>115</y>
           </location>
           <size>
-            <width>272</width>
-            <height>469</height>
+            <width>761</width>
+            <height>451</height>
           </size>
         </internalFrame>
-        <zOrder>1</zOrder>
+        <zOrder>0</zOrder>
       </ToolkitBean>
     </entry>
     <entry>
-      <string>VariablePicker</string>
+      <string>DataWindow</string>
       <ToolkitBean>
         <objectClass>edu.zjut.common.ctrl.DataWindow</objectClass>
         <originalBean/>
         <uniqueName>DataWindow</uniqueName>
         <internalFrame>
           <location>
-            <x>46</x>
-            <y>48</y>
+            <x>0</x>
+            <y>0</y>
           </location>
           <size>
-            <width>180</width>
+            <width>160</width>
             <height>450</height>
           </size>
         </internalFrame>
-        <zOrder>0</zOrder>
+        <zOrder>1</zOrder>
       </ToolkitBean>
     </entry>
   </beanSet>
-  <indication>16</indication>
-  <selectedBean></selectedBean>
+  <indication>-1</indication>
+  <selectedBean>ParallelPlot</selectedBean>
 </VizState>

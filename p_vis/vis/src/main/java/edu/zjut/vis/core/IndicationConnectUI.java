@@ -203,6 +203,5 @@ public class IndicationConnectUI<V extends JComponent> extends
 	public void addShape(Shape shp, Component src) {
 		this.shapeList.add(shp);
 		this.srcCompList.add(src);
-
 	}
 }

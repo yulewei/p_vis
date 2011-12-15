@@ -1,22 +1,3 @@
-/* -------------------------------------------------------------------
- Java source file for the class ToolkitBean
- Copyright (c), 2005 Frank Hardisty
- $Author: hardisty $
- $Id: ToolkitBean.java,v 1.1 2005/02/13 03:26:27 hardisty Exp $
- $Date: 2005/02/13 03:26:27 $
- This library is free software; you can redistribute it and/or
- modify it under the terms of the GNU Lesser General Public
- License as published by the Free Software Foundation; either
- version 2.1 of the License, or (at your option) any later version.
- This library is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- Lesser General Public License for more details.
- You should have received a copy of the GNU Lesser General Public
- License along with this library; if not, write to the Free Software
- Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- -------------------------------------------------------------------   */
-
 package edu.zjut.vis.core;
 
 import edu.zjut.common.event.IndicationEvent;
@@ -28,10 +9,6 @@ import edu.zjut.common.event.SubspaceListener;
 
 import java.util.HashMap;
 
-/**
- * A holder for the state of a GeoVizToolkit. Intended to help with marshalling
- * and unmarshalling.
- */
 public class VizState implements SelectionListener, IndicationListener,
 		SubspaceListener {
 

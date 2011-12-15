@@ -26,7 +26,5 @@ public class ParallelPlotConverter extends VizBeanConverter {
 		ParallelPlot plot = new ParallelPlot();
 		plot = (ParallelPlot) super.unmarshal(reader, context, plot);
 		return plot;
-
 	}
-
 }

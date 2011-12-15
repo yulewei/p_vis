@@ -13,7 +13,6 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
 import edu.zjut.vis.core.ToolkitBean;
 
-
 public class ToolkitBeanConverter implements Converter {
 	protected final static Logger logger = Logger
 			.getLogger(ToolkitBeanConverter.class.getName());
@@ -71,7 +70,7 @@ public class ToolkitBeanConverter implements Converter {
 					logger.finest(className);
 				}
 
-				// originalBean = GeoVizToolkit.makeObject(className.trim());
+				// originalBean = VisualAnalyzer.makeObject(className.trim());
 			}
 
 			else if ("originalBean".equals(reader.getNodeName())) {
@@ -87,7 +86,7 @@ public class ToolkitBeanConverter implements Converter {
 				// Object originalBean = (String) context.convertAnother(bean,
 				// String.class);
 				// logger.info(className);
-				// originalBean = GeoVizToolkit.makeObject(className.trim());
+				// originalBean = VisualAnalyzer.makeObject(className.trim());
 			} else if ("internalFrame".equals(reader.getNodeName())) {
 				internalFrame = (JInternalFrame) context.convertAnother(bean,
 						JInternalFrame.class);
@@ -98,6 +97,9 @@ public class ToolkitBeanConverter implements Converter {
 
 			reader.moveUp();
 		}
+
+		if (originalBean == null)
+			return null;
 
 		bean.init(originalBean, uniqueName);
 		bean.getInternalFrame().setSize(internalFrame.getSize());

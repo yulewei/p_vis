@@ -5,7 +5,6 @@ import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
-import edu.zjut.vis.time.TimeSeries;
 import edu.zjut.vis.treemap.Treemap;
 
 public class TreemapConverter extends VizBeanConverter {
