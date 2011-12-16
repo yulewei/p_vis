@@ -369,7 +369,6 @@ public class JMapPanel extends JXMapViewerX {
 	public void indicationChanged(int newIndication) {
 		// 清除原先高亮
 		if (indication != -1) {
-
 			boolean included = false;
 			if (selections != null) {
 				for (int i : selections)

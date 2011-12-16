@@ -36,7 +36,8 @@ import edu.zjut.treemap.summary.SummariseNull;
  */
 public class TreemapPanel {
 
-	TreemapSummaryNode highlightNode;
+	TreemapSummaryNode indicationNode;
+	List<TreemapSummaryNode> selectionNodes;
 
 	PApplet p;
 	Rectangle bounds;
@@ -248,21 +249,35 @@ public class TreemapPanel {
 		}
 
 		// 绘制高亮节点
-		if (highlightNode != null) {
-			Rectangle2D r = highlightNode.getRectangle();
-
-			p.noFill();
-			p.strokeWeight(2.0f);
-			p.stroke(p.color(255, 255, 0));
-			p.rect((float) r.getX(), (float) r.getY(), (float) r.getWidth(),
-					(float) r.getHeight());
-		}
+		drawHighlight();
 
 		// reset changestateflags
 		treemapState.resetChangeFlags();
 		flagToDoNonStructuralRebuild = false;
 		flagToDoStructuralRebuild = false;
 		flagToRedraw = false;
+	}
+
+	private void drawHighlight() {
+		if (selectionNodes != null) {
+			for (TreemapSummaryNode node : selectionNodes) {
+				Rectangle2D r = node.getRectangle();
+				p.noFill();
+				p.strokeWeight(2.0f);
+				p.stroke(p.color(0, 255, 0, 200));
+				p.rect((float) r.getX(), (float) r.getY(),
+						(float) r.getWidth(), (float) r.getHeight());
+			}
+		}
+
+		if (indicationNode != null) {
+			Rectangle2D r = indicationNode.getRectangle();
+			p.noFill();
+			p.strokeWeight(2.0f);
+			p.stroke(p.color(255, 255, 0, 200));
+			p.rect((float) r.getX(), (float) r.getY(), (float) r.getWidth(),
+					(float) r.getHeight());
+		}
 	}
 
 	private void drawTreemapShapes(TreemapState treemapState, float lerp) {
@@ -578,6 +593,40 @@ public class TreemapPanel {
 		treemap = treemapBuilder.computeTreemap(summaryNode,
 				treemapState.getOrderFields(), treemapState.getSizeFields()[0],
 				treemapState.getLayouts(), bounds.x, bounds.y);
+
+		rebuildHighlight();
+	}
+
+	/**
+	 * treemap重新构建后, 同时再重新计算高亮节点
+	 */
+	private void rebuildHighlight() {
+		if (indicationNode != null) {
+			Iterator<TreeMapNode> it = treemap.iterator();
+			while (it.hasNext()) {
+				TreemapSummaryNode node = (TreemapSummaryNode) it.next();
+				if (node.getPathId() == indicationNode.getPathId()) {
+					indicationNode = node;
+					break;
+				}
+			}
+		}
+
+		if (selectionNodes != null) {
+			List<TreemapSummaryNode> newSelectionNodes = new ArrayList<>();
+			for (TreemapSummaryNode selection : selectionNodes) {
+				String path = selection.getPathId();
+				Iterator<TreeMapNode> it = treemap.iterator();
+				while (it.hasNext()) {
+					TreemapSummaryNode node = (TreemapSummaryNode) it.next();
+					if (node.getPathId().equals(path)) {
+						newSelectionNodes.add(node);
+						break;
+					}
+				}
+			}
+			selectionNodes = newSelectionNodes;
+		}
 	}
 
 	public void setTextFont(PFont font) {
@@ -731,8 +780,12 @@ public class TreemapPanel {
 		flagToDoNonStructuralRebuild();
 	}
 
-	public void setHighlightNode(TreemapSummaryNode activeNode) {
-		this.highlightNode = activeNode;
+	public void setIndicationNode(TreemapSummaryNode indicationNode) {
+		this.indicationNode = indicationNode;
+	}
+
+	public void setSelectionNodes(List<TreemapSummaryNode> selectionNodes) {
+		this.selectionNodes = selectionNodes;
 	}
 
 	/**
@@ -753,6 +806,25 @@ public class TreemapPanel {
 			if (node.getRectangle().contains(mouseX, mouseY)) {
 				find = node;
 			}
+		}
+
+		return find;
+	}
+
+	public TreemapSummaryNode getNodeByName(int level, String name) {
+		if (treemap == null)
+			return null;
+
+		TreemapSummaryNode find = null;
+		Iterator<TreeMapNode> it = treemap.iterator();
+		while (it.hasNext()) {
+			TreemapSummaryNode node = (TreemapSummaryNode) it.next();
+			if (node.getLevel() != level)
+				continue;
+
+			SummariseNode summariseNode = node.getSummariseNode();
+			if (name.equals(summariseNode.getConditioningValueAsString()))
+				find = node;
 		}
 
 		return find;

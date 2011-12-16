@@ -483,6 +483,7 @@ public class GeoMap extends JPanel implements DataSetListener,
 		return new SelectionEvent(this, mapPanel.selections);
 	}
 
+	
 	public void addIndicationListener(IndicationListener l) {
 		mapPanel.addIndicationListener(l);
 	}

@@ -23,15 +23,20 @@ import edu.zjut.common.event.DataSetEvent;
 import edu.zjut.common.event.DataSetListener;
 import edu.zjut.common.event.IndicationEvent;
 import edu.zjut.common.event.IndicationListener;
+import edu.zjut.common.event.SelectionEvent;
+import edu.zjut.common.event.SelectionListener;
 import edu.zjut.treemap.core.TreemapState;
 import edu.zjut.treemap.hive.Expression;
 import edu.zjut.treemap.summary.SummariseField;
 
 public class Treemap extends JPanel implements DataSetListener,
-		IndicationListener {
+		IndicationListener, SelectionListener {
 
 	private DataSetForApps dataSet;
 	private AttributeData attrData;
+
+	private DimensionField observationField;
+	private String[] observationNames;
 
 	private JToolBar jToolBar;
 	private JToggleButton sideBarTglbtn;
@@ -105,6 +110,12 @@ public class Treemap extends JPanel implements DataSetListener,
 		dataSet = e.getDataSetForApps();
 		attrData = dataSet.getAttrData();
 
+		observationField = attrData.getObservationField();
+		observationNames = attrData.getObservationNames();
+
+		pTreemap.observationField = observationField;
+		pTreemap.observationNames = observationNames;
+
 		buildTreemapData();
 
 		treemapState = new TreemapState(hierFields, summariseFields);
@@ -144,20 +155,34 @@ public class Treemap extends JPanel implements DataSetListener,
 
 	@Override
 	public void indicationChanged(IndicationEvent e) {
+		pTreemap.indicationChanged(e.getIndication());
+	}
 
-		// 判断treemap是否包含名称列
-		String observation = attrData.getObservationField().getName();
-		DataField[] hierFields = treemapState.getHierFields();
+	@Override
+	public void selectionChanged(SelectionEvent e) {
+		pTreemap.selectionChanged(e.getSelection());
+	}
 
-		int index = -1;
-		for (int i = 0; i < hierFields.length; i++) {
-			if (observation.equals(hierFields[i].getName())) {
-				index = i;
-				break;
-			}
-		}
+	@Override
+	public SelectionEvent getSelectionEvent() {
+		return new SelectionEvent(this, pTreemap.selections);
+	}
 
-		// TODO 高亮选择...
+	// 触发事件
 
+	public void addIndicationListener(IndicationListener l) {
+		pTreemap.addIndicationListener(l);
+	}
+
+	public void removeIndicationListener(IndicationListener l) {
+		pTreemap.removeIndicationListener(l);
+	}
+
+	public void addSelectionListener(SelectionListener l) {
+		pTreemap.addSelectionListener(l);
+	}
+
+	public void removeSelectionListener(SelectionListener l) {
+		pTreemap.removeSelectionListener(l);
 	}
 }

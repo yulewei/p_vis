@@ -6,11 +6,18 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import javax.swing.event.EventListenerList;
 import javax.swing.tree.TreeNode;
 
 import processing.core.PApplet;
 import processing.core.PFont;
+import edu.zjut.common.data.attr.DataField;
+import edu.zjut.common.data.attr.DimensionField;
 import edu.zjut.common.data.attr.FieldType;
+import edu.zjut.common.event.IndicationEvent;
+import edu.zjut.common.event.IndicationListener;
+import edu.zjut.common.event.SelectionEvent;
+import edu.zjut.common.event.SelectionListener;
 import edu.zjut.treemap.core.Layout;
 import edu.zjut.treemap.core.TreemapPanel;
 import edu.zjut.treemap.core.TreemapState;
@@ -123,6 +130,11 @@ public class PTreemap extends PApplet {
 				+ offsetY + 14);
 	}
 
+	public int indication = -1;
+	public int[] selections;
+	public DimensionField observationField;
+	public String[] observationNames;
+
 	public void mouseMoved() {
 		// redraw everytime the mouse is moved
 		loop();
@@ -132,12 +144,24 @@ public class PTreemap extends PApplet {
 
 		// identify the node (rectangle) that the mouse is over
 		TreemapSummaryNode node = treemapPanel.getNodeFromMouse(mouseX, mouseY);
-		treemapPanel.setHighlightNode(node);
+		treemapPanel.setIndicationNode(node);
 
 		if (node == null)
 			return;
 
 		SummariseNode summariseNode = node.getSummariseNode();
+		if (observationField == summariseNode.getConditioningField()) {
+			String name = summariseNode.getConditioningValueAsString();
+			indication = -1;
+			for (int i = 0; i < observationNames.length; i++) {
+				if (observationNames[i].equals(name)) {
+					indication = i;
+					break;
+				}
+			}
+
+			fireIndicationChanged(indication);
+		}
 
 		tooltipLabel = "";
 		TreeNode[] treenodes = summariseNode.getPath();
@@ -208,4 +232,117 @@ public class PTreemap extends PApplet {
 			tooltipData += n + " records";
 		}
 	}
+
+	/**
+	 * 判断treemap是否包含名称列
+	 * 
+	 * @return
+	 */
+	private int findObsField() {
+		DataField[] hierFields = treemapState.getHierFields();
+		int index = -1;
+		for (int i = 0; i < hierFields.length; i++) {
+			if (observationField.getName().equals(hierFields[i].getName())) {
+				index = i;
+				break;
+			}
+		}
+
+		return index;
+	}
+
+	public void indicationChanged(int newIndication) {
+		int index = findObsField();
+		if (index == -1)
+			return;
+
+		indication = newIndication;
+
+		if (indication == -1) {
+			treemapPanel.setIndicationNode(null);
+		} else {
+			TreemapSummaryNode node = treemapPanel.getNodeByName(index + 1,
+					observationNames[indication]);
+			treemapPanel.setIndicationNode(node);
+		}
+
+		redraw();
+	}
+
+	public void selectionChanged(int[] newSelections) {
+		int index = findObsField();
+		if (index == -1)
+			return;
+
+		selections = newSelections;
+
+		if (selections == null) {
+			treemapPanel.setSelectionNodes(null);
+		} else {
+
+			List<TreemapSummaryNode> selectionNodes = new ArrayList<>();
+			for (int i : selections) {
+				TreemapSummaryNode node = treemapPanel.getNodeByName(index + 1,
+						observationNames[i]);
+				if (node != null)
+					selectionNodes.add(node);
+			}
+			treemapPanel.setSelectionNodes(selectionNodes);
+		}
+	}
+
+	// 触发事件
+
+	protected EventListenerList listenerList = new EventListenerList();
+
+	public void addIndicationListener(IndicationListener l) {
+		listenerList.add(IndicationListener.class, l);
+	}
+
+	public void removeIndicationListener(IndicationListener l) {
+		listenerList.remove(IndicationListener.class, l);
+	}
+
+	public void addSelectionListener(SelectionListener l) {
+		listenerList.add(SelectionListener.class, l);
+	}
+
+	public void removeSelectionListener(SelectionListener l) {
+		listenerList.remove(SelectionListener.class, l);
+	}
+
+	public void fireIndicationChanged(int newIndication) {
+		// Guaranteed to return a non-null array
+		Object[] listeners = listenerList.getListenerList();
+		IndicationEvent e = null;
+		// Process the listeners last to first, notifying
+		// those that are interested in this event
+		for (int i = listeners.length - 2; i >= 0; i -= 2) {
+			if (listeners[i] == IndicationListener.class) {
+				// Lazily create the event:
+				if (e == null) {
+					e = new IndicationEvent(this, newIndication);
+				}
+				((IndicationListener) listeners[i + 1]).indicationChanged(e);
+			}
+		}// next i
+	}
+
+	public void fireSelectionChanged(int[] selections) {
+		// Guaranteed to return a non-null array
+		Object[] listeners = listenerList.getListenerList();
+		SelectionEvent e = null;
+		// Process the listeners last to first, notifying
+		// those that are interested in this event
+		for (int i = listeners.length - 2; i >= 0; i -= 2) {
+			if (listeners[i] == SelectionListener.class) {
+				// Lazily create the event:
+				if (e == null) {
+					e = new SelectionEvent(this, selections);
+				}
+				((SelectionListener) listeners[i + 1]).selectionChanged(e);
+			}
+		}// next i
+	}
+
 }
