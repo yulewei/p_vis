@@ -27,6 +27,10 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.util.GeometricShapeFactory;
 
+import edu.zjut.common.event.IndicationEvent;
+import edu.zjut.common.event.IndicationListener;
+import edu.zjut.common.event.SelectionEvent;
+import edu.zjut.common.event.SelectionListener;
 import edu.zjut.map.config.MapConfig;
 import edu.zjut.map.overlay.EsriLayer;
 import edu.zjut.map.overlay.MapPolygon;
@@ -37,8 +41,12 @@ import edu.zjut.vis.map.MapSelector.SelectType;
 
 public class JMapPanel extends JXMapViewerX {
 
+	Overlay indicationOverlay = null;
+	int indication = -1;
+	public int[] selections;
+
 	protected StatusListener statusListener;
-	protected IndicationListener indexListener;
+	protected OverlayMouseListener indexListener;
 
 	protected List<Overlay> markers;
 	protected List<EsriLayer> layers;
@@ -63,7 +71,7 @@ public class JMapPanel extends JXMapViewerX {
 		statusListener = new StatusListener();
 		this.addMouseListener(statusListener);
 		this.addMouseMotionListener(statusListener);
-		indexListener = new IndicationListener();
+		indexListener = new OverlayMouseListener();
 		this.addMouseListener(indexListener);
 		this.addMouseMotionListener(indexListener);
 
@@ -99,8 +107,8 @@ public class JMapPanel extends JXMapViewerX {
 
 		highlightOverlay = new Painter<JXMapViewer>() {
 			public void paint(Graphics2D g, JXMapViewer map, int w, int h) {
-				if (indexListener.indicationOverlay != null) {
-					Overlay marker = indexListener.indicationOverlay;
+				if (indicationOverlay != null) {
+					Overlay marker = indicationOverlay;
 					String text = marker.getTitle();
 					drawTooltip(g, text, indexListener.mouseX,
 							indexListener.mouseY, new Color(1.0f, 1.0f, 0.8f));
@@ -339,8 +347,64 @@ public class JMapPanel extends JXMapViewerX {
 		}
 
 		// 包含判断
-		for (Overlay overlay : markers) {
+		List<Integer> selectedOverlays = new ArrayList<>();
+		for (int i = 0; i < markers.size(); i++) {
+			Overlay overlay = markers.get(i);
 			if (polygon.intersects(overlay.getGeometry())) {
+				selectedOverlays.add(i);
+			}
+		}
+
+		int size = selectedOverlays.size();
+		int[] selections = new int[size];
+		for (int i = 0; i < size; i++) {
+			selections[i] = selectedOverlays.get(i);
+		}
+
+		selectionChanged(selections);
+
+		fireSelectionChanged(selections);
+	}
+
+	public void indicationChanged(int newIndication) {
+		// 清除原先高亮
+		if (indication != -1) {
+
+			boolean included = false;
+			if (selections != null) {
+				for (int i : selections)
+					if (i == indication)
+						included = true;
+			}
+
+			if (!included) {
+				Overlay overlay = markers.get(indication);
+				overlay.setHighlighted(false);
+			}
+		}
+
+		indication = newIndication;
+
+		if (indication != -1) {
+			Overlay overlay = markers.get(indication);
+			overlay.setHighlighted(true);
+		}
+	}
+
+	public void selectionChanged(int[] newSelections) {
+		// 清除原先高亮
+		if (selections != null) {
+			for (int i : selections) {
+				Overlay overlay = markers.get(i);
+				overlay.setHighlighted(false);
+			}
+		}
+
+		selections = newSelections;
+
+		if (selections != null) {
+			for (int i : selections) {
+				Overlay overlay = markers.get(i);
 				overlay.setHighlighted(true);
 			}
 		}
@@ -428,13 +492,10 @@ public class JMapPanel extends JXMapViewerX {
 		}
 	}
 
-	private class IndicationListener extends MouseAdapter {
+	private class OverlayMouseListener extends MouseAdapter {
 
 		int mouseX;
 		int mouseY;
-
-		Overlay indicationOverlay = null;
-		int curOverlayIndex = -1;
 
 		@Override
 		public void mouseMoved(MouseEvent e) {
@@ -443,15 +504,20 @@ public class JMapPanel extends JXMapViewerX {
 			mouseY = e.getY();
 
 			if (isShowMarkers) {
+
+				int newIndication = -1;
 				for (int i = 0; i < markers.size(); i++) {
 					Overlay overlay = markers.get(i);
-					overlay.setHighlighted(false);
 					if (overlay.contains(JMapPanel.this, mouseX, mouseY)) {
-						overlay.setHighlighted(true);
-						curOverlayIndex = i;
+						newIndication = i;
 						indicationOverlay = overlay;
+						break;
 					}
 				}
+
+				indicationChanged(newIndication);
+
+				fireIndicationChanged(indication);
 			}
 
 			for (int i = 0; i < layers.size(); i++) {
@@ -496,4 +562,57 @@ public class JMapPanel extends JXMapViewerX {
 			}
 		}
 	}
+
+	// 触发事件
+
+	public void addIndicationListener(IndicationListener l) {
+		listenerList.add(IndicationListener.class, l);
+	}
+
+	public void removeIndicationListener(IndicationListener l) {
+		listenerList.remove(IndicationListener.class, l);
+	}
+
+	public void addSelectionListener(SelectionListener l) {
+		listenerList.add(SelectionListener.class, l);
+	}
+
+	public void removeSelectionListener(SelectionListener l) {
+		listenerList.remove(SelectionListener.class, l);
+	}
+
+	public void fireIndicationChanged(int newIndication) {
+		// Guaranteed to return a non-null array
+		Object[] listeners = listenerList.getListenerList();
+		IndicationEvent e = null;
+		// Process the listeners last to first, notifying
+		// those that are interested in this event
+		for (int i = listeners.length - 2; i >= 0; i -= 2) {
+			if (listeners[i] == IndicationListener.class) {
+				// Lazily create the event:
+				if (e == null) {
+					e = new IndicationEvent(this, newIndication);
+				}
+				((IndicationListener) listeners[i + 1]).indicationChanged(e);
+			}
+		}// next i
+	}
+
+	public void fireSelectionChanged(int[] selections) {
+		// Guaranteed to return a non-null array
+		Object[] listeners = listenerList.getListenerList();
+		SelectionEvent e = null;
+		// Process the listeners last to first, notifying
+		// those that are interested in this event
+		for (int i = listeners.length - 2; i >= 0; i -= 2) {
+			if (listeners[i] == SelectionListener.class) {
+				// Lazily create the event:
+				if (e == null) {
+					e = new SelectionEvent(this, selections);
+				}
+				((SelectionListener) listeners[i + 1]).selectionChanged(e);
+			}
+		}// next i
+	}
+
 }

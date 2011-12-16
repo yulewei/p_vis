@@ -35,9 +35,7 @@ import edu.zjut.common.event.IndicationListener;
 import edu.zjut.common.event.SelectionEvent;
 import edu.zjut.common.event.SelectionListener;
 import edu.zjut.map.JMapPanel;
-import edu.zjut.map.cluster.DistanceClusterer;
 import edu.zjut.map.cluster.GridClusterer;
-import edu.zjut.map.cluster.GridClustererOriginal;
 import edu.zjut.map.cluster.MarkerClusterer;
 import edu.zjut.map.overlay.DefaultMapMarker;
 import edu.zjut.map.overlay.IconMarker;
@@ -51,9 +49,6 @@ public class GeoMap extends JPanel implements DataSetListener,
 	private DataSetForApps dataSet;
 	private AttributeData attrData;
 	private GeometryData geoData;
-
-	private int indication = -1;
-	private int[] selection;
 
 	private enum MarkerType {
 		CIRCLE, MARKER, ICON
@@ -96,6 +91,7 @@ public class GeoMap extends JPanel implements DataSetListener,
 	private HashMap<Overlay, Integer> markerIndexMap;
 
 	public GeoMap() {
+
 		this.setLayout(new BorderLayout());
 
 		initToolbar();
@@ -472,77 +468,35 @@ public class GeoMap extends JPanel implements DataSetListener,
 
 	@Override
 	public void indicationChanged(IndicationEvent e) {
-		Overlay maker = indexMarkerMap.get(indication);
-		if (maker != null)
-			maker.setHighlighted(false);
-
-		indication = e.getIndication();
-		maker = indexMarkerMap.get(indication);
-		if (maker != null)
-			maker.setHighlighted(true);
-
+		mapPanel.indicationChanged(e.getIndication());
 		repaint();
 	}
 
 	@Override
 	public void selectionChanged(SelectionEvent e) {
-
-		// 清空原先高亮
-		if (selection != null) {
-			for (int index : selection) {
-				Overlay maker = indexMarkerMap.get(index);
-				if (maker != null)
-					maker.setHighlighted(false);
-			}
-		}
-
-		selection = e.getSelection();
-
-		for (int index : selection) {
-			Overlay maker = indexMarkerMap.get(index);
-			if (maker != null)
-				maker.setHighlighted(true);
-		}
-
+		mapPanel.selectionChanged(e.getSelection());
 		repaint();
 	}
 
 	@Override
 	public SelectionEvent getSelectionEvent() {
-		// TODO Auto-generated method stub
-		return null;
+		return new SelectionEvent(this, mapPanel.selections);
 	}
 
 	public void addIndicationListener(IndicationListener l) {
-		listenerList.add(IndicationListener.class, l);
+		mapPanel.addIndicationListener(l);
 	}
 
 	public void removeIndicationListener(IndicationListener l) {
-		listenerList.remove(IndicationListener.class, l);
+		mapPanel.removeIndicationListener(l);
 	}
 
-	// public void mouseMoved(MouseEvent e) {
-	// super.mouseMoved(e);
-	//
-	// if (curOverlayIndex != -1)
-	// fireIndicationChanged(curOverlayIndex);
-	// }
+	public void addSelectionListener(SelectionListener l) {
+		mapPanel.addSelectionListener(l);
+	}
 
-	public void fireIndicationChanged(int newIndication) {
-		// Guaranteed to return a non-null array
-		Object[] listeners = listenerList.getListenerList();
-		IndicationEvent e = null;
-		// Process the listeners last to first, notifying
-		// those that are interested in this event
-		for (int i = listeners.length - 2; i >= 0; i -= 2) {
-			if (listeners[i] == IndicationListener.class) {
-				// Lazily create the event:
-				if (e == null) {
-					e = new IndicationEvent(this, newIndication);
-				}
-				((IndicationListener) listeners[i + 1]).indicationChanged(e);
-			}
-		}// next i
+	public void removeSelectionListener(SelectionListener l) {
+		mapPanel.removeSelectionListener(l);
 	}
 
 	class MapFieldImporter extends FieldImporter<MeasureField> {
