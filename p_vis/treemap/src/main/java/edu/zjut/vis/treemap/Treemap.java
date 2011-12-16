@@ -14,9 +14,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
-import org.gicentre.apps.hide.TreemapState;
-import org.gicentre.data.summary.SummariseField;
-import org.gicentre.hive.Expression;
 
 import edu.zjut.common.data.DataSetForApps;
 import edu.zjut.common.data.attr.AttributeData;
@@ -25,8 +22,14 @@ import edu.zjut.common.data.attr.DimensionField;
 import edu.zjut.common.data.attr.MeasureField;
 import edu.zjut.common.event.DataSetEvent;
 import edu.zjut.common.event.DataSetListener;
+import edu.zjut.common.event.IndicationEvent;
+import edu.zjut.common.event.IndicationListener;
+import edu.zjut.treemap.core.TreemapState;
+import edu.zjut.treemap.hive.Expression;
+import edu.zjut.treemap.summary.SummariseField;
 
-public class Treemap extends JPanel implements DataSetListener {
+public class Treemap extends JPanel implements DataSetListener,
+		IndicationListener {
 
 	private DataSetForApps dataSet;
 	private AttributeData attrData;
@@ -36,7 +39,7 @@ public class Treemap extends JPanel implements DataSetListener {
 	private JSplitPane jSplitPane;
 	private TreemapCtrlPanel ctrlPanel;
 	// private PTreemap pTreemap;
-	private TreemapApplet pTreemap;
+	private PTreemap pTreemap;
 
 	private String defaultHive = null;
 	private TreemapState treemapState;
@@ -55,13 +58,13 @@ public class Treemap extends JPanel implements DataSetListener {
 		this.add(jSplitPane, BorderLayout.CENTER);
 
 		// pTreemap = new PTreemap();
-		pTreemap = new TreemapApplet();
+		pTreemap = new PTreemap();
 		jSplitPane.add(pTreemap, JSplitPane.RIGHT);
 
 		ctrlPanel = new TreemapCtrlPanel(pTreemap);
 		jSplitPane.add(ctrlPanel, JSplitPane.LEFT);
 
-		jSplitPane.setDividerLocation(200);
+		jSplitPane.setDividerLocation(180);
 		this.setPreferredSize(new Dimension(500, 500));
 
 		pTreemap.init();
@@ -88,7 +91,7 @@ public class Treemap extends JPanel implements DataSetListener {
 					jSplitPane.setDividerSize(0);
 					ctrlPanel.setVisible(false);
 				} else {
-					jSplitPane.setDividerLocation(200);
+					jSplitPane.setDividerLocation(180);
 					jSplitPane.setDividerSize(dividerSize);
 					ctrlPanel.setVisible(true);
 				}
@@ -138,5 +141,24 @@ public class Treemap extends JPanel implements DataSetListener {
 		for (Object[] row : rowArrays) {
 			records.add(row);
 		}
+	}
+
+	@Override
+	public void indicationChanged(IndicationEvent e) {
+
+		// 判断treemap是否包含名称列
+		String observation = attrData.getObservationField().getName();
+		DataField[] hierFields = treemapState.getHierFields();
+
+		int index = -1;
+		for (int i = 0; i < hierFields.length; i++) {
+			if (observation.equals(hierFields[i].getName())) {
+				index = i;
+				break;
+			}
+		}
+
+		// TODO 高亮选择...
+
 	}
 }

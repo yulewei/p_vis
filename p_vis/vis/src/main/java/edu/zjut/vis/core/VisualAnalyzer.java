@@ -117,7 +117,7 @@ public class VisualAnalyzer extends JFrame implements IndicationListener {
 		// VizState state = Utils.openDefaultLayout();
 		// VizState state = Utils.getVizStateFromFile("vis_state.xml");
 		// VizState state = Utils.getVizStateFromFile("treemap.xml");
-		vizState = Utils.getVizStateFromFile("pcp2.xml");
+		vizState = Utils.getVizStateFromFile("test2.xml");
 		// VizState state = Utils.getVizStateFromFile("map.xml");
 		// VizState state = Utils.getVizStateFromFile("time.xml");
 		// VizState state = Utils.getVizStateFromFile("final.xml");

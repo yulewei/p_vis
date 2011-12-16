@@ -23,11 +23,6 @@ import javax.swing.TransferHandler;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.gicentre.apps.hide.AppearanceType;
-import org.gicentre.apps.hide.Layout;
-import org.gicentre.apps.hide.TreemapState;
-import org.gicentre.data.summary.SummariseField;
-import org.gicentre.data.summary.SummariseNull;
 
 import edu.zjut.common.ctrl.FieldComponent;
 import edu.zjut.common.ctrl.FieldComponent.ColorEnum;
@@ -38,6 +33,11 @@ import edu.zjut.common.ctrl.ListGroup;
 import edu.zjut.common.data.attr.DataField;
 import edu.zjut.common.data.attr.DimensionField;
 import edu.zjut.common.data.attr.MeasureField;
+import edu.zjut.treemap.core.AppearanceType;
+import edu.zjut.treemap.core.Layout;
+import edu.zjut.treemap.core.TreemapState;
+import edu.zjut.treemap.summary.SummariseField;
+import edu.zjut.treemap.summary.SummariseNull;
 
 public class TreemapCtrlPanel extends JPanel {
 
@@ -71,7 +71,7 @@ public class TreemapCtrlPanel extends JPanel {
 	DefaultListModel<SummariseField> colorModel;
 	DefaultListModel<Layout> layoutModel;
 
-	TreemapApplet pTreemap;
+	PTreemap pTreemap;
 	TreemapState treemapState;
 
 	List<DataField> allowedHierFields;
@@ -83,7 +83,7 @@ public class TreemapCtrlPanel extends JPanel {
 	protected SummariseField[][] colorFields;
 	protected Layout[] layouts;
 
-	public TreemapCtrlPanel(TreemapApplet pTreemap) {
+	public TreemapCtrlPanel(PTreemap pTreemap) {
 		this.pTreemap = pTreemap;
 		this.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
 		layout = new SpringLayout();
@@ -183,7 +183,7 @@ public class TreemapCtrlPanel extends JPanel {
 		allowedLayouts.setCellRenderer(new FieldComponent<Layout>(
 				ColorEnum.BLUE));
 		allowedLayouts.setLayoutOrientation(FieldList.HORIZONTAL);
-		allowedLayouts.setFixedCellWidth(30);
+		allowedLayouts.setFixedCellWidth(25);
 		allowedLayouts.setDropMode(DropMode.ON);
 		allowedLayouts.setDragEnabled(true);
 		allowedLayouts.setTransferHandler(new FieldExporter<Layout>(
@@ -262,7 +262,7 @@ public class TreemapCtrlPanel extends JPanel {
 		// allowed layouts
 		layout.putConstraint(SpringLayout.NORTH, allowedLayouts, 20,
 				SpringLayout.SOUTH, layoutList);
-		layout.putConstraint(SpringLayout.WEST, allowedLayouts, -20,
+		layout.putConstraint(SpringLayout.WEST, allowedLayouts, -10,
 				SpringLayout.WEST, hierList);
 		layout.putConstraint(SpringLayout.EAST, allowedLayouts, 0,
 				SpringLayout.EAST, hierList);

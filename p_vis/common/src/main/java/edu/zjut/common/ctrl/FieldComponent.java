@@ -64,7 +64,7 @@ public class FieldComponent<E> extends JComponent implements
 		this.isSelected = isSelected;
 
 		// this.setOpaque(false);
-		this.setPreferredSize(new Dimension(100, 25));
+		this.setPreferredSize(new Dimension(50, 25));
 	}
 
 	@Override
