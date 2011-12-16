@@ -9,6 +9,7 @@ import java.util.List;
 
 
 import edu.zjut.common.data.attr.DataField;
+import edu.zjut.treemap.filter.DataFilter;
 import edu.zjut.treemap.summary.SummariseField;
 
 /**

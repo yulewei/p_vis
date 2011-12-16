@@ -7,6 +7,9 @@ import org.gicentre.treemappa.TreeMapNode;
 
 import edu.zjut.treemap.data.SummariseNode;
 
+/**
+ * 对TreeMappa的TreeMapNode类封装
+ */
 public class TreemapSummaryNode extends TreeMapNode {
 
 	private SummariseNode summaryNode;

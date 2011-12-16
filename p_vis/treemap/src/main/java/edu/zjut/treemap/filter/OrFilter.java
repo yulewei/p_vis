@@ -1,7 +1,8 @@
-package edu.zjut.treemap.data;
+package edu.zjut.treemap.filter;
 
 import java.util.HashSet;
 import java.util.Iterator;
+
 
 /**
  * Or filter

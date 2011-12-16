@@ -14,7 +14,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
-
 import edu.zjut.common.data.DataSetForApps;
 import edu.zjut.common.data.attr.AttributeData;
 import edu.zjut.common.data.attr.DataField;
@@ -69,7 +68,7 @@ public class Treemap extends JPanel implements DataSetListener,
 
 		pTreemap.init();
 
-		defaultHive = "sHier(/,$城区,$楼盘); sOrder(/,HIER,HIER); sSize(/,FX,FX); sColor(/,HIER,$毛坯均价); sLayout(/,SF,SF);";
+		defaultHive = "sHier(/,$城区,$楼盘); sColor(/,HIER,$毛坯均价);";
 	}
 
 	private void initToolbar() {

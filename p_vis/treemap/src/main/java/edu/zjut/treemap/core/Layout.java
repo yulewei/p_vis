@@ -1,6 +1,8 @@
 package edu.zjut.treemap.core;
 
-// Layouts
+/**
+ * Layouts
+ */
 public enum Layout {
 	/**
 	 * sliceAndDice, horizontal

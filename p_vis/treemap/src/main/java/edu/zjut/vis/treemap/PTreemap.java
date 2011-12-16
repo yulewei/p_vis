@@ -8,7 +8,6 @@ import java.util.List;
 
 import javax.swing.tree.TreeNode;
 
-
 import processing.core.PApplet;
 import processing.core.PFont;
 import edu.zjut.common.data.attr.FieldType;
@@ -20,6 +19,11 @@ import edu.zjut.treemap.data.SummariseNode;
 import edu.zjut.treemap.summary.SummariseField;
 import edu.zjut.treemap.summary.SummariseNull;
 
+/**
+ * 
+ * @author yulewei
+ * 
+ */
 public class PTreemap extends PApplet {
 	PFont font;
 	DecimalFormat df = new DecimalFormat("0.00");
@@ -54,8 +58,8 @@ public class PTreemap extends PApplet {
 		this.summariseFields = summariseFields;
 		this.records = records;
 
-		treemapPanel = new TreemapPanel(this, font, new Rectangle(0, 0, width,
-				height), records, summariseFields);
+		treemapPanel = new TreemapPanel(this,
+				new Rectangle(0, 0, width, height), records, summariseFields);
 	}
 
 	public void setup() {
@@ -72,6 +76,7 @@ public class PTreemap extends PApplet {
 			treemapPanel.setBounds(new Rectangle(0, 0, width, height));
 		}
 
+		treemapPanel.setTextFont(font);
 		treemapPanel.draw(treemapState);
 
 		if (tooltipLabel != null)
@@ -79,37 +84,38 @@ public class PTreemap extends PApplet {
 	}
 
 	private void drawTooltip() {
-
 		textFont(font);
 		textSize(12);
-		// work out w and h
-		int w = (int) textWidth(tooltipLabel) + 2;
-		int h = 14;
+		float w = textWidth(tooltipLabel) + 2;
+		float h = 14;
 		if (tooltipData != null) {
-			String toks[] = tooltipData.split("\\\n");
+			String[] toks = tooltipData.split("\\\n");
 			h += toks.length * 11;
+
+			textSize(10);
 			for (String tok : toks) {
-				textSize(10);
-				int localW = (int) textWidth(tok);
-				if (localW > w) {
+				float localW = textWidth(tok);
+				if (localW > w)
 					w = localW;
-				}
 			}
 		}
 
-		int offsetX = 3;
-		int offsetY = 3;
+		float offsetX = 3;
+		float offsetY = 3;
 		stroke(80, 20);
 		textAlign(LEFT, TOP);
-		int x = mouseX + 10;
+		float x = mouseX + 10;
 		if (x + w > width) {
 			x = width - w - 2 * offsetX;
 		}
+
 		fill(255, 248, 147, 200);
 		rect(x, mouseY, w + 2 * offsetX, h + 2 * offsetY);
+
 		fill(80);
 		textSize(12);
 		text(tooltipLabel, x + offsetX, mouseY + offsetY);
+
 		fill(100);
 		textSize(10);
 		textLeading(11);
@@ -123,9 +129,10 @@ public class PTreemap extends PApplet {
 
 		tooltipLabel = null;
 		tooltipData = null;
+
 		// identify the node (rectangle) that the mouse is over
-		TreemapSummaryNode node = treemapPanel.getNodeFromMouse();
-		treemapPanel.setActiveNode(node);
+		TreemapSummaryNode node = treemapPanel.getNodeFromMouse(mouseX, mouseY);
+		treemapPanel.setHighlightNode(node);
 
 		if (node == null)
 			return;
@@ -142,6 +149,7 @@ public class PTreemap extends PApplet {
 			} else {
 				label = label.replaceAll("\\_", " ");
 			}
+
 			tooltipLabel += label;
 			if (i < treenodes.length - 1) {
 				tooltipLabel += " > ";
@@ -181,15 +189,14 @@ public class PTreemap extends PApplet {
 				continue;
 
 			String value = "";
-			if (field.getFieldType() == FieldType.STRING) {
+			if (field.getFieldType() == FieldType.STRING)
 				value = summariseNode.getSummaryAsString(field);
-			}
-			if (field.getFieldType() == FieldType.INT) {
+
+			if (field.getFieldType() == FieldType.INT)
 				value = summariseNode.getSummaryAsLong(field) + "";
-			} else {
-				Double v = summariseNode.getSummaryAsDouble(field);
-				value = df.format(v);
-			}
+			else
+				value = df.format(summariseNode.getSummaryAsDouble(field));
+
 			tooltipData += field.getName() + "=" + value;
 			tooltipData += "\n";
 		}

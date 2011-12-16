@@ -1,6 +1,8 @@
 package edu.zjut.treemap.core;
 
-// Appearance aspects
+/**
+ * Appearance aspects
+ */
 public enum AppearanceType {
 	SHOW_LABELS, LABEL_SIZE, AUTOSIZE_LABELS, LABEL_OPACITY, ALLOW_VERTICAL_LABELS, PADDING, BORDER_WIDTH, INCLUDE_NULLS;
 

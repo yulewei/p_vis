@@ -1,4 +1,4 @@
-package edu.zjut.treemap.data;
+package edu.zjut.treemap.filter;
 
 /**
  * Interface for DataFilters for querying/filtering records

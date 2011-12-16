@@ -1,4 +1,4 @@
-package edu.zjut.treemap.data;
+package edu.zjut.treemap.filter;
 
 import edu.zjut.common.data.attr.DataField;
 

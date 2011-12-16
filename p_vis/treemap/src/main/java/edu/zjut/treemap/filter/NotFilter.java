@@ -1,4 +1,5 @@
-package edu.zjut.treemap.data;
+package edu.zjut.treemap.filter;
+
 
 /**
  * A filter to test if a record does NOT match another filter
