@@ -155,15 +155,15 @@ public class AreaStackedRenderer extends TimeSeriesPlot {
 				if (i > 0)
 					y2 = plotY[i - 1][row];
 
-				if (dis < minDis && (p.mouseY > y1 && p.mouseY < y2)) {
+				if (dis < minDis && (p.mouseY > y1 + y && p.mouseY < y2 + y)) {
 					find = true;
 					minDis = dis;
 					minIndex = i;
 					minRow = row;
 
-					minX = plotX[row];
-					minY1 = y1;
-					minY2 = y2;
+					minX = plotX[row] + x;
+					minY1 = y1 + y;
+					minY2 = y2 + y;
 				}
 			}
 		}

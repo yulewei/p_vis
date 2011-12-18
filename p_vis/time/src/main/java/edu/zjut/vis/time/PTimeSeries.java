@@ -10,7 +10,6 @@ import processing.core.PConstants;
 import processing.core.PFont;
 import edu.zjut.chart.plot.TimeSeriesPlot;
 import edu.zjut.common.data.time.TimePeriod;
-import edu.zjut.common.data.time.TimeSeriesCollection;
 import edu.zjut.common.data.time.TimeType;
 
 public class PTimeSeries extends PApplet {
@@ -19,7 +18,7 @@ public class PTimeSeries extends PApplet {
 	int[] colorArr;
 	ColourTable cTable;
 
-	float titleHeight = 50;
+	int titleHeight = 50;
 	private boolean isShowTitle = false;
 
 	DraggableRect cover;
@@ -31,6 +30,8 @@ public class PTimeSeries extends PApplet {
 	public PTimeSeries() {
 		this.detailPlotList = new ArrayList<TimeSeriesPlot>();
 		this.weightList = new ArrayList<Integer>();
+
+		cTable = ColourTable.getPresetColourTable(ColourTable.SET3_8);
 	}
 
 	public void setSeries(List<TimeSeriesPlot> plots) {
@@ -44,7 +45,7 @@ public class PTimeSeries extends PApplet {
 
 	public void setOverviewPlot(TimeSeriesPlot subplot) {
 		this.overviewPlot = subplot;
-		initColor(overviewPlot.getSeries());
+		initColor(cTable);
 
 		int range = overviewPlot.getSeries().getTimeRange();
 		this.cover = new DraggableRect(this, 0, range - 1);
@@ -104,13 +105,15 @@ public class PTimeSeries extends PApplet {
 	 * 
 	 * @param series
 	 */
-	protected void initColor(TimeSeriesCollection series) {
-		cTable = ColourTable.getPresetColourTable(ColourTable.SET3_8);
-		int size = series.seriesSize();
+	protected void initColor(ColourTable cTable) {
+		this.cTable = cTable;
+		int size = overviewPlot.getSeries().seriesSize();
 		colorArr = new int[size];
 		for (int i = 0; i < size; i++) {
 			colorArr[i] = cTable.findColour(i + 1);
 		}
+		
+		setColors(colorArr);
 	}
 
 	/**
@@ -134,6 +137,10 @@ public class PTimeSeries extends PApplet {
 		textFont(font);
 		smooth();
 		size(800, 600);
+
+		frameRate(10);
+
+		// noLoop();
 	}
 
 	public void draw() {
@@ -142,9 +149,9 @@ public class PTimeSeries extends PApplet {
 
 		background(255);
 
-		float titleHeight = isShowTitle ? this.titleHeight : 0;
-		float gap = 5;
-		float plotHeight = height - titleHeight - 2 * gap;
+		int titleHeight = isShowTitle ? this.titleHeight : 0;
+		int gap = 5;
+		int plotHeight = height - titleHeight - 2 * gap;
 
 		// title
 		if (isShowTitle) {
@@ -156,17 +163,25 @@ public class PTimeSeries extends PApplet {
 
 		textSize(12);
 
-		setColors(colorArr);
+//		setColors(colorArr);
 		drawPlot(gap, titleHeight + gap, width - 2 * gap, plotHeight);
 	}
 
-	public void drawPlot(float x, float y, float width, float height) {
+	public void drawPlot(int x, int y, int width, int height) {
 		float sum = overviewWeight;
 		for (int w : weightList) {
 			sum += w;
 		}
 
-		float oh = height * (overviewWeight / sum);
+		int oh = (int) (height * (overviewWeight / sum));
+
+		int totalHeight = 0;
+		List<Integer> heights = new ArrayList<>();
+		for (int i = 0; i < weightList.size(); i++) {
+			int dh = (int) (height * (weightList.get(i) / sum));
+			totalHeight += dh;
+			heights.add(dh);
+		}
 
 		overviewPlot.size(x, y + height - oh, width, oh);
 		overviewPlot.draw();
@@ -181,11 +196,12 @@ public class PTimeSeries extends PApplet {
 		TimePeriod minTime = baseTime.rollDate(type, cover.getLeftIndex());
 		TimePeriod maxTime = baseTime.rollDate(type, cover.getRightIndex());
 
-		float dy = y;
+		int dy = y;
+		dy = y + height - totalHeight - oh;
 		for (int i = 0; i < detailPlotList.size(); i++) {
 			TimeSeriesPlot detailPlot = detailPlotList.get(i);
 
-			float dh = height * (weightList.get(i) / sum);
+			int dh = heights.get(i);
 			detailPlot.size(x, dy, width, dh);
 			dy += dh;
 

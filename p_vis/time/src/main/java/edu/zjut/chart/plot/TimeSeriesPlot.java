@@ -9,16 +9,19 @@ import org.gicentre.utils.colour.ColourTable;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
+import processing.core.PFont;
+import processing.core.PGraphics;
 import edu.zjut.chart.axis.Axis.Orientation;
 import edu.zjut.chart.axis.DateAxis;
 import edu.zjut.chart.axis.NumberAxis;
-import edu.zjut.common.color.Legend;
 import edu.zjut.common.data.time.TimePeriod;
 import edu.zjut.common.data.time.TimeSeriesCollection;
 import edu.zjut.common.data.time.TimeSeriesData;
 import edu.zjut.common.data.time.TimeType;
 
 public abstract class TimeSeriesPlot extends Plot {
+
+	PFont font;
 
 	/**
 	 * 每个时间序列赋予一个颜色
@@ -27,9 +30,11 @@ public abstract class TimeSeriesPlot extends Plot {
 
 	protected TimeSeriesCollection series;
 
-	float plotX1, plotY1;
-	float plotX2, plotY2;
-	float labelX, labelY;
+	private PGraphics buffer = null;
+
+	int plotX1, plotY1;
+	int plotX2, plotY2;
+	int labelX, labelY;
 
 	public final static DateFormat YEAR_FORMAT = new SimpleDateFormat("yyyy");
 	public final static DateFormat MOUTH_FORMAT = new SimpleDateFormat(
@@ -87,6 +92,8 @@ public abstract class TimeSeriesPlot extends Plot {
 		if (series.getTimeType() == TimeType.DATE)
 			dateFormat = DAY_FORMAT;
 
+		font = p.createFont("FFScala", 12);
+
 		calcRange();
 
 		initAxis();
@@ -138,35 +145,49 @@ public abstract class TimeSeriesPlot extends Plot {
 		timeAxis.setDateFormat(dateFormat);
 	}
 
-	public void size(float x, float y, float width, float height) {
+	public void size(int x, int y, int width, int height) {
+		if (this.x != x || this.y != y || this.width != width
+				|| this.height != height) {
+			needRedraw = true;
+		} else {
+			return;
+		}
+
 		this.x = x;
 		this.y = y;
 		this.width = width;
 		this.height = height;
 
-		float axisMin = p.textWidth(numberFormat.format(axisValueMin));
-		float axisMax = p.textWidth(numberFormat.format(axisValueMax));
-		float axisWidth = axisMax > axisMin ? axisMax : axisMin;
-		float axisHeight = p.textAscent();
+		int axisMin = (int) p.textWidth(numberFormat.format(axisValueMin));
+		int axisMax = (int) p.textWidth(numberFormat.format(axisValueMax));
+		int axisWidth = axisMax > axisMin ? axisMax : axisMin;
+		int axisHeight = (int) p.textAscent();
 
 		if (isShowLabel) {
 			axisWidth += 20;
 			axisHeight += 20;
 		}
 
-		plotX1 = x + axisWidth + 8;
-		plotY1 = y + 20;
-		plotX2 = x + width - 20;
-		plotY2 = y + height - axisHeight - 8;
+		plotX1 = axisWidth + 8;
+		plotY1 = 20;
+		plotX2 = width - 20;
+		plotY2 = height - axisHeight - 8;
 
-		labelX = x + 20;
-		labelY = y + height - 20;
+		labelX = 20;
+		labelY = height - 20;
 
 		valueAxis.plotSize(plotX1, plotY1, plotX2, plotY2);
 		timeAxis.plotSize(plotX1, plotY1, plotX2, plotY2);
 	}
 
 	public void setVisualRange(TimePeriod visualMin, TimePeriod visualMax) {
+		if (this.visualMin.compareTo(visualMin) != 0
+				|| this.visualMax.compareTo(visualMax) != 0) {
+			needRedraw = true;
+		} else {
+			return;
+		}
+
 		this.visualMin = visualMin;
 		this.visualMax = visualMax;
 		timeAxis.axisData(visualMin, visualMax);
@@ -177,6 +198,7 @@ public abstract class TimeSeriesPlot extends Plot {
 	 */
 	public void setColors(int[] colorArr) {
 		this.colorArr = colorArr;
+		needRedraw = true;
 	}
 
 	/**
@@ -194,11 +216,16 @@ public abstract class TimeSeriesPlot extends Plot {
 	}
 
 	public float[] getPlotRect() {
-		return new float[] { plotX1, plotY1, plotX2, plotY2 };
+		return new float[] { plotX1 + x, plotY1 + y, plotX2 + x, plotY2 + y };
 	}
 
 	public void draw() {
+		if (colorArr == null)
+			initColor();
+
 		p.pushStyle();
+		p.smooth();
+		p.textFont(font);
 
 		// 灰色背景
 		p.fill(224);
@@ -208,28 +235,37 @@ public abstract class TimeSeriesPlot extends Plot {
 		p.fill(255);
 		p.rectMode(PConstants.CORNERS);
 		p.noStroke();
-		p.rect(plotX1, plotY1, plotX2, plotY2);
+		p.rect(plotX1 + x, plotY1 + y, plotX2 + x, plotY2 + y);
 
-		if (isShowLabel)
-			drawAxisLabels();
+		if (needRedraw) {
+			buffer = p.createGraphics(width, height, PApplet.JAVA2D);
+			PGraphics oldG = p.g;
+			p.g = buffer;
+			buffer.beginDraw();
+			p.smooth();
+			p.textFont(font);
+			if (isShowLabel)
+				drawAxisLabels();
+			timeAxis.draw();
+			valueAxis.draw();
+			drawChart();
+			buffer.endDraw();
+			p.g = oldG;
 
-		timeAxis.draw();
-		valueAxis.draw();
+			needRedraw = false;
+		}
 
-		if (colorArr == null)
-			initColor();
-
-		drawChart();
-
-		if (isShowHighlight)
-			drawDataHighlight();
+		p.image(buffer, x, y);
 
 		if (isShowTitle) {
 			p.fill(50);
 			p.textSize(14);
 			p.textAlign(PConstants.RIGHT, PConstants.TOP);
-			p.text(series.getName(), plotX2 - 2, plotY1 - 2);
+			p.text(series.getName(), plotX2 + x - 2, plotY1 + y - 2);
 		}
+
+		if (isShowHighlight)
+			drawDataHighlight();
 
 		p.popStyle();
 	}
@@ -251,7 +287,6 @@ public abstract class TimeSeriesPlot extends Plot {
 	 * 高亮点, 鼠标判断
 	 */
 	protected void drawDataHighlight() {
-
 		boolean find = false;
 		float mindis = 3;
 		TimePeriod minyear = null;
@@ -267,20 +302,21 @@ public abstract class TimeSeriesPlot extends Plot {
 					if (value == null)
 						continue;
 
-					float x = PApplet.map(time.getSerialIndex(),
+					float px = PApplet.map(time.getSerialIndex(),
 							visualMin.getSerialIndex(),
-							visualMax.getSerialIndex(), plotX1, plotX2);
-					float y = PApplet.map(value, axisValueMin, axisValueMax,
-							plotY2, plotY1);
+							visualMax.getSerialIndex(), plotX1, plotX2)
+							+ x;
+					float py = PApplet.map(value, axisValueMin, axisValueMax,
+							plotY2, plotY1) + y;
 
-					float dis = PApplet.dist(p.mouseX, p.mouseY, x, y);
+					float dis = PApplet.dist(p.mouseX, p.mouseY, px, py);
 					if (dis < mindis) {
 						find = true;
 						mindis = dis;
 						minyear = time;
 						minvalue = value;
-						minx = x;
-						miny = y;
+						minx = px;
+						miny = py;
 					}
 				}
 			}
@@ -303,9 +339,9 @@ public abstract class TimeSeriesPlot extends Plot {
 
 			// 虚线
 			for (float dy = plotY1; dy <= plotY2; dy += 4)
-				p.line(minx, dy, minx, dy + 1);
+				p.line(minx, y + dy, minx, y + dy + 1);
 			for (float dx = plotX1; dx <= plotX2; dx += 4)
-				p.line(dx, miny, dx + 1, miny);
+				p.line(x + dx, miny, x + dx + 1, miny);
 
 			// 文本
 			p.fill(0);

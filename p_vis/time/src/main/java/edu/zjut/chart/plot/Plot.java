@@ -5,18 +5,19 @@ import processing.core.PApplet;
 public abstract class Plot {
 
 	protected PApplet p;
-	protected float x, y, width, height;
-	
+	protected int x = -1, y = -1, width = -1, height = -1;
+	protected boolean needRedraw = true;
+
 	public Plot(PApplet p) {
 		this.p = p;
 	}
 
-	public void size(float x, float y, float width, float height) {
+	public void size(int x, int y, int width, int height) {
 		this.x = x;
 		this.y = y;
 		this.width = width;
 		this.height = height;
 	}
 
-	public abstract void draw();	
+	public abstract void draw();
 }

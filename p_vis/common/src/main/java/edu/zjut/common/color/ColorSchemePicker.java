@@ -1,6 +1,7 @@
 package edu.zjut.common.color;
 
 import java.awt.BasicStroke;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -16,6 +17,7 @@ import java.util.Vector;
 
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JPanel;
 
 import org.gicentre.utils.colour.ColourTable;
 
@@ -52,7 +54,12 @@ public class ColorSchemePicker extends JDialog {
 		this.setVisible(false);
 		this.setSize(500, 600);
 
-		this.add(new ColorSchemePanel());
+		JPanel plotPanel = new JPanel();
+		plotPanel.setLayout(new BorderLayout());
+		plotPanel.setBackground(Color.white);
+		this.add(plotPanel);
+
+		plotPanel.add(new ColorSchemePanel());
 
 		pickerListeners = new Vector<ColorSchemeListener>();
 
@@ -84,9 +91,9 @@ public class ColorSchemePicker extends JDialog {
 			this.setSize(230, 250);
 		case Cat:
 			title = "Categorical";
-			colors = ColorUtils.getColoursCatAll()[catIndex];
 			if (refColorTable != null)
 				catIndex = refColorTable.getColourRules().size() - 4;
+			colors = ColorUtils.getColoursCatAll()[catIndex];
 			this.setMinimumSize(new Dimension(230, 250));
 			this.setSize(230, 250);
 			break;

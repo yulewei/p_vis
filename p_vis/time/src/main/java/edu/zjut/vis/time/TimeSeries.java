@@ -1,6 +1,7 @@
 package edu.zjut.vis.time;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -71,8 +72,9 @@ public class TimeSeries extends JPanel implements DataSetListener {
 		jSplitPane.setOneTouchExpandable(true);
 		this.add(jSplitPane, BorderLayout.CENTER);
 
-		plotPanel = new JPanel();
+		plotPanel = new JPanel();		
 		plotPanel.setLayout(new BorderLayout());
+		plotPanel.setBackground(Color.white);
 
 		jSplitPane.add(plotPanel, JSplitPane.RIGHT);
 		
@@ -86,6 +88,7 @@ public class TimeSeries extends JPanel implements DataSetListener {
 		schemePicker.addPickerListener(new ColorSchemeListener() {
 			public void colorChosen(ColourTable cTable) {
 				legend.setColorTable(cTable);
+				pTimeSeries.initColor(cTable);
 				repaint();
 			}
 		});
