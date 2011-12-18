@@ -20,8 +20,17 @@ import processing.core.PApplet;
 
 public class Legend extends JComponent implements MouseListener {
 
-	ColourTable cTable;
+	public enum Orientation {
+		VERTICAL, HORIZONTAL
+	};
 
+	Orientation orient = Orientation.HORIZONTAL;
+
+	Color black;
+	FontMetrics fm;
+	Font textFont;
+
+	ColourTable cTable;
 	float min, max;
 	float curValue;
 	float[] values;
@@ -68,31 +77,45 @@ public class Legend extends JComponent implements MouseListener {
 		int w = this.getWidth() - 10;
 		int h = this.getHeight() - 10;
 
-		Font font = g2.getFont();
-		Font font12 = font.deriveFont(11.f);
-		FontMetrics fm = g2.getFontMetrics();
+		if (black == null) {
+			Font font = g2.getFont();
+			textFont = font.deriveFont(11.f);
+			fm = g2.getFontMetrics();
+			black = new Color(0, 0, 0, 100);
+		}
 
-		Color black = new Color(0, 0, 0, 100);
+		g2.setFont(textFont);
 		g2.setPaint(black);
-		g2.setFont(font12);
+		g2.drawRect(x, y, w, h);
 
+		if (cTable == null)
+			return;
+
+		if (orient == Orientation.HORIZONTAL)
+			drawHor(g2, x, y, w, h);
+		else
+			drawVer(g2, x, y, w, h);
+
+		if (isActive) {
+			g2.setStroke(new BasicStroke(3.0f));
+			g2.setPaint(new Color(255, 255, 0, 200));
+			g2.drawRect(x, y, w, h);
+			g2.setStroke(new BasicStroke(1.0f));
+		}
+	}
+
+	protected void drawHor(Graphics2D g2, int x, int y, int w, int h) {
 		int gap = 3;
 		int th = 15, ty = y + h;
 		int ah = 5, ay = y + h - th - ah + 2;
-
 		int bx = x, by = y, bw = w, bh = h - th - ah;
 
-		// rect(bx, by, bw, bh);
+		// g2.drawRect(bx, by, bw, bh);
+
 		bx = bx + gap;
 		by = by + gap;
 		bw = bw - 2 * gap;
 		bh = bh - gap;
-
-		g2.drawRect(x, y, w, h);
-		// rect(x, ty - th, w, th);
-
-		if (cTable == null)
-			return;
 
 		if (!cTable.getIsDiscrete()) {
 			float inc = 0.001f;
@@ -121,9 +144,7 @@ public class Legend extends JComponent implements MouseListener {
 			}
 
 		} else {
-
 			int colorGap = 3;
-			// p.textAlign(PConstants.CENTER, PConstants.BOTTOM);
 			int numColours = cat.length;
 			for (int i = 0; i < numColours; i++) {
 				g2.setPaint(new Color(cTable.findColour(i + 1)));
@@ -147,13 +168,81 @@ public class Legend extends JComponent implements MouseListener {
 				g2.drawString(cat[i], rc - tw / 2, ty - 3);
 			}
 		}
+	}
 
-		if (isActive) {
-			g2.setStroke(new BasicStroke(3.0f));
-			g2.setPaint(new Color(255, 255, 0, 200));
-			g2.drawRect(x, y, w, h);
-			g2.setStroke(new BasicStroke(1.0f));
+	protected void drawVer(Graphics2D g2, int x, int y, int w, int h) {
+		int tw = 20;
+		String minStr = "";
+		String maxStr = "";
+		if (!cTable.getIsDiscrete()) {
+			minStr = String.format("%.2f", min);
+			maxStr = String.format("%.2f", max);
+			int tmp1 = fm.stringWidth(minStr);
+			int tmp2 = fm.stringWidth(maxStr);
+			tw = Math.max(tw, Math.max(tmp1, tmp2));
+		} else {
+			for (String str : cat) {
+				int tmp = fm.stringWidth(str);
+				if (tmp > tw)
+					tw = tmp;
+			}
 		}
+
+		int gap = 3;
+		int tx = x + w - tw;
+		int bx = x, by = y, bw = w - tw, bh = h;
+
+		// g2.drawRect(bx, by, bw, bh);
+
+		bx = bx + gap;
+		by = by + gap;
+		bw = bw - gap;
+		bh = bh - 2 * gap;
+
+		if (!cTable.getIsDiscrete()) {
+			float inc = 0.001f;
+			for (float i = 0; i < 1; i += inc) {
+				int ry = (int) (by + bh * i);
+				int rh = (int) (bh * inc);
+				g2.setPaint(new Color(cTable.findColour(i)));
+				g2.drawRect(bx, ry, bw, rh);
+			}
+			g2.setPaint(black);
+			g2.drawRect(bx, by, bw, bh);
+
+			g2.drawString(minStr, tx + 3, y + 12);
+			g2.drawString(maxStr, tx + 3, y + h - 2);
+
+		} else {
+			int colorGap = 3;
+			int numColours = cat.length;
+			for (int i = 0; i < numColours; i++) {
+				g2.setPaint(new Color(cTable.findColour(i + 1)));
+
+				int ry = (int) (by + 1.0 * bh * i / numColours);
+				int rh = (int) (1.0 * bh / numColours);
+				g2.fillRect(bx, ry + colorGap, bw, rh - 2 * colorGap);
+				g2.setPaint(black);
+				g2.drawRect(bx, ry + colorGap, bw, rh - 2 * colorGap);
+
+				int rc = (int) (ry + rh / 2);
+				g2.setPaint(Color.black);
+				g2.drawString(cat[i], tx + 3, rc - 3);
+			}
+		}
+	}
+
+	public Orientation getOrient() {
+		return orient;
+	}
+
+	public void setOrient(Orientation orient) {
+		this.orient = orient;
+
+		if (orient == Orientation.HORIZONTAL)
+			this.setPreferredSize(new Dimension(200, 50));
+		if (orient == Orientation.VERTICAL)
+			this.setPreferredSize(new Dimension(80, 300));
 	}
 
 	public ColourTable getColorTable() {
