@@ -217,9 +217,10 @@ public class DataWindow extends JPanel implements DataSetListener {
 		dataCaster.setAndFireDataSet(dataSet);
 
 		JFrame jframe = new JFrame();
+		jframe.setTitle("DataWindow");
 		jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		jframe.setLocation(100, 100);
-		jframe.setSize(300, 450);
+		jframe.setSize(320, 450);
 		jframe.add(dataWin);
 		jframe.setVisible(true);
 	}

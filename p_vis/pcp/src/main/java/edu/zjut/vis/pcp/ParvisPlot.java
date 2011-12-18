@@ -40,19 +40,18 @@ import org.mediavirus.parvis.gui.ProgressListener;
 import org.mediavirus.parvis.model.Brush;
 import org.mediavirus.parvis.model.ParallelSpaceModel;
 
-
 /**
-* This code was edited or generated using CloudGarden's Jigloo
-* SWT/Swing GUI Builder, which is free for non-commercial
-* use. If Jigloo is being used commercially (ie, by a corporation,
-* company or business for any purpose whatever) then you
-* should purchase a license for each developer using Jigloo.
-* Please visit www.cloudgarden.com for details.
-* Use of Jigloo implies acceptance of these licensing terms.
-* A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR
-* THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED
-* LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
-*/
+ * This code was edited or generated using CloudGarden's Jigloo
+ * SWT/Swing GUI Builder, which is free for non-commercial
+ * use. If Jigloo is being used commercially (ie, by a corporation,
+ * company or business for any purpose whatever) then you
+ * should purchase a license for each developer using Jigloo.
+ * Please visit www.cloudgarden.com for details.
+ * Use of Jigloo implies acceptance of these licensing terms.
+ * A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR
+ * THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED
+ * LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
+ */
 /**
  * parvis主界面. 修改自 {@link org.mediavirus.parvis.gui.MainFrame}
  * 
@@ -68,6 +67,8 @@ public class ParvisPlot extends JPanel implements ProgressListener,
 	protected boolean isShowBrushList = false;
 
 	protected ParallelDisplay parallelDisplay;
+	private JPanel plotPanel;
+	private JPanel legendPanel;
 
 	private JPanel statusPanel;
 	private JPanel progressPanel;
@@ -82,7 +83,7 @@ public class ParvisPlot extends JPanel implements ProgressListener,
 	private JLabel progressLabel;
 
 	private JPanel toolbarPanel;
-	private JToolBar modeBar;
+	private JToolBar toolBar;
 	private JToggleButton orderButton;
 	private JToggleButton scaleButton;
 	private JToggleButton translateButton;
@@ -119,9 +120,17 @@ public class ParvisPlot extends JPanel implements ProgressListener,
 	private void initComponents() {
 		this.setLayout(new BorderLayout());
 
+		plotPanel = new JPanel();
+		plotPanel.setLayout(new BorderLayout());
+		this.add(plotPanel, BorderLayout.CENTER);
+
+		legendPanel = new JPanel();
+		legendPanel.setPreferredSize(new Dimension(60, 500));
+		plotPanel.add(legendPanel,BorderLayout.WEST);
+		
 		parallelDisplay = new ParallelDisplay();
 		parallelDisplay.setPreferredSize(new Dimension(800, 500));
-		this.add(parallelDisplay, BorderLayout.CENTER);
+		plotPanel.add(parallelDisplay, BorderLayout.CENTER);
 
 		statusPanel = new JPanel();
 		statusPanel.setLayout(new BorderLayout());
@@ -210,8 +219,8 @@ public class ParvisPlot extends JPanel implements ProgressListener,
 		toolbarPanel.setLayout(new BorderLayout());
 		this.add(toolbarPanel, BorderLayout.NORTH);
 
-		modeBar = new JToolBar();
-		toolbarPanel.add(modeBar);
+		toolBar = new JToolBar();
+		toolbarPanel.add(toolBar);
 
 		orderButton = new JToggleButton();
 		orderButton
@@ -258,12 +267,12 @@ public class ParvisPlot extends JPanel implements ProgressListener,
 		buttonEditGroup.add(translateButton);
 		buttonEditGroup.add(brushButton);
 
-		modeBar.add(orderButton);
-		modeBar.add(scaleButton);
-		modeBar.add(translateButton);
-		modeBar.add(brushButton);
+		toolBar.add(orderButton);
+		toolBar.add(scaleButton);
+		toolBar.add(translateButton);
+		toolBar.add(brushButton);
 
-		modeBar.add(new JSeparator(SwingConstants.VERTICAL));
+		toolBar.add(new JSeparator(SwingConstants.VERTICAL));
 
 		// 界面简单修改
 		scaleZeroMaxButton = new JToggleButton("0-max");
@@ -293,11 +302,11 @@ public class ParvisPlot extends JPanel implements ProgressListener,
 		buttonViewGroup.add(scaleMinMaxButton);
 		buttonViewGroup.add(scaleMinMaxAbsButton);
 
-		modeBar.add(scaleZeroMaxButton);
-		modeBar.add(scaleMinMaxButton);
-		modeBar.add(scaleMinMaxAbsButton);
+		toolBar.add(scaleZeroMaxButton);
+		toolBar.add(scaleMinMaxButton);
+		toolBar.add(scaleMinMaxAbsButton);
 
-		modeBar.add(Box.createHorizontalGlue());
+		toolBar.add(Box.createHorizontalGlue());
 
 		countLabel = new JLabel("0 / 0   ");
 
@@ -315,11 +324,11 @@ public class ParvisPlot extends JPanel implements ProgressListener,
 			}
 		});
 
-		modeBar.add(countLabel);
-		modeBar.add(resetBrushButton);
-		modeBar.add(resetAllButton);
+		toolBar.add(countLabel);
+		toolBar.add(resetBrushButton);
+		toolBar.add(resetAllButton);
 
-		modeBar.add(new JSeparator(SwingConstants.VERTICAL));
+		toolBar.add(new JSeparator(SwingConstants.VERTICAL));
 
 		prefsButton = new JButton();
 		prefsButton.setIcon(new ImageIcon(getClass().getResource("cog.png")));
@@ -330,7 +339,7 @@ public class ParvisPlot extends JPanel implements ProgressListener,
 			}
 		});
 
-		modeBar.add(prefsButton);
+		toolBar.add(prefsButton);
 	}
 
 	private void histogramBoxActionPerformed(ActionEvent evt) {

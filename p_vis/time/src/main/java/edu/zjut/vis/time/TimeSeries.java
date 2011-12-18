@@ -17,9 +17,15 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 
+import org.gicentre.utils.colour.ColourTable;
+
 import edu.zjut.chart.plot.ChartType;
 import edu.zjut.chart.plot.PlotFactory;
 import edu.zjut.chart.plot.TimeSeriesPlot;
+import edu.zjut.common.color.ColorSchemeListener;
+import edu.zjut.common.color.ColorSchemePicker;
+import edu.zjut.common.color.Legend;
+import edu.zjut.common.color.LegendActionListener;
 import edu.zjut.common.data.DataSetForApps;
 import edu.zjut.common.data.attr.SummaryType;
 import edu.zjut.common.data.time.TimeData;
@@ -36,7 +42,10 @@ public class TimeSeries extends JPanel implements DataSetListener {
 	TimeSeriesCollection overviewSeries;
 	List<TimeSeriesCollection> detailSeriesList;
 
+	private JPanel plotPanel;
 	private PTimeSeries pTimeSeries;
+	private ColorSchemePicker schemePicker;
+	private Legend legend;
 
 	private JToolBar jToolBar;
 	private JToggleButton sideBarTglbtn;
@@ -53,8 +62,7 @@ public class TimeSeries extends JPanel implements DataSetListener {
 	public TimeSeries() {
 		detailSeriesList = new ArrayList<TimeSeriesCollection>();
 
-		BorderLayout layout = new BorderLayout();
-		this.setLayout(layout);
+		this.setLayout(new BorderLayout());
 
 		initToolbar();
 		this.add(jToolBar, BorderLayout.NORTH);
@@ -63,12 +71,38 @@ public class TimeSeries extends JPanel implements DataSetListener {
 		jSplitPane.setOneTouchExpandable(true);
 		this.add(jSplitPane, BorderLayout.CENTER);
 
+		plotPanel = new JPanel();
+		plotPanel.setLayout(new BorderLayout());
+
+		jSplitPane.add(plotPanel, JSplitPane.RIGHT);
+		
 		pTimeSeries = new PTimeSeries();
+		pTimeSeries.setLayout(new BorderLayout());
 		pTimeSeries.setPreferredSize(new Dimension(800, 600));
-
 		pTimeSeries.init();
+		plotPanel.add(pTimeSeries, BorderLayout.CENTER);
 
-		jSplitPane.add(pTimeSeries, JSplitPane.RIGHT);
+		schemePicker = new ColorSchemePicker();
+		schemePicker.addPickerListener(new ColorSchemeListener() {
+			public void colorChosen(ColourTable cTable) {
+				legend.setColorTable(cTable);
+				repaint();
+			}
+		});
+
+//		pTimeSeries.add(schemePicker, BorderLayout.CENTER);
+
+		legend = new Legend();
+		legend.addLegendActionListener(new LegendActionListener() {
+			@Override
+			public void actionPerformed(boolean isActive) {
+				schemePicker.setRefColorTable(legend.getColorTable());
+				schemePicker.setLocationRelativeTo(TimeSeries.this);
+				schemePicker.setVisible(isActive);
+//				schemePicker.requestFocus();
+			}
+		});
+		plotPanel.add(legend, BorderLayout.SOUTH);
 
 		ctrlPanel = new TimeCtrlPanel(this, pTimeSeries);
 		jSplitPane.add(ctrlPanel, JSplitPane.LEFT);
@@ -80,7 +114,7 @@ public class TimeSeries extends JPanel implements DataSetListener {
 
 	private void initToolbar() {
 		jToolBar = new JToolBar();
-
+            
 		// ²à±ßÀ¸
 		sideBarTglbtn = new JToggleButton();
 		sideBarTglbtn.setIcon(new ImageIcon(getClass().getResource(
@@ -240,6 +274,10 @@ public class TimeSeries extends JPanel implements DataSetListener {
 		}
 
 		pTimeSeries.setSeries(plots);
+
+		ColourTable cTable = ColourTable
+				.getPresetColourTable(ColourTable.SET3_8);
+		legend.setData(series.get(0).getNames(), cTable);
 	}
 
 	public static void main(String[] args) {

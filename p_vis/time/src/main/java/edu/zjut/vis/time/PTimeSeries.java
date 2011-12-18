@@ -9,29 +9,23 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PFont;
 import edu.zjut.chart.plot.TimeSeriesPlot;
-import edu.zjut.color.Legend;
-import edu.zjut.color.LegendListener;
 import edu.zjut.common.data.time.TimePeriod;
 import edu.zjut.common.data.time.TimeSeriesCollection;
 import edu.zjut.common.data.time.TimeType;
 
-public class PTimeSeries extends PApplet implements LegendListener {
+public class PTimeSeries extends PApplet {
 
 	String title;
-	Legend legend;
 	int[] colorArr;
 	ColourTable cTable;
 
 	float titleHeight = 50;
-	float legendHeight = 50;
 	private boolean isShowTitle = false;
-	private boolean isShowLegend = true;
 
 	DraggableRect cover;
 	TimeSeriesPlot overviewPlot;
 	List<TimeSeriesPlot> detailPlotList;
 	List<Integer> weightList;
-
 	float overviewWeight = 0.6f;
 
 	public PTimeSeries() {
@@ -112,9 +106,6 @@ public class PTimeSeries extends PApplet implements LegendListener {
 	 */
 	protected void initColor(TimeSeriesCollection series) {
 		cTable = ColourTable.getPresetColourTable(ColourTable.SET3_8);
-		legend = new Legend(this, series.getNames(), cTable);
-		legend.addLegendListener(this);
-
 		int size = series.seriesSize();
 		colorArr = new int[size];
 		for (int i = 0; i < size; i++) {
@@ -142,6 +133,7 @@ public class PTimeSeries extends PApplet implements LegendListener {
 		PFont font = createFont("FFScala", 12);
 		textFont(font);
 		smooth();
+		size(800, 600);
 	}
 
 	public void draw() {
@@ -151,10 +143,8 @@ public class PTimeSeries extends PApplet implements LegendListener {
 		background(255);
 
 		float titleHeight = isShowTitle ? this.titleHeight : 0;
-		float legendHeight = isShowLegend ? this.legendHeight : 0;
 		float gap = 5;
-		float plotHeight = height - titleHeight - legendHeight - 2 * gap;
-		plotHeight = isShowLegend ? plotHeight - gap : plotHeight;
+		float plotHeight = height - titleHeight - 2 * gap;
 
 		// title
 		if (isShowTitle) {
@@ -168,13 +158,6 @@ public class PTimeSeries extends PApplet implements LegendListener {
 
 		setColors(colorArr);
 		drawPlot(gap, titleHeight + gap, width - 2 * gap, plotHeight);
-
-		// legend
-		if (isShowLegend) {
-			legend.size(width / 2 - 150, height - legendHeight - gap, 300,
-					legendHeight);
-			legend.draw();
-		}
 	}
 
 	public void drawPlot(float x, float y, float width, float height) {
@@ -208,17 +191,6 @@ public class PTimeSeries extends PApplet implements LegendListener {
 
 			detailPlot.setVisualRange(minTime, maxTime);
 			detailPlot.draw();
-		}
-	}
-
-	@Override
-	public void colorChanged() {
-		cTable = legend.getColorTable();
-		int numColours = cTable.getColourRules().size() - 1;
-
-		colorArr = new int[numColours];
-		for (int i = 0; i < numColours; i++) {
-			colorArr[i] = cTable.findColour(i + 1);
 		}
 	}
 }

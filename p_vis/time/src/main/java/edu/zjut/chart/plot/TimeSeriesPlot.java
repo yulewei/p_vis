@@ -5,11 +5,14 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 
+import org.gicentre.utils.colour.ColourTable;
+
 import processing.core.PApplet;
 import processing.core.PConstants;
 import edu.zjut.chart.axis.Axis.Orientation;
 import edu.zjut.chart.axis.DateAxis;
 import edu.zjut.chart.axis.NumberAxis;
+import edu.zjut.common.color.Legend;
 import edu.zjut.common.data.time.TimePeriod;
 import edu.zjut.common.data.time.TimeSeriesCollection;
 import edu.zjut.common.data.time.TimeSeriesData;
@@ -176,6 +179,20 @@ public abstract class TimeSeriesPlot extends Plot {
 		this.colorArr = colorArr;
 	}
 
+	/**
+	 * Ä¬ÈÏÑÕÉ«
+	 */
+	protected void initColor() {
+		ColourTable cTable = ColourTable
+				.getPresetColourTable(ColourTable.SET3_8);
+
+		int size = series.seriesSize();
+		colorArr = new int[size];
+		for (int i = 0; i < size; i++) {
+			colorArr[i] = cTable.findColour(i + 1);
+		}
+	}
+
 	public float[] getPlotRect() {
 		return new float[] { plotX1, plotY1, plotX2, plotY2 };
 	}
@@ -198,6 +215,9 @@ public abstract class TimeSeriesPlot extends Plot {
 
 		timeAxis.draw();
 		valueAxis.draw();
+
+		if (colorArr == null)
+			initColor();
 
 		drawChart();
 
