@@ -24,6 +24,19 @@ public class Legend extends JComponent implements MouseListener {
 
 	Orientation orient = Orientation.HORIZONTAL;
 
+	/**
+	 * 绘制次序, 先小后大, 还是先大后小
+	 */
+	boolean minMax = true;
+
+	public boolean isMinMax() {
+		return minMax;
+	}
+
+	public void setMinMax(boolean minMax) {
+		this.minMax = minMax;
+	}
+
 	Color black;
 	FontMetrics fm;
 	Font textFont;
@@ -78,11 +91,11 @@ public class Legend extends JComponent implements MouseListener {
 		if (black == null) {
 			Font font = g2.getFont();
 			textFont = font.deriveFont(11.f);
-			fm = g2.getFontMetrics();
 			black = new Color(0, 0, 0, 100);
 		}
 
 		g2.setFont(textFont);
+		fm = g2.getFontMetrics();
 		g2.setPaint(black);
 		g2.drawRect(x, y, w, h);
 
@@ -120,7 +133,11 @@ public class Legend extends JComponent implements MouseListener {
 			for (float i = 0; i < 1; i += inc) {
 				int rx = (int) (bx + bw * i);
 				int rw = (int) (bw * inc);
-				g2.setPaint(new Color(cTable.findColour(i)));
+
+				if (minMax)
+					g2.setPaint(new Color(cTable.findColour(i)));
+				else
+					g2.setPaint(new Color(cTable.findColour(1 - i)));
 				g2.drawRect(rx, by, rw, bh);
 			}
 			g2.setPaint(black);
@@ -130,8 +147,13 @@ public class Legend extends JComponent implements MouseListener {
 			String maxStr = String.format("%.2f", max);
 			int tw = fm.stringWidth(maxStr);
 
-			g2.drawString(minStr, x + 3, ty - 3);
-			g2.drawString(maxStr, x + 3 + w - tw, ty - 3);
+			if (minMax) {
+				g2.drawString(minStr, x + 3, ty - 3);
+				g2.drawString(maxStr, x + w - tw, ty - 3);
+			} else {
+				g2.drawString(maxStr, x + 3, ty - 3);
+				g2.drawString(minStr, x + w - tw, ty - 3);
+			}
 
 			int ax = (int) map(values[index], min, max, bx, bx + bw);
 			if (index != -1) {
@@ -188,7 +210,11 @@ public class Legend extends JComponent implements MouseListener {
 		for (float i = 0; i < 1; i += inc) {
 			int ry = (int) (by + bh * i);
 			int rh = (int) (bh * inc);
-			g2.setPaint(new Color(cTable.findColour(i)));
+
+			if (minMax)
+				g2.setPaint(new Color(cTable.findColour(i)));
+			else
+				g2.setPaint(new Color(cTable.findColour(1 - i)));
 			g2.drawRect(bx, ry, bw, rh);
 		}
 		g2.setPaint(black);
@@ -199,8 +225,13 @@ public class Legend extends JComponent implements MouseListener {
 		int tw1 = fm.stringWidth(minStr);
 		int tw2 = fm.stringWidth(maxStr);
 
-		g2.drawString(minStr, x + w / 2 - tw1 / 2 + 3, y + 12);
-		g2.drawString(maxStr, x + w / 2 - tw2 / 2 + 3, y + h - 2);
+		if (minMax) {
+			g2.drawString(minStr, x + w / 2 - tw1 / 2, y + 12);
+			g2.drawString(maxStr, x + w / 2 - tw2 / 2, y + h - 2);
+		} else {
+			g2.drawString(maxStr, x + w / 2 - tw2 / 2, y + 12);
+			g2.drawString(minStr, x + w / 2 - tw1 / 2, y + h - 2);
+		}
 	}
 
 	private void drawVerCat(Graphics2D g2, int x, int y, int w, int h) {
@@ -235,7 +266,7 @@ public class Legend extends JComponent implements MouseListener {
 
 			int rc = (int) (ry + rh / 2);
 			g2.setPaint(Color.black);
-			g2.drawString(cat[i], tx + 3, rc - 3);
+			g2.drawString(cat[i], tx + 2, rc);
 		}
 	}
 

@@ -77,7 +77,7 @@ public class NewJFrame extends javax.swing.JFrame {
 
 		legend = new Legend();
 		jPanel2.add(legend);
-		legend.setData(values, cTable);
+		legend.setData(cat, cTable2);
 		legend.addLegendActionListener(new LegendActionListener() {
 			@Override
 			public void actionPerformed(boolean isActive) {
@@ -100,7 +100,7 @@ public class NewJFrame extends javax.swing.JFrame {
 			}
 		});
 		
-//		legend2.setData(cat, cTable2);
+		legend2.setData(cat, cTable2);
 
 		schemePanel = new ColorSchemePicker();
 		schemePanel.addPickerListener(new ColorListener());
