@@ -779,7 +779,7 @@ public class ParallelDisplay extends JComponent implements ChangeListener,
 		preferences.put("histogram", new Boolean(false));
 		preferences.put("histogramBins", new Integer(10));
 		preferences.put("histogramWidth", new Integer(HISTO_TOTALREC));
-		preferences.put("recordColor", Color.black);
+		preferences.put("recordColor", Color.red);
 		preferences.put("brushColor", Color.black);
 	}
 
@@ -962,8 +962,7 @@ public class ParallelDisplay extends JComponent implements ChangeListener,
 
 		int count = getNumRecords();
 
-		Brush brush = new Brush(count,
-				getColorPreference("brushColor"));
+		Brush brush = new Brush(count, getColorPreference("brushColor"));
 
 		setCurrentBrush(brush);
 
@@ -1076,5 +1075,20 @@ public class ParallelDisplay extends JComponent implements ChangeListener,
 				((SelectionListener) listeners[i + 1]).selectionChanged(e);
 			}
 		}// next i
+	}
+
+	private Color[] colors;
+
+	public void setColors(Color[] colors) {
+		this.colors = colors;
+		deepRepaint = true;
+		this.repaint();
+	}
+
+	public Color getColor(int i) {
+		if (colors == null || i >= colors.length)
+			return Color.black;
+
+		return colors[i];
 	}
 }

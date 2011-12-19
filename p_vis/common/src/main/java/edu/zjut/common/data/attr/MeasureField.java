@@ -70,8 +70,7 @@ public class MeasureField extends DataField {
 		float f = 0.0f;
 		if (dataType == FieldType.INT) {
 			Integer v = (Integer) columnValues[index] - (Integer) min;
-			v = v / ((Integer) max - (Integer) min);
-			f = v.floatValue();
+			f = 1.0f * v / ((Integer) max - (Integer) min);
 		}
 		if (dataType == FieldType.DOUBLE) {
 			Double v = (Double) columnValues[index] - (Double) min;
@@ -90,6 +89,32 @@ public class MeasureField extends DataField {
 		this.columnValues = columnValues;
 
 		buildData();
+	}
+
+	public double[] getColumnAsDouble() {
+		Double[] doubleData = null;
+		switch (dataType) {
+		case DOUBLE:
+			doubleData = (Double[]) columnValues;
+			break;
+		case INT:
+			Integer[] intData = (Integer[]) columnValues;
+			doubleData = new Double[intData.length];
+			for (int i = 0; i < intData.length; i++) {
+				if (intData[i] == Integer.MIN_VALUE) {
+					doubleData[i] = Double.NaN;
+				} else {
+					doubleData[i] = Double.valueOf(intData[i]);
+				}
+			}
+			break;
+		}
+
+		double[] data = new double[doubleData.length];
+		for (int i = 0; i < doubleData.length; i++) {
+			data[i] = doubleData[i];
+		}
+		return data;
 	}
 
 	public SummaryType getSummaryType() {

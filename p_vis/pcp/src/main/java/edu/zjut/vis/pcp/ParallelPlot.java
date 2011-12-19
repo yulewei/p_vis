@@ -1,9 +1,11 @@
 package edu.zjut.vis.pcp;
 
+import java.awt.Color;
 import java.util.List;
 
 import javax.swing.TransferHandler;
 
+import org.gicentre.utils.colour.ColourTable;
 import org.mediavirus.parvis.gui.ParallelDisplay;
 
 import edu.zjut.common.ctrl.FieldImporter;
@@ -33,6 +35,7 @@ public class ParallelPlot extends ParvisPlot implements DataSetListener,
 	int[] savedSelection;
 	private DataSetForApps dataSet;
 	private AttributeData attrData;
+	private MeasureField colorFeild;
 
 	public ParallelPlot() {
 		parallelDisplay.addIndicationListener(this);
@@ -77,6 +80,12 @@ public class ParallelPlot extends ParvisPlot implements DataSetListener,
 		AttributeData subAttrData = new AttributeData(feilds,
 				attrData.getColumnArrays());
 		this.setDataSet(new DataSetForApps(subAttrData, null, null));
+
+		// 用第一个维度颜色
+		colorFeild = subAttrData.getMeasureFields()[0];
+		double[] values = colorFeild.getColumnAsDouble();
+
+		setColor(values, colorFeild.getColorTable());
 	}
 
 	public void setDataSet(DataSetForApps dataSet) {

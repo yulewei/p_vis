@@ -52,8 +52,8 @@ public class NewJFrame extends javax.swing.JFrame {
 		jPanel1 = new JPanel();
 		jPanel1.setLayout(new BorderLayout());
 		this.add(jPanel1, BorderLayout.CENTER);
-		jPanel1.setPreferredSize(new Dimension(513, 441));
-
+		jPanel1.setPreferredSize(new Dimension(513, 441));		
+		
 		jPanel2 = new JPanel();
 		this.add(jPanel2, BorderLayout.NORTH);
 
@@ -61,9 +61,9 @@ public class NewJFrame extends javax.swing.JFrame {
 		this.add(jPanel3, BorderLayout.WEST);
 		jPanel3.setPreferredSize(new Dimension(112, 441));
 
-		float[] values = new float[5];
+		double[] values = new double[5];
 		for (int i = 0; i < values.length; i++) {
-			values[i] = (float) (Math.random() * 200);
+			values[i] = Math.random() * 200;
 		}
 
 		ColourTable cTable = ColourTable.getPresetColourTable(
@@ -88,10 +88,9 @@ public class NewJFrame extends javax.swing.JFrame {
 		});
 
 		legend2 = new Legend();
-//		legend2.setData(cat, cTable2);
+		jPanel1.add(legend2);
 		legend2.setData(values, cTable);
 		legend2.setOrient(Orientation.VERTICAL);		
-		jPanel3.add(legend2);
 		legend2.addLegendActionListener(new LegendActionListener() {
 			@Override
 			public void actionPerformed(boolean isActive) {
@@ -100,6 +99,8 @@ public class NewJFrame extends javax.swing.JFrame {
 				schemePanel.setVisible(isActive);
 			}
 		});
+		
+//		legend2.setData(cat, cTable2);
 
 		schemePanel = new ColorSchemePicker();
 		schemePanel.addPickerListener(new ColorListener());

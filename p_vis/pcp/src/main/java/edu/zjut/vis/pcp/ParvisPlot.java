@@ -13,6 +13,7 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.util.logging.Logger;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
@@ -31,6 +32,7 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
+import org.gicentre.utils.colour.ColourTable;
 import org.mediavirus.parvis.gui.BrushList;
 import org.mediavirus.parvis.gui.BrushListener;
 import org.mediavirus.parvis.gui.ParallelDisplay;
@@ -39,6 +41,12 @@ import org.mediavirus.parvis.gui.ProgressEvent;
 import org.mediavirus.parvis.gui.ProgressListener;
 import org.mediavirus.parvis.model.Brush;
 import org.mediavirus.parvis.model.ParallelSpaceModel;
+
+import edu.zjut.common.color.ColorSchemeListener;
+import edu.zjut.common.color.ColorSchemePicker;
+import edu.zjut.common.color.Legend;
+import edu.zjut.common.color.LegendActionListener;
+import edu.zjut.common.color.Legend.Orientation;
 
 /**
  * This code was edited or generated using CloudGarden's Jigloo
@@ -69,6 +77,8 @@ public class ParvisPlot extends JPanel implements ProgressListener,
 	protected ParallelDisplay parallelDisplay;
 	private JPanel plotPanel;
 	private JPanel legendPanel;
+	protected Legend legend;
+	protected ColorSchemePicker schemePicker;
 
 	private JPanel statusPanel;
 	private JPanel progressPanel;
@@ -125,9 +135,34 @@ public class ParvisPlot extends JPanel implements ProgressListener,
 		this.add(plotPanel, BorderLayout.CENTER);
 
 		legendPanel = new JPanel();
-		legendPanel.setPreferredSize(new Dimension(60, 500));
-		plotPanel.add(legendPanel,BorderLayout.WEST);
-		
+		legendPanel.setLayout(new BorderLayout());
+		legendPanel.setBackground(Color.white);
+		legendPanel.setPreferredSize(new Dimension(50, 500));
+		legendPanel.setBorder(BorderFactory.createEmptyBorder(18, 5, 18, 2));
+		plotPanel.add(legendPanel, BorderLayout.WEST);
+
+		schemePicker = new ColorSchemePicker();
+		schemePicker.addPickerListener(new ColorSchemeListener() {
+			public void colorChosen(ColourTable cTable) {
+				legend.setColorTable(cTable);
+				setColor(colorValues, cTable);
+				repaint();
+			}
+		});
+
+		legend = new Legend();
+		legendPanel.add(legend);
+		legend.setOrient(Orientation.VERTICAL);
+		legend.addLegendActionListener(new LegendActionListener() {
+			@Override
+			public void actionPerformed(boolean isActive) {
+				schemePicker.setRefColorTable(legend.getColorTable());
+				schemePicker.setLocationRelativeTo(ParvisPlot.this);
+				schemePicker.setVisible(isActive);
+				// schemePicker.requestFocus();
+			}
+		});
+
 		parallelDisplay = new ParallelDisplay();
 		parallelDisplay.setPreferredSize(new Dimension(800, 500));
 		plotPanel.add(parallelDisplay, BorderLayout.CENTER);
@@ -500,5 +535,33 @@ public class ParvisPlot extends JPanel implements ProgressListener,
 
 	public void setModel(ParallelSpaceModel model) {
 		parallelDisplay.setModel(model);
+	}
+
+	protected double[] colorValues;
+	protected ColourTable cTable;
+
+	public void setColor(double[] values, ColourTable cTable) {
+		this.colorValues = values;
+		this.cTable = cTable;
+
+		int len = values.length;
+
+		double min = Double.MAX_VALUE;
+		double max = Double.MIN_VALUE;
+		for (int i = 0; i < len; i++) {
+			if (values[i] < min)
+				min = values[i];
+			if (values[i] > max)
+				max = values[i];
+		}
+
+		Color[] colors = new Color[len];
+		for (int i = 0; i < len; i++) {
+			double index = (float) ((values[i] - min) / (max - min));
+			colors[i] = new Color(cTable.findColour((float) index));
+		}
+
+		legend.setData(values, cTable);
+		parallelDisplay.setColors(colors);
 	}
 }
