@@ -10,12 +10,12 @@
         <uniqueName>ParallelPlot</uniqueName>
         <internalFrame>
           <location>
-            <x>250</x>
-            <y>100</y>
+            <x>296</x>
+            <y>119</y>
           </location>
           <size>
-            <width>800</width>
-            <height>600</height>
+            <width>761</width>
+            <height>451</height>
           </size>
         </internalFrame>
         <zOrder>0</zOrder>
@@ -41,6 +41,6 @@
       </ToolkitBean>
     </entry>
   </beanSet>
-  <indication>137</indication>
+  <indication>-1</indication>
   <selectedBean>ParallelPlot</selectedBean>
 </VizState>

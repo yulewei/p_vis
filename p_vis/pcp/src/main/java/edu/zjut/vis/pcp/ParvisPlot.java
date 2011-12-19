@@ -4,13 +4,11 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
@@ -27,10 +25,9 @@ import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
+import javax.swing.TransferHandler;
 import javax.swing.UIManager;
-import javax.swing.border.EtchedBorder;
 import javax.swing.border.LineBorder;
-import javax.swing.border.TitledBorder;
 
 import org.gicentre.utils.colour.ColourTable;
 import org.mediavirus.parvis.gui.BrushList;
@@ -45,8 +42,12 @@ import org.mediavirus.parvis.model.ParallelSpaceModel;
 import edu.zjut.common.color.ColorSchemeListener;
 import edu.zjut.common.color.ColorSchemePicker;
 import edu.zjut.common.color.Legend;
-import edu.zjut.common.color.LegendActionListener;
 import edu.zjut.common.color.Legend.Orientation;
+import edu.zjut.common.color.LegendActionListener;
+import edu.zjut.common.ctrl.FieldComponent;
+import edu.zjut.common.ctrl.FieldImporter;
+import edu.zjut.common.ctrl.FieldComponent.ColorEnum;
+import edu.zjut.common.data.attr.MeasureField;
 
 /**
  * This code was edited or generated using CloudGarden's Jigloo
@@ -79,6 +80,7 @@ public class ParvisPlot extends JPanel implements ProgressListener,
 	private JPanel legendPanel;
 	protected Legend legend;
 	protected ColorSchemePicker schemePicker;
+	protected FieldComponent<MeasureField> colorFieldComp;
 
 	private JPanel statusPanel;
 	private JPanel progressPanel;
@@ -137,9 +139,13 @@ public class ParvisPlot extends JPanel implements ProgressListener,
 		legendPanel = new JPanel();
 		legendPanel.setLayout(new BorderLayout());
 		legendPanel.setBackground(Color.white);
-		legendPanel.setPreferredSize(new Dimension(50, 500));
-		legendPanel.setBorder(BorderFactory.createEmptyBorder(18, 5, 18, 2));
+		legendPanel.setPreferredSize(new Dimension(60, 500));
+		legendPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 25, 0));
 		plotPanel.add(legendPanel, BorderLayout.WEST);
+
+		colorFieldComp = new FieldComponent<MeasureField>();
+		colorFieldComp.setTransferHandler(new ColorImporter());
+		legendPanel.add(colorFieldComp, BorderLayout.NORTH);
 
 		schemePicker = new ColorSchemePicker();
 		schemePicker.addPickerListener(new ColorSchemeListener() {
@@ -150,8 +156,8 @@ public class ParvisPlot extends JPanel implements ProgressListener,
 			}
 		});
 
-		legend = new Legend();
-		legendPanel.add(legend);
+		legend = new Legend();		
+		legend.setMinMax(false);
 		legend.setOrient(Orientation.VERTICAL);
 		legend.addLegendActionListener(new LegendActionListener() {
 			@Override
@@ -161,7 +167,8 @@ public class ParvisPlot extends JPanel implements ProgressListener,
 				schemePicker.setVisible(isActive);
 				// schemePicker.requestFocus();
 			}
-		});
+		});		
+		legendPanel.add(legend, BorderLayout.CENTER);
 
 		parallelDisplay = new ParallelDisplay();
 		parallelDisplay.setPreferredSize(new Dimension(800, 500));
@@ -537,10 +544,12 @@ public class ParvisPlot extends JPanel implements ProgressListener,
 		parallelDisplay.setModel(model);
 	}
 
+	protected MeasureField colorField;
 	protected double[] colorValues;
 	protected ColourTable cTable;
 
-	public void setColor(double[] values, ColourTable cTable) {
+	public void setColor(double[] values, ColourTable cTable) {		
+		
 		this.colorValues = values;
 		this.cTable = cTable;
 
@@ -563,5 +572,30 @@ public class ParvisPlot extends JPanel implements ProgressListener,
 
 		legend.setData(values, cTable);
 		parallelDisplay.setColors(colors);
+	}
+
+	class ColorImporter extends FieldImporter<MeasureField> {
+		public ColorImporter() {
+			super(MeasureField.class);
+		}
+
+		public boolean importData(TransferHandler.TransferSupport support) {
+			getTransferData(support);
+			List<MeasureField> values = data.getValues();
+			if (!values.isEmpty()) {
+				colorFieldComp.setValue(values.get(0));
+				colorFieldComp.setColor(ColorEnum.BLUE);
+				colorField = values.get(0);
+				
+				double[] colorValues = colorField.getColumnAsDouble();
+				colorFieldComp.setValue(colorField);
+				colorFieldComp.setColor(ColorEnum.WHITE);
+				setColor(colorValues, colorField.getColorTable());
+				
+				repaint();
+			}
+
+			return true;
+		}
 	}
 }
