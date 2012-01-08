@@ -74,6 +74,9 @@ class RenderThread extends Thread {
 	/** the color setting for painting records */
 	Color color = Color.black;
 
+	// 亮度缩放百分比, 最大值为1
+	float brightness;
+
 	/** our parents ui delegate */
 	BasicParallelDisplayUI ui = null;
 	/** our parent compontent */
@@ -190,9 +193,10 @@ class RenderThread extends Thread {
 	 * @param color
 	 *            The Color to be used to paint the records.
 	 */
-	void setStyle(Stroke stroke, Color color) {
+	void setStyle(Stroke stroke, float brightness) {
 		this.stroke = stroke;
-		this.color = color;
+		this.brightness = brightness;
+		// this.color = color;
 	}
 
 	/**
@@ -310,6 +314,14 @@ class RenderThread extends Thread {
 				Color bgcol = comp.getBackground();
 				for (; i < comp.getNumRecords(); i++) {
 					color = comp.getColor(i);
+
+					// 亮度缩放
+					float[] hsb = new float[3];
+					Color.RGBtoHSB(color.getRed(), color.getGreen(),
+							color.getBlue(), hsb);
+					color = Color.getHSBColor(hsb[0], hsb[1], hsb[2]
+							* brightness);
+
 					if (brush != null) {
 						bgcol = new Color(
 								(int) (0.1 * color.getRed() + 0.9 * bgcol
@@ -454,7 +466,7 @@ class RenderThread extends Thread {
 
 			AlphaComposite ac = AlphaComposite.getInstance(
 					AlphaComposite.SRC_OVER, 0.7f);
-			g2.setComposite(ac);
+			// g2.setComposite(ac);
 
 			g2.setStroke(stroke);
 			g2.setColor(color);

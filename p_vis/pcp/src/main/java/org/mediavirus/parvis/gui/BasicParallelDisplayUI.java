@@ -145,16 +145,15 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 		if (renderThread == null) {
 			renderThread = new RenderThread(this);
 			renderThread.setQuality(false, true);
-			renderThread.setStyle(new BasicStroke(0.5f),
-					comp.getColorPreference("recordColor"));
+			// 亮度设置
+			renderThread.setStyle(new BasicStroke(0.5f), 0.5f);
 			renderThread.start();
 		}
 
 		if (brushThread == null) {
 			brushThread = new RenderThread(this);
 			brushThread.setQuality(false, true);
-			brushThread.setStyle(new BasicStroke(1.5f),
-					comp.getColorPreference("brushColor"));
+			brushThread.setStyle(new BasicStroke(1.5f), 1.0f);
 			brushThread.start();
 		}
 
@@ -254,17 +253,17 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 			brushImg = null;
 		}
 
-		if ((comp.getCurrentBrush() == null) && (!inBrush)) {
+		if ((comp.getCurrentBrush() == null)) {// && (!inBrush)) {
 			synchronized (bufferImg) {
 				g2.drawImage(bufferImg, 0, 0, comp);
 			}
 		} else {
+
+			// 底图与刷子绘制结果融合, 透明度
 			Composite oldcomp = g2.getComposite();
-
 			AlphaComposite ac = AlphaComposite.getInstance(
-					AlphaComposite.SRC_OVER, 0.15f);
+					AlphaComposite.SRC_OVER, 0.3f);
 			g2.setComposite(ac);
-
 			g2.drawImage(bufferImg, 0, 0, comp);
 
 			g2.setComposite(oldcomp);
