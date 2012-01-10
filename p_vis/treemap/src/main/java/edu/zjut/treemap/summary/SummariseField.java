@@ -97,6 +97,11 @@ public abstract class SummariseField {
 		return new SummariseSum(field);
 	}
 
+	@Override
+	public int hashCode() {
+		return dataField.getColIdx() + dataField.getName().hashCode();
+	}
+
 	public String toString() {
 		return dataField.getName();
 	}

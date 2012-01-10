@@ -1,26 +1,26 @@
 package edu.zjut.common.data.geo;
 
-import java.util.HashMap;
 import java.util.List;
-
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Point;
 
 public class GeometryData {
 
-	// 地名, 几何
-	private HashMap<String, Point> nameGeometrys;
+	/**
+	 * 地理名称关联图层
+	 */
+	private List<GeoLayer> geoNames;
 
+	/**
+	 * 辅助图层数据
+	 */
 	private List<GeoLayer> layers;
 
-	public GeometryData(HashMap<String, Point> nameGeometrys,
-			List<GeoLayer> layers) {
-		this.nameGeometrys = nameGeometrys;
+	public GeometryData(List<GeoLayer> geoNames, List<GeoLayer> layers) {
+		this.geoNames = geoNames;
 		this.layers = layers;
 	}
 
-	public HashMap<String, Point> getNameGeometrys() {
-		return nameGeometrys;
+	public List<GeoLayer> getGeoNames() {
+		return geoNames;
 	}
 
 	public List<GeoLayer> getLayers() {

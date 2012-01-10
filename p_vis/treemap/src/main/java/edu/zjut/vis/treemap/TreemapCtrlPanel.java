@@ -23,7 +23,6 @@ import javax.swing.TransferHandler;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-
 import edu.zjut.common.ctrl.FieldComponent;
 import edu.zjut.common.ctrl.FieldComponent.ColorEnum;
 import edu.zjut.common.ctrl.FieldExporter;
@@ -615,6 +614,29 @@ public class TreemapCtrlPanel extends JPanel {
 		pTreemap.redraw();
 	}
 
+	public void replaceOrders(int index, DimensionField geoField) {
+		SummariseField latFiled = null;
+		SummariseField lonFiled = null;
+
+		for (int i = 0; i < allowedSummariseFields.size() - 1; i++) {
+			SummariseField filed1 = allowedSummariseFields.get(i);
+			SummariseField filed2 = allowedSummariseFields.get(i + 1);
+			if (filed1.getName().equals(geoField.getName())) {
+				latFiled = filed1;
+				lonFiled = filed2;
+			}
+		}
+
+		orderModel.setElementAt(latFiled, index);
+		
+		// X 纬度(lon); Y 经度(lat)
+		orderFields[0][index] = lonFiled;
+		orderFields[1][index] = latFiled;
+
+		pTreemap.treemapPanel.flagToDoNonStructuralRebuild();
+		pTreemap.redraw();
+	}
+
 	/**
 	 * 键盘delete键, 删除整个层次hier
 	 */
@@ -698,12 +720,30 @@ public class TreemapCtrlPanel extends JPanel {
 		}
 	}
 
-	class RepalceFieldImporter extends FieldImporter<MeasureField> {
+	/**
+	 * 鼠标拖放导入, 非结构字段导入
+	 * 
+	 * @author yulewei
+	 * 
+	 */
+	class RepalceFieldImporter extends FieldImporter<DataField> {
 		NoStructType type;
 
 		public RepalceFieldImporter(NoStructType type) {
-			super(MeasureField.class);
+			super(DataField.class);
 			this.type = type;
+		}
+
+		public boolean canImport(TransferHandler.TransferSupport support) {
+			if (!support.isDrop())
+				return false;
+
+			if (!getTransferData(support))
+				return false;
+
+			return data.getType().equals(MeasureField.class)
+					|| data.getType().equals(DimensionField.class)
+					&& type == NoStructType.ORDER;
 		}
 
 		public boolean importData(TransferHandler.TransferSupport support) {
@@ -714,9 +754,20 @@ public class TreemapCtrlPanel extends JPanel {
 
 			getTransferData(support);
 
-			List<MeasureField> values = data.getValues();
+			List<DataField> values = data.getValues();
 			for (int i = 0; i < values.size(); i++, index++) {
-				replace(index, values.get(i), type);
+				DataField field = values.get(i);
+				if (field instanceof MeasureField) {
+					replace(index, (MeasureField) field, type);
+				} else if (type == NoStructType.ORDER
+						&& field instanceof DimensionField) {
+					DimensionField geoField = (DimensionField) field;
+					// 用于Order
+					if (geoField.isGeoName()) {
+						replaceOrders(index, geoField);
+					}
+				}
+
 			}
 
 			return true;

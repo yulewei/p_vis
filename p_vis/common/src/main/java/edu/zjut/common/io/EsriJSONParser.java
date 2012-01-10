@@ -1,9 +1,12 @@
 package edu.zjut.common.io;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -13,6 +16,9 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
 import edu.zjut.common.data.geo.EsriFeatureObj;
@@ -33,9 +39,7 @@ import edu.zjut.common.data.geo.EsriFeatureObj;
  */
 public class EsriJSONParser {
 	public static final String GEOMETRY_POINT = "esriGeometryPoint";
-
 	public static final String GEOMETRY_POLYLINE = "esriGeometryPolyline";
-
 	public static final String GEOMETRY_POLYGON = "esriGeometryPolygon";
 
 	private String geometryType;
@@ -49,18 +53,11 @@ public class EsriJSONParser {
 
 	private EsriFeatureObj[] features;
 
-	public EsriJSONParser(String fileName) {
-		try {
-			parse(fileName);
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (JSONException e) {
-			e.printStackTrace();
-			System.err.println(fileName);
-		}
+	public EsriJSONParser() {
 	}
 
-	private void parse(String fileName) throws IOException, JSONException {
+	public EsriFeatureObj[] read(String fileName) throws IOException,
+			JSONException {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(
 				new FileInputStream(fileName), "UTF-8"));
 
@@ -88,13 +85,14 @@ public class EsriJSONParser {
 			}
 
 			JSONObject jsongeometry = (JSONObject) object.get("geometry");
-			Geometry geometry = parseGeometry(jsongeometry);
+			Geometry geometry = readGeometry(jsongeometry);
 			features[i] = new EsriFeatureObj(objectId, name, geometry);
 		}
+
+		return features;
 	}
 
-	private Geometry parseGeometry(JSONObject jsongeometry)
-			throws JSONException {
+	private Geometry readGeometry(JSONObject jsongeometry) throws JSONException {
 		GeometryFactory geometryFactory = new GeometryFactory();
 
 		Geometry geometry = null;
@@ -150,16 +148,139 @@ public class EsriJSONParser {
 		return geometryType;
 	}
 
+	public void write(EsriFeatureObj[] features, String fileName)
+			throws JSONException, IOException {
+		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
+				new FileOutputStream(fileName), "UTF-8"));
+
+		JSONObject jsonobject = new JSONObject();
+		jsonobject.put("displayFieldName", "Name");
+
+		Geometry geo = features[0].geometry;
+		if (geo instanceof Point) {
+			geometryType = GEOMETRY_POINT;
+		} else if (geo instanceof LineString) {
+			geometryType = GEOMETRY_POLYLINE;
+		} else if (geo instanceof MultiLineString) {
+			geometryType = GEOMETRY_POLYLINE;
+		} else if (geo instanceof Polygon) {
+			geometryType = GEOMETRY_POLYGON;
+		} else if (geo instanceof MultiPolygon) {
+			geometryType = GEOMETRY_POLYGON;
+		}
+		jsonobject.put("geometryType", geometryType);
+
+		JSONArray arr = new JSONArray();
+		for (int i = 0; i < features.length; i++) {
+			EsriFeatureObj feature = features[i];
+			JSONObject jsonattributes = new JSONObject();
+			jsonattributes.put("OBJECTID", feature.objectId);
+			jsonattributes.put("Name", feature.name);
+			JSONObject jsongeometry = writeGeometry(feature.geometry);
+
+			JSONObject object = new JSONObject();
+			object.put("attributes", jsonattributes);
+			object.put("geometry", jsongeometry);
+			arr.put(object);
+		}
+
+		jsonobject.put("features", arr);
+
+		writer.append(jsonobject.toString());
+		writer.flush();
+		writer.close();
+	}
+
+	private JSONObject writeGeometry(Geometry geometry) throws JSONException {
+		JSONObject jsongeometry = new JSONObject();
+
+		if (geometry instanceof Point) {
+			Point point = (Point) geometry;
+			jsongeometry.put("x", point.getY());
+			jsongeometry.put("y", point.getX());
+		} else if (geometry instanceof LineString) {
+			LineString lineString = (LineString) geometry;
+			JSONArray jsonpaths = new JSONArray();
+			Coordinate[] path = lineString.getCoordinates();
+			JSONArray jsonpath = new JSONArray();
+			for (int j = 0; j < path.length; j++) {
+				JSONArray jsonpoint = new JSONArray();
+				jsonpoint.put(path[j].y);
+				jsonpoint.put(path[j].x);
+				jsonpath.put(jsonpoint);
+			}
+			jsonpaths.put(jsonpath);
+			jsongeometry.put("paths", jsonpaths);
+		} else if (geometry instanceof MultiLineString) {
+			MultiLineString multiLineString = (MultiLineString) geometry;
+			int num = multiLineString.getNumGeometries();
+			JSONArray jsonpaths = new JSONArray();
+			for (int i = 0; i < num; i++) {
+				LineString lineString = (LineString) multiLineString
+						.getGeometryN(i);
+				Coordinate[] path = lineString.getCoordinates();
+				JSONArray jsonpath = new JSONArray();
+				for (int j = 0; j < path.length; j++) {
+					JSONArray jsonpoint = new JSONArray();
+					jsonpoint.put(path[j].y);
+					jsonpoint.put(path[j].x);
+					jsonpath.put(jsonpoint);
+				}
+				jsonpaths.put(jsonpath);
+			}
+			jsongeometry.put("paths", jsonpaths);
+
+		} else if (geometry instanceof Polygon) {
+			Polygon polygon = (Polygon) geometry;
+			JSONArray jsonpaths = new JSONArray();
+			Coordinate[] ring = polygon.getCoordinates();
+			JSONArray jsonpath = new JSONArray();
+			for (int j = 0; j < ring.length; j++) {
+				JSONArray jsonpoint = new JSONArray();
+				jsonpoint.put(ring[j].y);
+				jsonpoint.put(ring[j].x);
+				jsonpath.put(jsonpoint);
+			}
+			jsonpaths.put(jsonpath);
+			jsongeometry.put("rings", jsonpaths);
+
+		} else if (geometry instanceof MultiPolygon) {
+			MultiPolygon multiPolygon = (MultiPolygon) geometry;
+			int num = multiPolygon.getNumGeometries();
+			JSONArray jsonpaths = new JSONArray();
+			for (int i = 0; i < num; i++) {
+				Polygon polygon = (Polygon) multiPolygon.getGeometryN(i);
+				Coordinate[] ring = polygon.getExteriorRing().getCoordinates();
+				JSONArray jsonpath = new JSONArray();
+				for (int j = 0; j < ring.length; j++) {
+					JSONArray jsonpoint = new JSONArray();
+					jsonpoint.put(ring[j].y);
+					jsonpoint.put(ring[j].x);
+					jsonpath.put(jsonpoint);
+				}
+				jsonpaths.put(jsonpath);
+			}
+			jsongeometry.put("rings", jsonpaths);
+		}
+
+		return jsongeometry;
+	}
+
 	/**
 	 * @param args
 	 * @throws JSONException
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws JSONException, IOException {
-		String fileName = "map/5.json";
-		EsriJSONParser parser = new EsriJSONParser(fileName);
-		EsriFeatureObj[] features = parser.getFeatures();
+		String fileName = "map/44.json";
+		// String fileName = "test.txt";
+		EsriJSONParser parser = new EsriJSONParser();
+		EsriFeatureObj[] features = parser.read(fileName);
+		System.out.println(features[0].geometry.getNumPoints());
 
-		System.out.println(features[0].geometry);
+		parser.write(features, "test.txt");
+
+		EsriFeatureObj[] features2 = parser.read("test.txt");
+		System.out.println(features2[0].geometry.getNumPoints());
 	}
 }

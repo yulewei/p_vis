@@ -11,6 +11,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 
 import edu.zjut.common.data.geo.EsriFeatureObj;
 
@@ -44,6 +45,10 @@ public class EsriLayer extends Overlay {
 						(MultiLineString) feature.geometry, feature.name);
 			} else if (feature.geometry instanceof MultiPolygon) {
 				overlays[i] = new MapPolygon((MultiPolygon) feature.geometry,
+						feature.name);
+			}
+			else if (feature.geometry instanceof Polygon) {
+				overlays[i] = new MapPolygon((Polygon) feature.geometry,
 						feature.name);
 			}
 		}

@@ -1,5 +1,7 @@
 package edu.zjut.common.data.geo;
 
+import com.vividsolutions.jts.geom.Geometry;
+
 public class GeoLayer {
 
 	private String layerName;
@@ -24,6 +26,18 @@ public class GeoLayer {
 
 	public void setFeatures(EsriFeatureObj[] features) {
 		this.features = features;
+	}
+
+	public Geometry getGeometry(String geoName) {
+		Geometry geometry = null;
+		for (EsriFeatureObj feature : features) {
+			if (geoName.equals(feature.name)) {
+				geometry = feature.geometry;
+				break;
+			}
+		}
+
+		return geometry;
 	}
 
 	public String toString() {

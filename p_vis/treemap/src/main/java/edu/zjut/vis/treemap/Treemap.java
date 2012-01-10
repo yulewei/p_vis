@@ -137,8 +137,12 @@ public class Treemap extends JPanel implements DataSetListener,
 		DimensionField[] dimensionFeilds = attrData.getDimensionFields();
 		MeasureField[] measureFeilds = attrData.getMeasureFields();
 
+		// 地理相关feild
+		List<DimensionField> geoFeilds = new ArrayList<>();
 		for (DimensionField field : dimensionFeilds) {
 			hierFields.add(field);
+			if (field.isGeoName())
+				geoFeilds.add(field);
 		}
 
 		for (MeasureField field : measureFeilds) {
@@ -147,10 +151,64 @@ public class Treemap extends JPanel implements DataSetListener,
 			summariseFields.add(summariseField);
 		}
 
-		Object[][] rowArrays = attrData.getRowArrays();
+		// 添加地理相关SummariseField
+		int startIndex = attrData.getFields().length;
+		int len = geoFeilds.size();
+
+		MeasureField[] geoMeasureFields = new MeasureField[len * 2];
+		Object[][] geoColumnArrays = new Double[len * 2][];
+		for (int i = 0; i < geoFeilds.size(); i++) {
+			DimensionField field = geoFeilds.get(i);
+			MeasureField[] latlonFields = field.buildLatLonFields();
+
+			latlonFields[0].setColIdx(startIndex + 2 * i);
+			latlonFields[1].setColIdx(startIndex + 2 * i + 1);
+
+			geoMeasureFields[2 * i] = latlonFields[0];
+			geoMeasureFields[2 * i + 1] = latlonFields[1];
+
+			geoColumnArrays[2 * i] = latlonFields[0].getColumnValues();
+			geoColumnArrays[2 * i + 1] = latlonFields[1].getColumnValues();
+
+			SummariseField latFiled = SummariseField
+					.createSummaryField(latlonFields[0]);
+			SummariseField lonFiled = SummariseField
+					.createSummaryField(latlonFields[1]);
+
+			summariseFields.add(latFiled);
+			summariseFields.add(lonFiled);
+		}
+
+		DataField[] fields = attrData.getFields();
+		DataField[] newfields = new DataField[fields.length
+				+ geoMeasureFields.length];
+		for (int i = 0; i < fields.length; i++) {
+			newfields[i] = fields[i];
+		}
+		for (int i = 0; i < geoColumnArrays.length; i++) {
+			newfields[fields.length + i] = geoMeasureFields[i];
+		}
+
+		Object[][] columnArrays = attrData.getColumnArrays();
+		Object[][] newColumnArrays = new Object[columnArrays.length
+				+ geoColumnArrays.length][];
+		for (int i = 0; i < columnArrays.length; i++) {
+			newColumnArrays[i] = columnArrays[i];
+		}
+		for (int i = 0; i < geoColumnArrays.length; i++) {
+			newColumnArrays[columnArrays.length + i] = geoColumnArrays[i];
+		}
+
+		Object[][] rowArrays = attrData.transformRowArrays(newfields,
+				newColumnArrays);
 		for (Object[] row : rowArrays) {
 			records.add(row);
 		}
+
+		// Object[][] rowArrays = attrData.getRowArrays();
+		// for (Object[] row : rowArrays) {
+		// records.add(row);
+		// }
 	}
 
 	@Override

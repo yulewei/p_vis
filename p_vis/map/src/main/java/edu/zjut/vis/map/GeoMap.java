@@ -26,7 +26,10 @@ import edu.zjut.common.ctrl.FieldComponent.ColorEnum;
 import edu.zjut.common.ctrl.FieldImporter;
 import edu.zjut.common.data.DataSetForApps;
 import edu.zjut.common.data.attr.AttributeData;
+import edu.zjut.common.data.attr.DimensionField;
 import edu.zjut.common.data.attr.MeasureField;
+import edu.zjut.common.data.geo.EsriFeatureObj;
+import edu.zjut.common.data.geo.GeoLayer;
 import edu.zjut.common.data.geo.GeometryData;
 import edu.zjut.common.event.DataSetEvent;
 import edu.zjut.common.event.DataSetListener;
@@ -398,8 +401,9 @@ public class GeoMap extends JPanel implements DataSetListener,
 	}
 
 	public void updateMarkerList() {
-		HashMap<String, Point> nameGeometrys = geoData.getNameGeometrys();
-
+		DimensionField observationField = attrData.getObservationField();
+		GeoLayer geoData = observationField.getGeoData();
+		
 		mapPanel.clearOverlays();
 
 		indexMarkerMap = new HashMap<Integer, Overlay>();
@@ -409,7 +413,7 @@ public class GeoMap extends JPanel implements DataSetListener,
 		String[] observationNames = dataSet.getObservationNames();
 		for (int i = 0; i < observationNames.length; i++) {
 			String obs = observationNames[i];
-			Point geo = nameGeometrys.get(obs);
+			Point geo = (Point) geoData.getGeometry(obs);
 
 			Overlay marker = null;
 			switch (markerType) {
@@ -483,7 +487,6 @@ public class GeoMap extends JPanel implements DataSetListener,
 		return new SelectionEvent(this, mapPanel.selections);
 	}
 
-	
 	public void addIndicationListener(IndicationListener l) {
 		mapPanel.addIndicationListener(l);
 	}

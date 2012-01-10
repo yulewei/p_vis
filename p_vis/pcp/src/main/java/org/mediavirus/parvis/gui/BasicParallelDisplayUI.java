@@ -253,7 +253,7 @@ public class BasicParallelDisplayUI extends ParallelDisplayUI implements
 			brushImg = null;
 		}
 
-		if ((comp.getCurrentBrush() == null)) {// && (!inBrush)) {
+		if ((comp.getCurrentBrush() == null) && (!inBrush)) {
 			synchronized (bufferImg) {
 				g2.drawImage(bufferImg, 0, 0, comp);
 			}

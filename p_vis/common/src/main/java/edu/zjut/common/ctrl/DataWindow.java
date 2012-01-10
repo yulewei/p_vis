@@ -183,9 +183,11 @@ public class DataWindow extends JPanel implements DataSetListener {
 		dimensionList.setModel(dimensionModel);
 		measureList.setModel(measureModel);
 
-		List<GeoLayer> layers = geoData.getLayers();
 		DefaultListModel<GeoLayer> layerModel = new DefaultListModel<GeoLayer>();
-		for (GeoLayer layer : layers) {
+		for (GeoLayer layer : geoData.getGeoNames()) {
+			layerModel.addElement(layer);
+		}
+		for (GeoLayer layer : geoData.getLayers()) {
 			layerModel.addElement(layer);
 		}
 

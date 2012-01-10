@@ -155,7 +155,7 @@ public class AttributeData {
 		return transformRowArrays(dimensionFields, dimensions);
 	}
 
-	private Object[][] transformRowArrays(DataField[] fields,
+	public Object[][] transformRowArrays(DataField[] fields,
 			Object[][] columnArrays) {
 		int colSize = columnArrays.length;
 		int rowSize = columnArrays[0].length;
