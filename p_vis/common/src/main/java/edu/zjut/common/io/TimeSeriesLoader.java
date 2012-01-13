@@ -98,6 +98,9 @@ public class TimeSeriesLoader {
 			}
 		}
 
+		float value = (float) calcSummary(recordsGroup, summaryType);
+		timeSeries.add(curDate, value);
+		
 		return timeSeries;
 	}
 
@@ -140,6 +143,9 @@ public class TimeSeriesLoader {
 				recordsGroup.add(record);
 			}
 		}
+		
+		timeSeriesList.add(buildTimeSeries(recordsGroup, curGroup,
+				summaryType));
 
 		TimeSeriesCollection dataset = new TimeSeriesCollection(name,
 				summaryType);
