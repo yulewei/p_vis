@@ -43,7 +43,9 @@ public class DimensionField extends DataField {
 		return geoData;
 	}
 
-	// 地理名称对应的中心点, 构造纬度和经度两个MeasureField. 先纬度, 再经度
+	/**
+	 *  地理名称对应的中心点, 构造纬度和经度两个MeasureField. 先纬度, 再经度
+	 */
 	public MeasureField[] buildLatLonFields() {
 		if (isGeoName == false)
 			return null;

@@ -624,12 +624,13 @@ public class TreemapCtrlPanel extends JPanel {
 			if (filed1.getName().equals(geoField.getName())) {
 				latFiled = filed1;
 				lonFiled = filed2;
+				break;
 			}
 		}
 
 		orderModel.setElementAt(latFiled, index);
 		
-		// X 纬度(lon); Y 经度(lat)
+		// X 经度(lon); Y 纬度(lat)
 		orderFields[0][index] = lonFiled;
 		orderFields[1][index] = latFiled;
 

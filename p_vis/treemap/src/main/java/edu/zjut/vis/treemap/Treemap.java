@@ -9,10 +9,13 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.SwingConstants;
 
 import edu.zjut.common.data.DataSetForApps;
 import edu.zjut.common.data.attr.AttributeData;
@@ -40,6 +43,9 @@ public class Treemap extends JPanel implements DataSetListener,
 
 	private JToolBar jToolBar;
 	private JToggleButton sideBarTglbtn;
+	private JButton preHierBtn;
+	private JButton nextHierBtn;
+
 	private JSplitPane jSplitPane;
 	private TreemapCtrlPanel ctrlPanel;
 	// private PTreemap pTreemap;
@@ -103,6 +109,31 @@ public class Treemap extends JPanel implements DataSetListener,
 		});
 
 		jToolBar.add(sideBarTglbtn);
+
+		JSeparator separator1 = new JSeparator(SwingConstants.VERTICAL);
+		jToolBar.add(separator1);
+
+		// 对选择treemap哪一层节点的控制, 默认为最底层
+		preHierBtn = new JButton();
+		preHierBtn
+				.setIcon(new ImageIcon(getClass().getResource("previous.png")));
+		preHierBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+
+			}
+		});
+
+		nextHierBtn = new JButton();
+		nextHierBtn
+				.setIcon(new ImageIcon(getClass().getResource("next.png")));
+		nextHierBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+
+			}
+		});
+		
+		jToolBar.add(preHierBtn);
+		jToolBar.add(nextHierBtn);
 	}
 
 	@Override
