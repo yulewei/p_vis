@@ -13,7 +13,7 @@
 					</location>
 					<size>
 						<width>160</width>
-						<height>450</height>
+						<height>480</height>
 					</size>
 				</internalFrame>
 				<zOrder>4</zOrder>
@@ -32,7 +32,7 @@
 					</location>
 					<size>
 						<width>560</width>
-						<height>450</height>
+						<height>480</height>
 					</size>
 				</internalFrame>
 				<zOrder>3</zOrder>
@@ -51,7 +51,7 @@
 					</location>
 					<size>
 						<width>560</width>
-						<height>450</height>
+						<height>480</height>
 					</size>
 				</internalFrame>
 				<zOrder>2</zOrder>
@@ -66,11 +66,11 @@
 				<internalFrame>
 					<location>
 						<x>0</x>
-						<y>450</y>
+						<y>480</y>
 					</location>
 					<size>
 						<width>640</width>
-						<height>450</height>
+						<height>420</height>
 					</size>
 				</internalFrame>
 				<zOrder>0</zOrder>
@@ -85,11 +85,11 @@
 				<internalFrame>
 					<location>
 						<x>640</x>
-						<y>450</y>
+						<y>480</y>
 					</location>
 					<size>
 						<width>640</width>
-						<height>450</height>
+						<height>420</height>
 					</size>
 				</internalFrame>
 				<zOrder>1</zOrder>

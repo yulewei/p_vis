@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -46,6 +47,7 @@ public class TimeSeries extends JPanel implements DataSetListener {
 	private JPanel plotPanel;
 	private PTimeSeries pTimeSeries;
 	private ColorSchemePicker schemePicker;
+	private JPanel legendPanel;
 	private Legend legend;
 
 	private JToolBar jToolBar;
@@ -95,6 +97,13 @@ public class TimeSeries extends JPanel implements DataSetListener {
 
 //		pTimeSeries.add(schemePicker, BorderLayout.CENTER);
 
+		legendPanel = new JPanel();
+		legendPanel.setLayout(new BorderLayout());
+		legendPanel.setBackground(Color.white);
+		legendPanel.setPreferredSize(new Dimension(100, 50));
+		legendPanel.setBorder(BorderFactory.createEmptyBorder(5, 40, 2, 40));
+		plotPanel.add(legendPanel, BorderLayout.SOUTH);
+
 		legend = new Legend();
 		legend.addLegendActionListener(new LegendActionListener() {
 			@Override
@@ -105,7 +114,7 @@ public class TimeSeries extends JPanel implements DataSetListener {
 //				schemePicker.requestFocus();
 			}
 		});
-		plotPanel.add(legend, BorderLayout.SOUTH);
+		legendPanel.add(legend, BorderLayout.CENTER);
 
 		ctrlPanel = new TimeCtrlPanel(this, pTimeSeries);
 		jSplitPane.add(ctrlPanel, JSplitPane.LEFT);
